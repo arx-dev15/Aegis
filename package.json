@@ -1,0 +1,36 @@
+{
+  "name": "project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+
+  "scripts": {
+    "dev": "tsx apps/api/server.ts",
+    "build": "tsc",
+    "start": "node dist/apps/api/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arx-dev15/Aegis.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/arx-dev15/Aegis/issues"
+  },
+  "homepage": "https://github.com/arx-dev15/Aegis#readme",
+  "dependencies": {
+    "@langchain/core": "^1.2.5",
+    "@langchain/google-genai": "^2.2.0",
+    "@langchain/langgraph": "^1.4.9",
+    "dotenv": "^17.4.2",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "tsx": "^4.23.12",
+    "typescript": "^7.0.2"
+  }
+}
