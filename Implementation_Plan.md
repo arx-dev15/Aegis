@@ -1,3 +1,33 @@
+
+Aegis = Autonomous AI Engineering Operating System
+
+A user gives Aegis a software task, and Aegis can understand → plan → research → design → implement → test → review → get approval → execute.
+
+Core user flow
+User gives task
+      ↓
+Understand project
+      ↓
+Plan
+      ↓
+Research
+      ↓
+Architecture
+      ↓
+Implementation
+      ↓
+Testing
+      ↓
+Code Review
+      ↓
+Security Review
+      ↓
+Human Approval
+      ↓
+Execute
+      ↓
+Report
+
 PHASE 1 — Gemini + LangChain
 
 Our first mini-system:
