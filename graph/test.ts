@@ -78,6 +78,8 @@ async function runTests(): Promise<void> {
       },
       errors: [],
       status: "testing",
+      retryCount: 0,
+      maxRetries: 3,
     };
 
     if (sampleState.status !== "testing") {

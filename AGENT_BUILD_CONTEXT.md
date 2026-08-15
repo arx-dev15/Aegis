@@ -274,9 +274,9 @@ Build the agentic system in this order.
 ## LANGGRAPH ENGINE
 
 [x] Feature 05 — LangGraph State
-[ ] Feature 06 — Nodes + Edges + Routing
-[ ] Feature 07 — Single-Agent Graph
-[ ] Feature 08 — Loops + Retries + Error Handling
+[x] Feature 06 — Nodes + Edges + Routing
+[x] Feature 07 — Single-Agent Graph
+[x] Feature 08 — Loops + Retries + Error Handling
 
 ## AEGIS AGENTS
 
@@ -335,14 +335,17 @@ Build the agentic system in this order.
 [x] Feature 03 — Tool System
 [x] Feature 04 — First Tool-Calling Agent
 [x] Feature 05 — LangGraph State
+[x] Feature 06 — Nodes + Edges + Routing
+[x] Feature 07 — Single-Agent Graph
+[x] Feature 08 — Loops + Retries + Error Handling
 
 ## Currently Building
 
-Feature 06 — Nodes + Edges + Routing
+Feature 09 — Planner Agent
 
 ## Next
 
-Feature 07 — Single-Agent Graph
+Feature 10 — Researcher Agent
 
 ---
 
@@ -783,6 +786,50 @@ Also add a short entry:
 - Exports `AegisState` and `AegisStateUpdate` types for node developers
 
 **Verification:** 2/2 tests passed — Annotation spec verification & state interface type compatibility
+
+### Feature 06 — LangGraph Nodes + Edges + Routing
+
+**Files created / modified:**
+- `graph/nodes/sampleNodes.ts` — Defined workflow nodes (`inputProcessorNode`, `taskExecuterNode`, `errorHandlerNode`) reading and updating Aegis state
+- `graph/edges/routing.ts` — Defined `routeAfterInput()` conditional edge function
+- `graph/workflow.ts` — Constructed and compiled `StateGraph(AegisStateAnnotation)` connecting `START`, processing nodes, conditional edges, and `END`
+- `graph/index.ts` — Re-exported graph nodes, edges, and workflow application
+- `graph/workflow.test.ts` — 2-test verification suite testing normal execution flow and conditional error routing
+
+**How it works:**
+- `StateGraph(AegisStateAnnotation)` connects processing nodes to state and evaluates conditional routing (`routeAfterInput`)
+- If state has errors or failed status, routes to `errorHandlerNode`; otherwise routes to `taskExecuterNode` and finishes at `END`
+
+**Verification:** 2/2 tests passed — success path & conditional error routing path
+
+### Feature 07 — Single-Agent Graph
+
+**Files created / modified:**
+- `graph/nodes/agentNode.ts` — Defined `toolAgentNode()` wrapping Feature 04 `runToolAgent()` as a LangGraph node
+- `graph/singleAgentWorkflow.ts` — Constructed and compiled Single-Agent `StateGraph(AegisStateAnnotation)` connecting `START` -> `agent` -> `END`
+- `graph/index.ts` — Re-exported `agentNode.ts` and `singleAgentWorkflow.ts`
+- `graph/singleAgentWorkflow.test.ts` — 2-test verification suite (math task invoking tool through graph & general text task through graph)
+
+**How it works:**
+- Incoming task enters graph state -> `toolAgentNode` invokes `runToolAgent` with `[calculatorTool]` -> agent executes tool calls if needed -> updates graph state (`research: result.text`, `status: "completed"`) -> graph finishes at `END`
+
+**Verification:** 2/2 tests passed — end-to-end math task tool execution (35 * 14 = 490) & general prompt response
+
+### Feature 08 — Loops, Retries & Error Handling
+
+**Files created / modified:**
+- `graph/state.ts` — Added `retryCount` and `maxRetries` annotation fields
+- `graph/nodes/resilientNodes.ts` — Defined `resilientExecutorNode` and `resilientErrorHandlerNode`
+- `graph/edges/retryRouting.ts` — Defined `routeWithRetryLimit()` conditional edge function
+- `graph/resilientWorkflow.ts` — Constructed and compiled `StateGraph(AegisStateAnnotation)` with retry loops and terminal failure states
+- `graph/index.ts` — Re-exported resilient nodes, retry routing, and resilient workflow
+- `graph/resilientWorkflow.test.ts` — 3-test verification suite (successful execution path, recoverable retry loop path, max retry limit terminal failure path)
+
+**How it works:**
+- If execution encounters errors, node increments `retryCount` and appends to `errors`
+- Conditional routing `routeWithRetryLimit` checks `retryCount < maxRetries`: loops back to `resilientExecutor` for retry if under limit, or routes to `resilientErrorHandler` if limit reached
+
+**Verification:** 3/3 tests passed — direct success path (0 retries), recoverable loop path (recovered on attempt 3), and max retries limit terminal failure path (failed after 3 retries)
 
 ---
 

@@ -108,6 +108,18 @@ export const AegisStateAnnotation = Annotation.Root({
     reducer: (_, update) => update,
     default: () => "idle",
   }),
+
+  /** Current retry attempt count for loop/retry control */
+  retryCount: Annotation<number>({
+    reducer: (_, update) => update,
+    default: () => 0,
+  }),
+
+  /** Maximum allowed retry attempts */
+  maxRetries: Annotation<number>({
+    reducer: (_, update) => update,
+    default: () => 3,
+  }),
 });
 
 /** Full read state type for nodes */
