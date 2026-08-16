@@ -11,8 +11,10 @@ This file is the source of truth for:
 - current feature
 - remaining features
 - architecture constraints
+- product direction
 - coding standards
 - integration rules
+- lessons worth adopting from other agent runtimes
 - things that must never be broken
 
 Update this file AFTER every completed feature.
@@ -23,12 +25,13 @@ Update this file AFTER every completed feature.
 
 Aegis is an AI Engineering Operating System.
 
-The long-term goal is to build an agentic software-engineering system that can:
+The goal is NOT to build another Claude Code clone or another generic chatbot.
 
-Understand → Plan → Research → Architect → Implement → Test → Review → Secure → Ask for Approval → Execute
+Aegis should be a software-engineering runtime that can:
 
-The project uses:
+Understand → Plan → Research → Architect → Implement → Test → Review → Secure → Ask for Approval → Execute → Verify → Learn
 
+Aegis combines:
 - TypeScript
 - Node.js
 - React
@@ -42,12 +45,83 @@ The project uses:
 - MCP
 - Evaluation
 - Observability
+- CLI/runtime integration
 
 The implementation should remain understandable to a student developer while still following good engineering practices.
 
+Core mental model:
+
+CHATBOT:
+Input → Output
+
+AGENT:
+Goal → Reason → Action → Observation → Reason → Action → Result
+
+AEGIS:
+Goal
+ ↓
+Project Understanding
+ ↓
+Planning
+ ↓
+Specialized Agents
+ ↓
+Tools / External Systems
+ ↓
+Observation + State
+ ↓
+Verification
+ ↓
+Reflection / Recovery
+ ↓
+Memory / Skills
+ ↓
+Result
+
 ---
 
-# 2. LOCKED ARCHITECTURE
+# 2. PRODUCT DIRECTION — LOCKED
+
+Aegis must be DIFFERENT from Coding Harness, Hermes, Athena, Claude Code, OpenHands, etc.
+
+We may learn engineering concepts from them.
+
+We MUST NOT copy their implementation, architecture, naming, or product identity.
+
+Coding Harness is primarily an autonomous coding/execution harness.
+
+Aegis is an AI Engineering Operating System.
+
+Coding is one important capability inside Aegis, not the entire identity.
+
+Aegis should eventually provide:
+
+- Project intelligence
+- Specialized engineering agents
+- LangGraph orchestration
+- Tool execution
+- RAG/project knowledge
+- Short-term and long-term memory
+- Procedural skills
+- Human approval
+- Safe execution
+- GitHub integration
+- Terminal/sandbox execution
+- MCP
+- Evaluation
+- Observability
+- Web UI
+- API
+- First-class CLI
+- Full end-to-end engineering workflows
+
+Product principle:
+
+"Build a runtime in which AI can perform software engineering responsibly."
+
+---
+
+# 3. LOCKED ARCHITECTURE
 
 DO NOT redesign this architecture unless there is a genuine technical reason
 and the change is explicitly approved.
@@ -123,11 +197,14 @@ aegis/
 │
 └── package.json
 
+IMPORTANT:
+The existing frontend/backend/UI/API architecture is already working.
+
+Do not replace it simply to make the agentic architecture look cleaner.
+
 ---
 
-# 3. EXISTING APPLICATION
-
-IMPORTANT:
+# 4. EXISTING APPLICATION
 
 Aegis is NOT an empty project.
 
@@ -149,12 +226,11 @@ Always inspect the current implementation before changing it.
 
 ---
 
-# 4. NON-DESTRUCTIVE DEVELOPMENT RULE
+# 5. NON-DESTRUCTIVE DEVELOPMENT RULE
 
 Every feature must be additive and integrated into the existing system.
 
 NEVER:
-
 - Delete working functionality
 - Rewrite the application unnecessarily
 - Replace existing architecture
@@ -169,7 +245,6 @@ NEVER:
 - Modify unrelated features
 
 ALWAYS:
-
 1. Inspect existing code first.
 2. Understand existing patterns.
 3. Reuse existing utilities/services/configuration.
@@ -181,15 +256,13 @@ ALWAYS:
 9. Verify existing functionality was not broken.
 
 If an existing implementation conflicts with the planned feature,
-prefer adapting/integrating with the existing implementation instead of
-replacing it.
+adapt/integrate instead of replacing it.
 
 ---
 
-# 5. CODING STYLE
+# 6. CODING STYLE
 
 Code must be:
-
 - TypeScript-first
 - Simple
 - Clean
@@ -200,7 +273,6 @@ Code must be:
 - Efficient without being over-engineered
 
 Prefer:
-
 - Small functions
 - Clear names
 - Explicit data flow
@@ -208,7 +280,6 @@ Prefer:
 - Reusable code only where actually needed
 
 Avoid:
-
 - Unnecessary classes
 - Factory patterns without a real need
 - Excessive abstraction
@@ -219,13 +290,15 @@ Avoid:
 - Unnecessary dependencies
 - Over-engineering
 
-The goal is:
+Rule:
 
 "Production-aware but understandable."
 
+Move quickly, but do not skip important engineering.
+
 ---
 
-# 6. AGENTIC CORE OWNERSHIP
+# 7. AGENTIC CORE OWNERSHIP
 
 The agentic core is the most important part of Aegis.
 
@@ -240,10 +313,9 @@ models/
 evaluation/
 observability/
 
-Do NOT hide the important agentic logic behind excessive abstractions.
+Do NOT hide important agentic logic behind excessive abstractions.
 
-The developer should be able to clearly understand:
-
+The developer should clearly understand:
 - How the LLM is called
 - How structured output works
 - How tools work
@@ -257,12 +329,555 @@ The developer should be able to clearly understand:
 - How RAG works
 - How human approval works
 - How evaluation works
+- How traces and observability work
 
 ---
 
-# 7. AGENT BUILD ORDER
+# 8. WHAT AEGIS SHOULD LEARN FROM CODING HARNESS
 
-Build the agentic system in this order.
+We learn concepts, NOT implementation.
+
+## 8.1 Context Engineering
+
+Learn:
+- Context is a limited resource.
+- Tool results should not blindly accumulate forever.
+- Stale file reads should be invalidated after mutations.
+- Repeated/redundant context should be compacted.
+- Large histories should eventually be summarized.
+- Project instructions should be available as persistent context.
+
+Aegis equivalent:
+RAG + memory + context builder + state-aware context management.
+
+Do NOT blindly copy a context-manager implementation.
+
+---
+
+## 8.2 Session Persistence
+
+Learn:
+- Agent runs should survive process restarts.
+- Sessions need stable IDs.
+- Execution history should be reconstructable.
+- Checkpoints are useful.
+- Branching/rewinding can be valuable later.
+
+Aegis equivalent:
+LangGraph state/checkpointing + database/session runtime.
+
+Do NOT copy JSONL tree storage just because Coding Harness uses it.
+
+---
+
+## 8.3 Tool Registry
+
+Learn:
+- Tools need clear schemas.
+- Tools need metadata.
+- Read-only and mutating tools should be distinguishable.
+- Tool execution should be observable.
+- Tool permissions should be explicit.
+
+Aegis already has the foundation for this.
+
+---
+
+## 8.4 Permission / Safety Engine
+
+Learn:
+LLM output should NOT directly control dangerous actions.
+
+Concept:
+
+LLM proposes
+ ↓
+Policy / Permission Layer
+ ↓
+Allow / Review / Deny
+ ↓
+Execute
+
+Important for:
+- file deletion
+- terminal commands
+- database mutations
+- Git push
+- deployment
+- external side effects
+
+This is a core Aegis principle.
+
+---
+
+## 8.5 Parallel Tool Execution
+
+Learn:
+Independent tool calls can sometimes execute concurrently.
+
+Use parallel execution only when:
+- operations are independent
+- ordering does not matter
+- safety rules allow it
+
+Do not parallelize everything blindly.
+
+---
+
+## 8.6 User Steering
+
+Learn:
+A running agent should eventually be interruptible and steerable.
+
+Example:
+
+Agent running
+ ↓
+User interrupts
+ ↓
+Agent pauses safely
+ ↓
+User gives instruction
+ ↓
+Agent resumes with updated state
+
+This belongs in the runtime/CLI stage.
+
+---
+
+## 8.7 Sub-Agent Isolation
+
+Learn:
+Sub-agents should have:
+- clear task scope
+- restricted tools
+- limited context
+- bounded depth
+- explicit results
+
+Avoid unlimited recursive delegation.
+
+Aegis should use the task graph rather than uncontrolled recursion.
+
+---
+
+## 8.8 Headless Execution
+
+Learn:
+Agent systems should work without interactive UI.
+
+Aegis should eventually support:
+- CLI interactive mode
+- headless task mode
+- automation/CI usage
+
+The same core runtime should power all interfaces.
+
+---
+
+## 8.9 Provider Abstraction
+
+Learn:
+Do not make the whole system depend on one provider.
+
+Aegis currently uses Gemini as the primary model layer.
+
+The architecture should still keep model access isolated enough that another provider can be introduced later without rewriting agents.
+
+Do not implement multiple providers prematurely.
+
+---
+
+## 8.10 Observability
+
+Learn:
+An agent system must make its behavior inspectable.
+
+Track eventually:
+- agent runs
+- graph transitions
+- LLM calls
+- tool calls
+- latency
+- tokens
+- retries
+- errors
+- approvals
+- costs
+- final outcomes
+
+Observability is not just logging.
+It should explain WHY an agent run behaved the way it did.
+
+---
+
+# 9. ADDITIONAL AGENT-SYSTEM CONCEPTS TO ADOPT
+
+These are important concepts seen across strong agent runtimes and should influence Aegis design.
+
+## 9.1 Memory ≠ Skill
+
+MEMORY:
+"What happened / what is known."
+
+SKILL:
+"How to perform a repeatable task."
+
+Aegis must keep this distinction.
+
+Memory:
+- project facts
+- previous decisions
+- execution history
+- useful learned information
+
+Skills:
+- reusable procedures
+- workflows
+- engineering practices
+- successful task recipes
+
+Do not mix both into one giant vector database.
+
+---
+
+## 9.2 Procedural Skills
+
+Eventually Aegis should support:
+
+skills/
+  testing.md
+  react-feature.md
+  api-debugging.md
+  database-migration.md
+  security-review.md
+
+A skill describes:
+- when it applies
+- prerequisites
+- procedure
+- expected output
+- failure modes
+
+Skills should be reusable, not random prompt files.
+
+---
+
+## 9.3 Specialized Coding Environment
+
+The Developer Agent should eventually have a controlled engineering environment:
+
+Developer
+ ↓
+Inspect repository
+ ↓
+Plan changes
+ ↓
+Modify code
+ ↓
+Run tests
+ ↓
+Observe failures
+ ↓
+Repair
+ ↓
+Run tests again
+ ↓
+Review diff
+ ↓
+Approval
+ ↓
+Commit/merge
+
+Do not treat "coding" as a single magical tool call.
+
+---
+
+## 9.4 Task Graph / Delegation
+
+A complex mission should become a structured task graph.
+
+Example:
+
+MISSION
+├── Research
+│   ├── Inspect repository
+│   ├── Search documentation
+│   └── Identify constraints
+│
+├── Architecture
+│   ├── Design solution
+│   └── Identify risks
+│
+├── Implementation
+│   ├── Backend
+│   └── Frontend
+│
+└── Verification
+    ├── Tests
+    ├── Review
+    └── Security
+
+Each task should eventually have:
+- owner
+- status
+- dependencies
+- artifacts
+- retries
+- result
+- confidence
+
+LangGraph remains the orchestration layer.
+
+---
+
+## 9.5 Reflection / Verification
+
+Aegis should not consider:
+
+"LLM said it worked"
+
+as verification.
+
+Instead:
+
+Action
+ ↓
+Observation
+ ↓
+Test / Evidence
+ ↓
+Evaluate
+ ↓
+Accept / Retry / Redirect
+
+Verification should be evidence-based.
+
+---
+
+## 9.6 World / Project Model
+
+Eventually Aegis should understand relationships between:
+
+- projects
+- repositories
+- files
+- modules
+- APIs
+- databases
+- tasks
+- agents
+- decisions
+- dependencies
+- tests
+- failures
+
+This does NOT mean introducing a graph database immediately.
+
+Start with simple structured state and project knowledge.
+
+---
+
+# 10. THINGS WE WILL NOT COPY FROM CODING HARNESS
+
+Do NOT make Aegis:
+- a Coding Harness clone
+- a Claude Code clone
+- a generic terminal wrapper
+- a giant context-management framework
+- a collection of unrelated tools
+- an unlimited recursive agent system
+- a giant "self-learning" system before the fundamentals work
+
+Do NOT copy:
+- its folder structure
+- its session storage implementation
+- its naming
+- its CLI UX
+- its provider implementation
+- its permission implementation
+
+We learn the underlying engineering ideas and build our own implementation around Aegis's architecture.
+
+---
+
+# 11. LANGGRAPH PRINCIPLES
+
+LangGraph is the orchestration layer.
+
+Use it for:
+- Shared state
+- Nodes
+- Edges
+- Conditional routing
+- Loops
+- Retries
+- Human approval
+- Multi-agent workflows
+- Checkpointing where appropriate
+
+Do not use LangGraph merely because it exists.
+
+Use normal functions when a graph is unnecessary.
+
+The graph should represent meaningful execution logic.
+
+---
+
+# 12. TOOL PRINCIPLES
+
+Tools must have:
+- Clear purpose
+- Clear input schema
+- Clear output
+- Proper validation
+- Safe execution
+
+Dangerous tools require stronger controls.
+
+Examples:
+- filesystem
+- terminal
+- database
+- GitHub
+- browser
+
+Never allow an agent to blindly execute destructive actions.
+
+---
+
+# 13. HUMAN APPROVAL
+
+Actions such as:
+- destructive file operations
+- production changes
+- database migrations
+- pushing code
+- deployment
+- potentially dangerous terminal commands
+
+should support human approval.
+
+The agent must be able to pause and resume.
+
+Approval must happen outside the LLM's own decision logic.
+
+---
+
+# 14. RAG PRINCIPLES
+
+RAG should provide useful project context.
+
+Pipeline:
+
+Documents
+→ Load
+→ Chunk
+→ Embed
+→ Store
+→ Retrieve
+→ Agent Context
+
+Use retrieval where project/external knowledge is actually required.
+
+Do not add RAG everywhere blindly.
+
+---
+
+# 15. MEMORY PRINCIPLES
+
+Short-term memory:
+Current execution/task context.
+
+Long-term memory:
+Useful persistent project knowledge, decisions and history.
+
+Procedural memory / skills:
+Reusable ways of performing tasks.
+
+These are related but must remain conceptually separate.
+
+Do not store everything.
+
+---
+
+# 16. EVALUATION PRINCIPLES
+
+Aegis must eventually evaluate agents using evidence rather than subjective output alone.
+
+Evaluate:
+- task success
+- tool correctness
+- structured output validity
+- routing correctness
+- retry behavior
+- final result quality
+- regression rate
+- cost
+- latency
+- safety violations
+
+Do not build an elaborate evaluation platform before the core workflow works.
+
+---
+
+# 17. OBSERVABILITY
+
+Eventually track:
+
+- Agent runs
+- LLM calls
+- Tool calls
+- Tokens
+- Latency
+- Errors
+- Retries
+- State transitions
+- Costs
+- Approvals
+- Outcomes
+
+The purpose is to understand and debug agent behavior.
+
+---
+
+# 18. CLI / RUNTIME PRINCIPLES
+
+Aegis should eventually have a first-class CLI.
+
+The CLI is NOT a separate agent implementation.
+
+Architecture:
+
+CLI
+ │
+Web
+ │
+API
+ ↓
+Aegis Core Runtime
+ ↓
+LangGraph / Agents / Tools
+
+All interfaces must use the same core.
+
+The CLI should eventually support:
+- interactive sessions
+- task execution
+- session resume
+- agent progress
+- tool activity
+- approval prompts
+- headless mode
+- CI/automation usage
+
+Bun may be used where it genuinely improves the CLI/runtime experience, but do not introduce Bun unnecessarily into the existing application.
+
+---
+
+# 19. AGENT BUILD ORDER
+
+Build ONE feature at a time.
 
 ## FOUNDATION
 
@@ -280,7 +895,7 @@ Build the agentic system in this order.
 
 ## AEGIS AGENTS
 
-[ ] Feature 09 — Planner Agent
+[x] Feature 09 — Planner Agent
 [ ] Feature 10 — Researcher Agent
 [ ] Feature 11 — Architect Agent
 [ ] Feature 12 — Developer Agent
@@ -293,40 +908,50 @@ Build the agentic system in this order.
 [ ] Feature 16 — Full Aegis Multi-Agent Workflow
 [ ] Feature 17 — Agent Routing + Conditional Execution
 [ ] Feature 18 — Failure Recovery + Iteration Loops
+[ ] Feature 19 — Task Dependencies + Delegation
 
 ## KNOWLEDGE + MEMORY
 
-[ ] Feature 19 — RAG Pipeline
-[ ] Feature 20 — Project Knowledge Retrieval
-[ ] Feature 21 — Short-Term Memory
-[ ] Feature 22 — Long-Term Memory
+[ ] Feature 20 — RAG Pipeline
+[ ] Feature 21 — Project Knowledge Retrieval
+[ ] Feature 22 — Short-Term Memory
+[ ] Feature 23 — Long-Term Memory
+[ ] Feature 24 — Procedural Skills
 
 ## SAFETY + EXTERNAL SYSTEMS
 
-[ ] Feature 23 — Human-in-the-Loop
-[ ] Feature 24 — Tool Permissions / Guardrails
-[ ] Feature 25 — GitHub Integration
-[ ] Feature 26 — Terminal / Sandbox Execution
-[ ] Feature 27 — MCP Integration
+[ ] Feature 25 — Human-in-the-Loop
+[ ] Feature 26 — Tool Permissions / Guardrails
+[ ] Feature 27 — GitHub Integration
+[ ] Feature 28 — Terminal / Sandbox Execution
+[ ] Feature 29 — Browser Integration
+[ ] Feature 30 — MCP Integration
 
 ## QUALITY
 
-[ ] Feature 28 — Agent Evaluation
-[ ] Feature 29 — Benchmarking
-[ ] Feature 30 — Observability
-[ ] Feature 31 — Cost / Token Tracking
-[ ] Feature 32 — Failure / Trace Analysis
+[ ] Feature 31 — Agent Evaluation
+[ ] Feature 32 — Benchmarking
+[ ] Feature 33 — Observability
+[ ] Feature 34 — Cost / Token Tracking
+[ ] Feature 35 — Failure / Trace Analysis
 
-## FINAL INTEGRATION
+## RUNTIME + INTEGRATION
 
-[ ] Feature 33 — Connect Agent Core to Existing Backend
-[ ] Feature 34 — Connect Live Agent State to Frontend
-[ ] Feature 35 — Full Aegis End-to-End Workflow
-[ ] Feature 36 — Production Hardening
+[ ] Feature 36 — Aegis CLI Foundation
+[ ] Feature 37 — Session Runtime / Resume
+[ ] Feature 38 — Headless / Automation Mode
+[ ] Feature 39 — Connect Agent Core to Existing Backend
+[ ] Feature 40 — Connect Live Agent State to Frontend
+[ ] Feature 41 — Full Aegis End-to-End Workflow
+[ ] Feature 42 — Production Hardening
+
+IMPORTANT:
+The exact implementation order may change only when a genuine dependency requires it.
+Do not add random features simply because they are interesting.
 
 ---
 
-# 8. CURRENT PROGRESS
+# 20. CURRENT PROGRESS
 
 ## Completed
 
@@ -338,25 +963,26 @@ Build the agentic system in this order.
 [x] Feature 06 — Nodes + Edges + Routing
 [x] Feature 07 — Single-Agent Graph
 [x] Feature 08 — Loops + Retries + Error Handling
+[x] Feature 09 — Planner Agent
 
 ## Currently Building
 
-Feature 09 — Planner Agent
+Feature 10 — Researcher Agent
 
 ## Next
 
-Feature 10 — Researcher Agent
+Feature 11 — Architect Agent
 
 ---
 
-# 9. FEATURE EXECUTION RULE
+# 21. FEATURE EXECUTION RULE
 
 Implement ONE feature at a time.
 
 For every feature:
 
 1. Read this file.
-2. Inspect the existing implementation.
+2. Inspect existing implementation.
 3. Identify exactly what already exists.
 4. Implement only the requested feature.
 5. Integrate with existing code.
@@ -364,23 +990,20 @@ For every feature:
 7. Run TypeScript/build checks.
 8. Run the application.
 9. Test the feature.
-10. Check that existing functionality still works.
+10. Check existing functionality still works.
 11. Update this file.
-12. Mark the completed feature `[x]`.
-13. Update "Currently Building".
-14. Update "Next".
-15. Report the files created/modified.
+12. Mark the completed feature [x].
+13. Update Currently Building.
+14. Update Next.
+15. Report files created/modified.
 
 ---
 
-# 10. FEATURE SCOPE RULE
+# 22. FEATURE SCOPE RULE
 
 A feature should be complete, not half-built.
 
-When implementing a feature, provide all required code for that feature.
-
 Do not leave:
-
 - TODO implementations
 - fake implementations
 - placeholder logic
@@ -388,53 +1011,48 @@ Do not leave:
 - incomplete functions
 - "implement later" sections
 
-unless the feature explicitly requires an external dependency that has not
-yet been built.
+unless the feature explicitly depends on a future external component.
 
 Do not prematurely implement future features.
 
 ---
 
-# 11. EXISTING CODE RULE
+# 23. EXISTING CODE RULE
 
 Before modifying an existing file:
-
 - Read it.
 - Understand it.
-- Preserve its current behavior.
+- Preserve current behavior.
 - Modify only what is necessary.
 
-If the required change is large or would affect unrelated functionality,
+If the required change is large or affects unrelated functionality,
 STOP and explain the conflict before making destructive changes.
 
 Do not silently rewrite working code.
 
 ---
 
-# 12. DEPENDENCY RULE
+# 24. DEPENDENCY RULE
 
 Before installing a package:
-
 1. Check package.json.
-2. Check whether the functionality already exists.
+2. Check whether functionality already exists.
 3. Reuse existing dependencies where possible.
 
-Do not install duplicate libraries for the same purpose.
+Do not install duplicate libraries.
 
 Keep dependencies minimal.
 
 ---
 
-# 13. TESTING RULE
+# 25. TESTING RULE
 
 Every completed feature must pass:
-
 - TypeScript/build check
 - Runtime check
 - Feature-specific test
 
 If tests already exist:
-
 - Run them.
 - Do not remove them.
 - Do not weaken them just to make the feature pass.
@@ -443,51 +1061,39 @@ Fix the implementation instead.
 
 ---
 
-# 14. GIT / PR RULE
+# 26. GIT / PR RULE
 
-Each feature should represent one clean logical change.
+Each feature represents one clean logical change.
 
 Commit format:
 
 feat: <feature>
 
-Example:
-
-feat: add Gemini model layer
-
 PR should contain:
 
 ## Summary
-
 What was added.
 
 ## Changes
-
 Files/features changed.
 
 ## Architecture
-
 Where the feature fits.
 
 ## Existing Functionality
-
 What was preserved.
 
 ## Verification
-
 Build/tests/runtime checks.
 
 ## Out of Scope
-
 What was intentionally not changed.
 
 ---
 
-# 15. AGENTIC DESIGN PRINCIPLES
+# 27. AGENTIC DESIGN PRINCIPLES
 
 Aegis should not be a collection of independent LLM calls.
-
-The goal is genuine agentic behavior.
 
 We want:
 
@@ -532,144 +1138,63 @@ Do not make every agent capable of doing everything.
 
 ---
 
-# 16. LANGGRAPH PRINCIPLES
+# 28. RELIABILITY PRINCIPLES
 
-LangGraph is the orchestration layer.
+The LLM must not control the entire system.
 
-Use it for:
+Use deterministic infrastructure underneath it.
 
-- Shared state
-- Nodes
-- Edges
-- Conditional routing
-- Loops
-- Retries
-- Human approval
-- Multi-agent workflows
-- Checkpointing where appropriate
+LLM proposes action
+ ↓
+Validation / Policy
+ ↓
+Allow / Review / Deny
+ ↓
+Execute
+ ↓
+Observe
+ ↓
+Verify
 
-Do not use LangGraph merely because it exists.
+Bound all agent execution.
 
-Use normal functions when a graph is unnecessary.
+Every important loop should have:
+- retry limits
+- step limits
+- error handling
+- clear terminal states
 
----
-
-# 17. TOOL PRINCIPLES
-
-Tools must have:
-
-- Clear purpose
-- Clear input schema
-- Clear output
-- Proper validation
-- Safe execution
-
-Dangerous tools require stronger controls.
-
-Examples:
-
-filesystem
-terminal
-database
-GitHub
-browser
-
-Never allow an agent to blindly execute destructive actions.
+No infinite autonomous loops.
 
 ---
 
-# 18. HUMAN APPROVAL
+# 29. PROJECT INTELLIGENCE
 
-Actions such as:
+Aegis should eventually understand:
 
-- destructive file operations
-- production changes
-- database migrations
-- pushing code
-- deployment
-- potentially dangerous terminal commands
+Repository
+├── architecture
+├── dependencies
+├── APIs
+├── database
+├── components
+├── tests
+├── documentation
+├── git history
+└── engineering decisions
 
-should eventually support human approval.
+Do not dump the whole repository into the model.
 
-The agent should be able to pause and resume rather than bypass approval.
-
----
-
-# 19. RAG PRINCIPLES
-
-RAG should provide useful project context.
-
-Pipeline:
-
-Documents
-→ Load
-→ Chunk
-→ Embed
-→ Store
-→ Retrieve
-→ Agent Context
-
-Do not add RAG everywhere blindly.
-
-Use retrieval where external/project knowledge is actually required.
+Use:
+- targeted inspection
+- retrieval
+- structured project metadata
+- memory
+- relevant tool results
 
 ---
 
-# 20. MEMORY PRINCIPLES
-
-Short-term memory:
-
-Current execution/task context.
-
-Long-term memory:
-
-Useful persistent project knowledge, decisions and history.
-
-Do not store everything.
-
----
-
-# 21. OBSERVABILITY
-
-Eventually track:
-
-- Agent runs
-- LLM calls
-- Tool calls
-- Tokens
-- Latency
-- Errors
-- Retries
-- State transitions
-- Costs
-
-The purpose is to understand and debug agent behavior.
-
----
-
-# 22. IMPORTANT ANTIGRAVITY INSTRUCTION
-
-When this file is provided as context:
-
-Treat it as project-level instructions.
-
-Do not blindly follow an instruction if it conflicts with the actual existing
-codebase.
-
-Inspect first.
-
-If the existing project differs from this document:
-
-- Preserve working functionality.
-- Identify the difference.
-- Make the smallest safe integration.
-- Report the difference.
-
-Never "fix" the architecture simply because the current code differs.
-
----
-
-# 23. FEATURE COMPLETION UPDATE
+# 30. FEATURE COMPLETION UPDATE
 
 After successfully completing a feature, update this file.
 
@@ -677,25 +1202,25 @@ Example:
 
 BEFORE:
 
-[ ] Feature 01 — Gemini Model Layer
-[ ] Feature 02 — Structured Output
+[x] Feature 08
+[ ] Feature 09
 
 CURRENTLY BUILDING:
-Feature 01 — Gemini Model Layer
+Feature 09
 
 NEXT:
-Feature 02 — Structured Output
+Feature 10
 
 AFTER:
 
-[x] Feature 01 — Gemini Model Layer
-[ ] Feature 02 — Structured Output
+[x] Feature 08
+[x] Feature 09
 
 CURRENTLY BUILDING:
-Feature 02 — Structured Output
+Feature 10
 
 NEXT:
-Feature 03 — Tool System
+Feature 11
 
 Also add a short entry:
 
@@ -703,137 +1228,174 @@ Also add a short entry:
 
 ### Feature 01 — Gemini Model Layer
 
-**Files created:**
-- `models/gemini/config.ts` — loads .env, validates GOOGLE_API_KEY on import
-- `models/gemini/model.ts` — GeminiConfig type, createModel() factory, gemini default export, getClient() singleton
-- `models/gemini/index.ts` — barrel index (public API)
-- `models/gemini/test.ts` — 5-test live verification script
-- `tsconfig.agentic.json` — TypeScript config for the agentic core (models/, agents/, graph/, etc.)
+Files created:
+- models/gemini/config.ts
+- models/gemini/model.ts
+- models/gemini/index.ts
+- models/gemini/test.ts
+- tsconfig.agentic.json
 
-**Root package.json updated:**
-- Added `@google/genai@2.17.1` (new Google Interactions SDK)
-- Root `npm install` completed (langchain packages now properly installed)
+Key decisions:
+- @google/genai is the current Gemini SDK.
+- Default model is gemini-3.5-flash based on the working API configuration.
+- Gemini access is isolated in the model layer.
 
-**Key decisions:**
-- `@langchain/google-genai@2.2.0` uses the deprecated `@google/generative-ai` SDK which is blocked for new API keys.
-- Switched to `@google/genai` (official new Interactions SDK from Google).
-- Default model set to `gemini-3.5-flash` (gemini-2.5-flash blocked for new API keys).
-- `@langchain/google-genai` is kept in package.json for future use when it supports the new SDK.
-
-**Verification:** 5/5 tests passed — imports, singleton client, model config, live API calls.
+Verification:
+5/5 tests passed.
 
 ### Feature 02 — Structured Output
 
-**Files created:**
-- `models/gemini/structured.ts` — `zodToGoogleSchema()` converter + `callStructured<T>()` + `stripNulls()` helper
-- `models/gemini/structured.test.ts` — 4-test live verification script
+Files created:
+- models/gemini/structured.ts
+- models/gemini/structured.test.ts
 
-**How it works:**
-- `zodToGoogleSchema()` converts a Zod schema to Google's Schema format (object, array, enum, optional, primitives)
-- `callStructured()` calls Gemini with `responseMimeType: "application/json"` + `responseSchema` for enforced structure
-- `stripNulls()` converts `null` → `undefined` before Zod parse (Google returns null for absent optional fields)
-- Single retry on transient 503/UNAVAILABLE errors
-- `callStructured` exported from `models/gemini/index.ts`
+Key decisions:
+- Zod schemas are converted into Gemini-compatible schemas.
+- Structured output is validated before being returned to agents.
 
-**Key decisions:**
-- `zodToGoogleSchema` uses `any` internally (Zod v4 `$ZodType`/`ZodType` split breaks `instanceof` narrowing)
-- Optional fields omit `nullable: true` — controlled via `required[]` omission instead
-- Builds directly on `getClient()` from Feature 01; Feature 01 was not modified
-
-**Verification:** 4/4 tests passed — flat object, nested+array, enum, optional field
+Verification:
+4/4 tests passed.
 
 ### Feature 03 — Tool System
 
-**Files created:**
-- `tools/types.ts` — Base tool types (`AegisToolOptions`, `StructuredTool`) and helper `createAegisTool()`
-- `tools/calculator/index.ts` — Calculator tool implementation supporting `add`, `subtract`, `multiply`, `divide` with Zod validation schema
-- `tools/calculator/test.ts` — Verification test suite (6 tests covering metadata, execution of all 4 operations, and error handling)
-- `tools/index.ts` — Top-level tools barrel export
+Files created:
+- tools/types.ts
+- tools/calculator/index.ts
+- tools/calculator/test.ts
+- tools/index.ts
 
-**How it works:**
-- `createAegisTool()` wraps LangChain's `tool()` utility to generate typed `StructuredTool` instances with Zod input validation
-- `calculatorTool` validates inputs using `CalculatorInputSchema` and executes mathematical operations
-- Direct logic `calculate()` function is exported for pure computations alongside the LangChain tool interface
+Key decisions:
+- Tools have explicit schemas and metadata.
+- LangChain tool interfaces are used without hiding execution logic.
 
-**Verification:** 6/6 tests passed — tool metadata, addition, subtraction, multiplication, division, and division-by-zero error handling
+Verification:
+6/6 tests passed.
 
 ### Feature 04 — First Tool-Calling Agent
 
-**Files created / modified:**
-- `agents/agent.ts` — `toolToFunctionDeclaration()` converter + `runToolAgent()` execution loop
-- `agents/index.ts` — Public barrel export for Aegis agent runner and types
-- `agents/test.ts` — 2-test verification suite (tool-required query & non-tool query)
-- `models/gemini/structured.ts` & `models/gemini/index.ts` — Exported `zodToGoogleSchema()` helper for tool declaration conversion
+Files created/modified:
+- agents/agent.ts
+- agents/index.ts
+- agents/test.ts
+- models/gemini/structured.ts
+- models/gemini/index.ts
 
-**How it works:**
-- `toolToFunctionDeclaration()` converts LangChain `StructuredTool` instances into Google GenAI function declarations
-- `runToolAgent()` initiates an LLM turn with available tool declarations:
-  - If no tool calls are requested, returns model's direct text response (1 step)
-  - If tool calls are requested, invokes each target tool with parsed args, sends `functionResponse` parts back to model context, and synthesizes final answer (2 steps)
+Key decisions:
+- Gemini function declarations are generated from tool schemas.
+- Agent executes tool calls and feeds observations back to the model.
 
-**Verification:** 2/2 tests passed — tool invocation (calculator query "45 * 12" => 540) and direct response (general query)
+Verification:
+2/2 tests passed.
 
 ### Feature 05 — LangGraph State
 
-**Files created:**
-- `graph/state.ts` — Defined `AegisStateAnnotation` using `Annotation.Root()` with 9 core workflow fields (`task`, `plan`, `research`, `architecture`, `codeChanges`, `testResults`, `reviewResults`, `errors`, `status`)
-- `graph/index.ts` — Public barrel export for Aegis graph state types and annotation
-- `graph/test.ts` — 2-test verification suite (Annotation schema verification & TypeScript type compatibility)
+Files created:
+- graph/state.ts
+- graph/index.ts
+- graph/test.ts
 
-**How it works:**
-- `AegisStateAnnotation` serves as the single shared source of truth across graph nodes and multi-agent workflows
-- Uses custom reducers (e.g. array concatenation for `errors` and `codeChanges`, string append for `research`) and default factory functions
-- Exports `AegisState` and `AegisStateUpdate` types for node developers
+Key decisions:
+- Shared Aegis state is the source of truth for graph execution.
 
-**Verification:** 2/2 tests passed — Annotation spec verification & state interface type compatibility
+Verification:
+2/2 tests passed.
 
 ### Feature 06 — LangGraph Nodes + Edges + Routing
 
-**Files created / modified:**
-- `graph/nodes/sampleNodes.ts` — Defined workflow nodes (`inputProcessorNode`, `taskExecuterNode`, `errorHandlerNode`) reading and updating Aegis state
-- `graph/edges/routing.ts` — Defined `routeAfterInput()` conditional edge function
-- `graph/workflow.ts` — Constructed and compiled `StateGraph(AegisStateAnnotation)` connecting `START`, processing nodes, conditional edges, and `END`
-- `graph/index.ts` — Re-exported graph nodes, edges, and workflow application
-- `graph/workflow.test.ts` — 2-test verification suite testing normal execution flow and conditional error routing
+Files created/modified:
+- graph/nodes/sampleNodes.ts
+- graph/edges/routing.ts
+- graph/workflow.ts
+- graph/index.ts
+- graph/workflow.test.ts
 
-**How it works:**
-- `StateGraph(AegisStateAnnotation)` connects processing nodes to state and evaluates conditional routing (`routeAfterInput`)
-- If state has errors or failed status, routes to `errorHandlerNode`; otherwise routes to `taskExecuterNode` and finishes at `END`
+Key decisions:
+- Nodes perform work.
+- Conditional edges determine execution paths.
 
-**Verification:** 2/2 tests passed — success path & conditional error routing path
+Verification:
+2/2 tests passed.
 
 ### Feature 07 — Single-Agent Graph
 
-**Files created / modified:**
-- `graph/nodes/agentNode.ts` — Defined `toolAgentNode()` wrapping Feature 04 `runToolAgent()` as a LangGraph node
-- `graph/singleAgentWorkflow.ts` — Constructed and compiled Single-Agent `StateGraph(AegisStateAnnotation)` connecting `START` -> `agent` -> `END`
-- `graph/index.ts` — Re-exported `agentNode.ts` and `singleAgentWorkflow.ts`
-- `graph/singleAgentWorkflow.test.ts` — 2-test verification suite (math task invoking tool through graph & general text task through graph)
+Files created/modified:
+- graph/nodes/agentNode.ts
+- graph/singleAgentWorkflow.ts
+- graph/index.ts
+- graph/singleAgentWorkflow.test.ts
 
-**How it works:**
-- Incoming task enters graph state -> `toolAgentNode` invokes `runToolAgent` with `[calculatorTool]` -> agent executes tool calls if needed -> updates graph state (`research: result.text`, `status: "completed"`) -> graph finishes at `END`
+Key decisions:
+- The tool-calling agent is executed as a LangGraph node.
 
-**Verification:** 2/2 tests passed — end-to-end math task tool execution (35 * 14 = 490) & general prompt response
+Verification:
+2/2 tests passed.
 
 ### Feature 08 — Loops, Retries & Error Handling
 
-**Files created / modified:**
-- `graph/state.ts` — Added `retryCount` and `maxRetries` annotation fields
-- `graph/nodes/resilientNodes.ts` — Defined `resilientExecutorNode` and `resilientErrorHandlerNode`
-- `graph/edges/retryRouting.ts` — Defined `routeWithRetryLimit()` conditional edge function
-- `graph/resilientWorkflow.ts` — Constructed and compiled `StateGraph(AegisStateAnnotation)` with retry loops and terminal failure states
-- `graph/index.ts` — Re-exported resilient nodes, retry routing, and resilient workflow
-- `graph/resilientWorkflow.test.ts` — 3-test verification suite (successful execution path, recoverable retry loop path, max retry limit terminal failure path)
+Files created/modified:
+- graph/state.ts
+- graph/nodes/resilientNodes.ts
+- graph/edges/retryRouting.ts
+- graph/resilientWorkflow.ts
+- graph/index.ts
+- graph/resilientWorkflow.test.ts
 
-**How it works:**
-- If execution encounters errors, node increments `retryCount` and appends to `errors`
-- Conditional routing `routeWithRetryLimit` checks `retryCount < maxRetries`: loops back to `resilientExecutor` for retry if under limit, or routes to `resilientErrorHandler` if limit reached
+Key decisions:
+- Retry state is explicit.
+- Retry routing is deterministic.
+- Maximum retries terminate safely.
 
-**Verification:** 3/3 tests passed — direct success path (0 retries), recoverable loop path (recovered on attempt 3), and max retries limit terminal failure path (failed after 3 retries)
+Verification:
+3/3 tests passed.
+
+### Feature 09 — Planner Agent
+
+Files created/modified:
+- agents/planner/schema.ts
+- agents/planner/planner.ts
+- agents/planner/index.ts
+- agents/planner/test.ts
+- agents/index.ts
+- graph/nodes/plannerNode.ts
+- graph/plannerWorkflow.ts
+- graph/plannerWorkflow.test.ts
+- graph/index.ts
+- AGENT_BUILD_CONTEXT.md
+
+Key decisions:
+- Unified schema and types in `types.ts` as single-source-of-truth using `z.infer`, re-exported in `schema.ts` for clean resolution.
+- Created `GeminiPlannerModel` bridging `PlannerAgent` with `callStructured` from Gemini model layer (`models/gemini/index.ts`).
+- Configured `PlannerAgent` to default to `GeminiPlannerModel` while preserving mock model dependency injection for tests.
+- Integrated `PlannerAgent` into LangGraph via `plannerNode` in `graph/nodes/plannerNode.ts`, mapping `PlannerResult` to `PlanStep[]` and updating `AegisState`.
+
+Verification:
+- TypeScript compilation (`npx tsc --project tsconfig.agentic.json --noEmit`): Passed with 0 errors.
+- Unit tests (`npx tsx agents/planner/test.ts`): Passed.
+- Workflow tests (`npx tsx graph/plannerWorkflow.test.ts`): 2/2 passed.
+- Feature 01–08 regression tests: All passed.
 
 ---
 
-# 24. FINAL RULE
+# 31. LOCKED AEGIS DIFFERENTIATORS
+
+Aegis should eventually stand out through:
+
+1. Specialized engineering agents rather than one general coding agent.
+2. LangGraph-based orchestration and explicit state.
+3. Project intelligence rather than raw file dumping.
+4. Evidence-based verification.
+5. Human approval for consequential actions.
+6. Memory + procedural skills as separate concepts.
+7. Task dependency graph and controlled delegation.
+8. Strong observability of agent behavior.
+9. Same core runtime exposed through Web, API and CLI.
+10. Safe recovery and iteration instead of blind autonomy.
+
+These are product-level goals, not excuses to over-engineer the current feature.
+
+---
+
+# 32. FINAL RULE
 
 Aegis is being built quickly, but NOT carelessly.
 
@@ -844,8 +1406,16 @@ Priorities:
 3. Keep code understandable.
 4. Keep architecture clean.
 5. Understand the agentic core.
-6. Move quickly to the next feature.
+6. Use proven agent-system concepts where they add real value.
+7. Keep Aegis distinct from Coding Harness and other runtimes.
+8. Move quickly to the next feature.
+9. Do not over-engineer.
+10. Do not skip important functionality just to move faster.
 
-Do not waste time implementing unnecessary things.
+When in doubt:
 
-Do not skip important functionality just to move faster.
+BUILD THE SIMPLEST CORRECT VERSION THAT PRESERVES THE ARCHITECTURE.
+
+Do not build a feature merely because another agent framework has it.
+
+Build it when it makes Aegis better.
