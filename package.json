@@ -7,7 +7,8 @@
     "dev": "tsx apps/api/server.ts",
     "build": "tsc",
     "start": "node dist/apps/api/server.js",
-    "test": "tsx testAll.ts"
+    "test": "tsx testAll.ts",
+    "demo": "tsx runDemo.ts"
   },
   "repository": {
     "type": "git",
