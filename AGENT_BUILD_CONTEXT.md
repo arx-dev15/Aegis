@@ -905,7 +905,7 @@ Build ONE feature at a time.
 
 ## MULTI-AGENT ORCHESTRATION
 
-[ ] Feature 16 — Full Aegis Multi-Agent Workflow
+[x] Feature 16 — Full Aegis Multi-Agent Workflow
 [ ] Feature 17 — Agent Routing + Conditional Execution
 [ ] Feature 18 — Failure Recovery + Iteration Loops
 [ ] Feature 19 — Task Dependencies + Delegation
@@ -970,14 +970,15 @@ Do not add random features simply because they are interesting.
 [x] Feature 13 — Tester Agent
 [x] Feature 14 — Reviewer Agent
 [x] Feature 15 — Security Agent
+[x] Feature 16 — Full Aegis Multi-Agent Workflow
 
 ## Currently Building
 
-Feature 16 — Full Aegis Multi-Agent Workflow
+Feature 17 — Agent Routing + Conditional Execution
 
 ## Next
 
-Feature 17 — Agent Routing + Conditional Execution
+Feature 18 — Failure Recovery + Iteration Loops
 
 ---
 
@@ -1541,6 +1542,27 @@ Verification:
 - Unit tests (`npx tsx agents/security/test.ts`): Passed.
 - Workflow tests (`npx tsx graph/securityWorkflow.test.ts`): 2/2 passed.
 - Feature 01–14 regression tests: All passed.
+
+### Feature 16 — Full Aegis Multi-Agent Workflow
+
+Files created/modified:
+- graph/nodes/multiAgentNodes.ts
+- graph/edges/multiAgentRouting.ts
+- graph/multiAgentWorkflow.ts
+- graph/multiAgentWorkflow.test.ts
+- graph/index.ts
+- tsconfig.json
+- AGENT_BUILD_CONTEXT.md
+
+Key decisions:
+- Connected all 7 specialized engineering agents (Planner, Researcher, Architect, Developer, Tester, Reviewer, Security) into a single LangGraph StateGraph orchestration workflow.
+- Created `retryLoopNode` to increment `retryCount` and record repair context before returning execution to `developer`.
+- Created conditional routing functions (`routeAfterPlanner`, `routeAfterResearcher`, `routeAfterArchitect`, `routeAfterDeveloper`, `routeAfterTester`, `routeAfterReviewer`, `routeAfterSecurity`) enabling feedback loop recovery when Tester, Reviewer, or Security finds issues, while respecting `maxRetries` limits.
+
+Verification:
+- TypeScript compilation (`npx tsc --project tsconfig.agentic.json --noEmit` & `npx tsc --noEmit`): Passed with 0 errors.
+- Multi-agent workflow tests (`npx tsx graph/multiAgentWorkflow.test.ts`): 3/3 passed (End-to-end execution, conditional feedback loop repair, max retries terminal failure).
+- Feature 01–15 regression tests: All passed.
 
 ---
 

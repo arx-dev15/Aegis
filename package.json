@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "tsx apps/api/server.ts",
     "build": "tsc",
-    "start": "node dist/apps/api/server.js"
+    "start": "node dist/apps/api/server.js",
+    "test": "tsx testAll.ts"
   },
   "repository": {
     "type": "git",
