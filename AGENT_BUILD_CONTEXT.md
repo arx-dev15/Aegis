@@ -896,12 +896,12 @@ Build ONE feature at a time.
 ## AEGIS AGENTS
 
 [x] Feature 09 — Planner Agent
-[ ] Feature 10 — Researcher Agent
-[ ] Feature 11 — Architect Agent
-[ ] Feature 12 — Developer Agent
-[ ] Feature 13 — Tester Agent
-[ ] Feature 14 — Reviewer Agent
-[ ] Feature 15 — Security Agent
+[x] Feature 10 — Researcher Agent
+[x] Feature 11 — Architect Agent
+[x] Feature 12 — Developer Agent
+[x] Feature 13 — Tester Agent
+[x] Feature 14 — Reviewer Agent
+[x] Feature 15 — Security Agent
 
 ## MULTI-AGENT ORCHESTRATION
 
@@ -964,14 +964,20 @@ Do not add random features simply because they are interesting.
 [x] Feature 07 — Single-Agent Graph
 [x] Feature 08 — Loops + Retries + Error Handling
 [x] Feature 09 — Planner Agent
+[x] Feature 10 — Researcher Agent
+[x] Feature 11 — Architect Agent
+[x] Feature 12 — Developer Agent
+[x] Feature 13 — Tester Agent
+[x] Feature 14 — Reviewer Agent
+[x] Feature 15 — Security Agent
 
 ## Currently Building
 
-Feature 10 — Researcher Agent
+Feature 16 — Full Aegis Multi-Agent Workflow
 
 ## Next
 
-Feature 11 — Architect Agent
+Feature 17 — Agent Routing + Conditional Execution
 
 ---
 
@@ -1373,6 +1379,168 @@ Verification:
 - Unit tests (`npx tsx agents/planner/test.ts`): Passed.
 - Workflow tests (`npx tsx graph/plannerWorkflow.test.ts`): 2/2 passed.
 - Feature 01–08 regression tests: All passed.
+
+### Feature 10 — Researcher Agent
+
+Files created/modified:
+- agents/researcher/types.ts
+- agents/researcher/schema.ts
+- agents/researcher/prompt.ts
+- agents/researcher/researcher.ts
+- agents/researcher/index.ts
+- agents/researcher/test.ts
+- agents/index.ts
+- graph/nodes/researcherNode.ts
+- graph/researcherWorkflow.ts
+- graph/researcherWorkflow.test.ts
+- graph/index.ts
+- AGENT_BUILD_CONTEXT.md
+
+Key decisions:
+- Unified schema and types in `types.ts` defining `researchFindingSchema` and `researchResultSchema`, re-exported in `schema.ts`.
+- Created `GeminiResearcherModel` bridging `ResearcherAgent` with `callStructured` from Gemini model layer (`models/gemini/index.ts`).
+- Created `researcherNode` in `graph/nodes/researcherNode.ts` mapping `ResearchResult` into `AegisState` with status `"researching"`.
+
+Verification:
+- TypeScript compilation (`npx tsc --project tsconfig.agentic.json --noEmit`): Passed with 0 errors.
+- Unit tests (`npx tsx agents/researcher/test.ts`): Passed.
+- Workflow tests (`npx tsx graph/researcherWorkflow.test.ts`): 2/2 passed.
+- Feature 01–09 regression tests: All passed.
+
+### Feature 11 — Architect Agent
+
+Files created/modified:
+- agents/architect/types.ts
+- agents/architect/schema.ts
+- agents/architect/prompt.ts
+- agents/architect/architect.ts
+- agents/architect/index.ts
+- agents/architect/test.ts
+- agents/index.ts
+- graph/nodes/architectNode.ts
+- graph/architectWorkflow.ts
+- graph/architectWorkflow.test.ts
+- graph/index.ts
+- AGENT_BUILD_CONTEXT.md
+
+Key decisions:
+- Unified schema and types in `types.ts` defining `componentDesignSchema` and `architectureResultSchema`, re-exported in `schema.ts`.
+- Created `GeminiArchitectModel` bridging `ArchitectAgent` with `callStructured` from Gemini model layer (`models/gemini/index.ts`).
+- Created `architectNode` in `graph/nodes/architectNode.ts` mapping `ArchitectureResult` into `AegisState` with status `"architecting"`.
+
+Verification:
+- TypeScript compilation (`npx tsc --project tsconfig.agentic.json --noEmit`): Passed with 0 errors.
+- Unit tests (`npx tsx agents/architect/test.ts`): Passed.
+- Workflow tests (`npx tsx graph/architectWorkflow.test.ts`): 2/2 passed.
+- Feature 01–10 regression tests: All passed.
+
+### Feature 12 — Developer Agent
+
+Files created/modified:
+- agents/developer/types.ts
+- agents/developer/schema.ts
+- agents/developer/prompt.ts
+- agents/developer/developer.ts
+- agents/developer/index.ts
+- agents/developer/test.ts
+- agents/index.ts
+- graph/nodes/developerNode.ts
+- graph/developerWorkflow.ts
+- graph/developerWorkflow.test.ts
+- graph/index.ts
+- AGENT_BUILD_CONTEXT.md
+
+Key decisions:
+- Unified schema and types in `types.ts` defining `fileChangeSchema` and `developerResultSchema`, re-exported in `schema.ts`.
+- Created `GeminiDeveloperModel` bridging `DeveloperAgent` with `callStructured` from Gemini model layer (`models/gemini/index.ts`).
+- Created `developerNode` in `graph/nodes/developerNode.ts` mapping `DeveloperResult.fileChanges` to `CodeChange[]` on `AegisState` with status `"developing"`.
+
+Verification:
+- TypeScript compilation (`npx tsc --project tsconfig.agentic.json --noEmit`): Passed with 0 errors.
+- Unit tests (`npx tsx agents/developer/test.ts`): Passed.
+- Workflow tests (`npx tsx graph/developerWorkflow.test.ts`): 2/2 passed.
+- Feature 01–11 regression tests: All passed.
+
+### Feature 13 — Tester Agent
+
+Files created/modified:
+- agents/tester/types.ts
+- agents/tester/schema.ts
+- agents/tester/prompt.ts
+- agents/tester/tester.ts
+- agents/tester/index.ts
+- agents/tester/test.ts
+- agents/index.ts
+- graph/nodes/testerNode.ts
+- graph/testerWorkflow.ts
+- graph/testerWorkflow.test.ts
+- graph/index.ts
+- AGENT_BUILD_CONTEXT.md
+
+Key decisions:
+- Unified schema and types in `types.ts` defining `singleTestRunSchema` and `testerResultSchema`, re-exported in `schema.ts`.
+- Created `GeminiTesterModel` bridging `TesterAgent` with `callStructured` from Gemini model layer (`models/gemini/index.ts`).
+- Created `testerNode` in `graph/nodes/testerNode.ts` mapping `TesterResult` to `TestResult` on `AegisState.testResults` with status `"testing"`.
+
+Verification:
+- TypeScript compilation (`npx tsc --project tsconfig.agentic.json --noEmit`): Passed with 0 errors.
+- Unit tests (`npx tsx agents/tester/test.ts`): Passed.
+- Workflow tests (`npx tsx graph/testerWorkflow.test.ts`): 2/2 passed.
+- Feature 01–12 regression tests: All passed.
+
+### Feature 14 — Reviewer Agent
+
+Files created/modified:
+- agents/reviewer/types.ts
+- agents/reviewer/schema.ts
+- agents/reviewer/prompt.ts
+- agents/reviewer/reviewer.ts
+- agents/reviewer/index.ts
+- agents/reviewer/test.ts
+- agents/index.ts
+- graph/nodes/reviewerNode.ts
+- graph/reviewerWorkflow.ts
+- graph/reviewerWorkflow.test.ts
+- graph/index.ts
+- AGENT_BUILD_CONTEXT.md
+
+Key decisions:
+- Unified schema and types in `types.ts` defining `reviewFindingSchema` and `reviewerResultSchema`, re-exported in `schema.ts`.
+- Created `GeminiReviewerModel` bridging `ReviewerAgent` with `callStructured` from Gemini model layer (`models/gemini/index.ts`).
+- Created `reviewerNode` in `graph/nodes/reviewerNode.ts` mapping `ReviewerResult` to `ReviewResult` on `AegisState.reviewResults` with status `"reviewing"`.
+
+Verification:
+- TypeScript compilation (`npx tsc --project tsconfig.agentic.json --noEmit`): Passed with 0 errors.
+- Unit tests (`npx tsx agents/reviewer/test.ts`): Passed.
+- Workflow tests (`npx tsx graph/reviewerWorkflow.test.ts`): 2/2 passed.
+- Feature 01–13 regression tests: All passed.
+
+### Feature 15 — Security Agent
+
+Files created/modified:
+- agents/security/types.ts
+- agents/security/schema.ts
+- agents/security/prompt.ts
+- agents/security/security.ts
+- agents/security/index.ts
+- agents/security/test.ts
+- agents/index.ts
+- graph/nodes/securityNode.ts
+- graph/securityWorkflow.ts
+- graph/securityWorkflow.test.ts
+- graph/index.ts
+- AGENT_BUILD_CONTEXT.md
+
+Key decisions:
+- Unified schema and types in `types.ts` defining `securityVulnerabilitySchema` and `securityResultSchema`, re-exported in `schema.ts`.
+- Created `GeminiSecurityModel` bridging `SecurityAgent` with `callStructured` from Gemini model layer (`models/gemini/index.ts`).
+- Created `securityNode` in `graph/nodes/securityNode.ts` auditing security risks and updating `AegisState`.
+
+Verification:
+- TypeScript compilation (`npx tsc --project tsconfig.agentic.json --noEmit`): Passed with 0 errors.
+- Unit tests (`npx tsx agents/security/test.ts`): Passed.
+- Workflow tests (`npx tsx graph/securityWorkflow.test.ts`): 2/2 passed.
+- Feature 01–14 regression tests: All passed.
 
 ---
 
