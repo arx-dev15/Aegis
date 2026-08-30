@@ -906,8 +906,8 @@ Build ONE feature at a time.
 ## MULTI-AGENT ORCHESTRATION
 
 [x] Feature 16 — Full Aegis Multi-Agent Workflow
-[ ] Feature 17 — Agent Routing + Conditional Execution
-[ ] Feature 18 — Failure Recovery + Iteration Loops
+[x] Feature 17 — Agent Routing + Conditional Execution
+[x] Feature 18 — Failure Recovery + Iteration Loops
 [ ] Feature 19 — Task Dependencies + Delegation
 
 ## KNOWLEDGE + MEMORY
@@ -971,14 +971,16 @@ Do not add random features simply because they are interesting.
 [x] Feature 14 — Reviewer Agent
 [x] Feature 15 — Security Agent
 [x] Feature 16 — Full Aegis Multi-Agent Workflow
+[x] Feature 17 — Agent Routing + Conditional Execution
+[x] Feature 18 — Failure Recovery + Iteration Loops
 
 ## Currently Building
 
-Feature 17 — Agent Routing + Conditional Execution
+Feature 19 — Task Dependencies + Delegation
 
 ## Next
 
-Feature 18 — Failure Recovery + Iteration Loops
+Feature 20 — RAG Pipeline
 
 ---
 
@@ -1562,7 +1564,58 @@ Key decisions:
 Verification:
 - TypeScript compilation (`npx tsc --project tsconfig.agentic.json --noEmit` & `npx tsc --noEmit`): Passed with 0 errors.
 - Multi-agent workflow tests (`npx tsx graph/multiAgentWorkflow.test.ts`): 3/3 passed (End-to-end execution, conditional feedback loop repair, max retries terminal failure).
-- Feature 01–15 regression tests: All passed.
+### Feature 17 — Agent Routing + Conditional Execution
+
+Files created/modified:
+- graph/edges/agentRouter.ts
+- graph/edges/agentRouter.test.ts
+- graph/dynamicRoutingWorkflow.ts
+- graph/dynamicRoutingWorkflow.test.ts
+- graph/index.ts
+- testAll.ts
+- AGENT_BUILD_CONTEXT.md
+
+Key decisions:
+- Created deterministic state routing function `determineNextAgent(state: AegisState)` that evaluates state status, validation failure state, and pre-existing artifacts.
+- Supports conditional execution and artifact skipping: if state is pre-populated with artifacts (e.g. plan/architecture), prior agent nodes are skipped and execution starts dynamically at the next required agent node.
+- Created `buildDynamicRoutingWorkflow()` compiling dynamic conditional edges from START and after every agent node.
+- Preserved 100% backward compatibility with all 16 existing features and existing test suites.
+
+Verification:
+- TypeScript compilation (`npx tsc --project tsconfig.agentic.json --noEmit` & `npx tsc --noEmit`): Passed with 0 errors.
+- Unit tests (`npx tsx graph/edges/agentRouter.test.ts`): 12/12 passed.
+- Dynamic workflow tests (`npx tsx graph/dynamicRoutingWorkflow.test.ts`): 3/3 passed.
+- Master test runner (`npm run test`): 17/17 test suites passed (0 failures).
+
+### Feature 18 — Failure Recovery + Iteration Loops
+
+Files created/modified:
+- `graph/state.ts` (added `RecoveryContext` interface with expanded `failingAgent` union + `recoveryContext` annotation field)
+- `graph/nodes/recoveryNode.ts` [NEW] (smart recovery node building structured failure context across all agents)
+- `agents/developer/developer.ts` (added optional `recoveryContext` param to `develop()`)
+- `graph/nodes/developerNode.ts` (extract & format latest `RecoveryContext` to pass to developer agent)
+- `graph/edges/agentRouter.ts` (added `routeFromRecovery` conditional routing helper, routed failures to "recovery")
+- `graph/edges/agentRouter.test.ts` (updated Test 11 assertion to expect "recovery")
+- `graph/dynamicRoutingWorkflow.ts` (wired `recoveryNode` with `addConditionalEdges("recovery", routeFromRecovery)`)
+- `graph/multiAgentWorkflow.ts` (added `recovery?: typeof retryLoopNode` to `CustomMultiAgentNodes`)
+- `graph/index.ts` (exported `recoveryNode`)
+- `graph/failureRecovery.test.ts` [NEW] (7 comprehensive recovery and iteration loop tests)
+- `testAll.ts` (registered `graph/failureRecovery.test.ts`)
+- `AGENT_BUILD_CONTEXT.md`
+
+Recovery Strategy:
+- **Failure Detection**: Captures testing failures (`testResults.passed === false`), reviewer rejections (`reviewResults.approved === false`), security vulnerabilities, and agent errors across planning, research, architecture, and development.
+- **Recovery Routing**: Uses `routeFromRecovery` conditional edge based on `failingAgent`:
+  - Research failure -> Researcher iteration
+  - Architecture failure/rejection -> Architect iteration
+  - Implementation / Test / Review / Security failure -> Developer repair iteration
+- **Iteration Limits**: `retryCount` incremented by `recoveryNode`. Evaluated against `maxRetries` (default 3) in `determineNextAgent`. Exceeding `maxRetries` routes to `multiAgentErrorHandlerNode` for clean terminal failure (`status: "failed"`) while preserving full `recoveryContext` and error history in state.
+- **State Preservation**: Reused `AegisStateAnnotation` without duplicating state management. Appended structured `RecoveryContext` containing `failingAgent`, `reason`, `details`, and `attemptNumber`.
+
+Verification:
+- TypeScript compilation (`npx tsc --project tsconfig.agentic.json --noEmit` & `npx tsc --noEmit`): Passed with 0 errors.
+- Feature 18 tests (`npx tsx graph/failureRecovery.test.ts`): 7/7 passed.
+- Master test runner (`npm run test`): 18/18 test suites passed (0 failures).
 
 ---
 

@@ -2,6 +2,7 @@
  * graph/state.ts
  *
  * Feature 05 — LangGraph State
+ * Feature 18 — RecoveryContext added
  *
  * Shared Aegis workflow state using LangGraph's Annotation API.
  * Provides the single source of truth passed across nodes/agents in the execution graph.
@@ -19,6 +20,7 @@ export type ExecutionStatus =
   | "developing"
   | "testing"
   | "reviewing"
+  | "securing"
   | "completed"
   | "failed";
 
@@ -47,6 +49,21 @@ export interface ReviewResult {
   approved: boolean;
   comments: string[];
   suggestedFixes?: string[];
+}
+
+/**
+ * Structured record of a single recovery/retry event.
+ * Appended each time the workflow loops back to a recovery agent.
+ */
+export interface RecoveryContext {
+  /** Which agent's output triggered this recovery */
+  failingAgent: "planner" | "researcher" | "architect" | "developer" | "tester" | "reviewer" | "security";
+  /** Short human-readable reason for the retry */
+  reason: string;
+  /** Specific issues found (test names, review comments, vulnerability IDs) */
+  details: string[];
+  /** Which retry attempt this is (1-indexed) */
+  attemptNumber: number;
 }
 
 // ── State Annotation Definition ──────────────────────────────────────────────
@@ -119,6 +136,34 @@ export const AegisStateAnnotation = Annotation.Root({
   maxRetries: Annotation<number>({
     reducer: (_, update) => update,
     default: () => 3,
+  }),
+
+  /**
+   * Workspace directory path where the Developer agent writes files.
+   * Tester agent runs commands here. Empty string = no real workspace (simulation mode).
+   */
+  workspace: Annotation<string>({
+    reducer: (_, update) => update,
+    default: () => "",
+  }),
+
+  /**
+   * Log of real tool executions (file writes, terminal commands).
+   * Appended by DeveloperNode and TesterNode when running in execution mode.
+   */
+  executionLog: Annotation<string[]>({
+    reducer: (existing, update) => existing.concat(update),
+    default: () => [],
+  }),
+
+  /**
+   * Feature 18 — Ordered log of recovery events.
+   * Each entry describes why we are retrying and which agent failed.
+   * The most recent entry gives the Developer its repair context.
+   */
+  recoveryContext: Annotation<RecoveryContext[]>({
+    reducer: (existing, update) => existing.concat(update),
+    default: () => [],
   }),
 });
 

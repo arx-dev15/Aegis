@@ -1,15 +1,55 @@
 /**
  * graph/nodes/developerNode.ts
  *
- * Feature 12 — Developer Agent LangGraph Node
+ * Feature 12 (upgraded in Feature 16, Feature 18) — Developer Agent LangGraph Node
  *
- * Integrates DeveloperAgent into the Aegis LangGraph state machine.
- * Reads task and architecture from AegisState, invokes DeveloperAgent to generate implementation code changes,
- * and updates state with code changes and execution status.
+ * Two-phase execution:
+ *
+ *   Phase 1 — LLM Planning:
+ *     DeveloperAgent uses Gemini to generate a structured implementation plan
+ *     (fileChanges: path, action, content, summary).
+ *
+ *     Feature 18: When state.recoveryContext is non-empty, the latest failure
+ *     context is formatted and passed to the Developer so it knows precisely
+ *     what to repair on this retry.
+ *
+ *   Phase 2 — Real Tool Execution:
+ *     If state.workspace is set, actually write/delete the files using the
+ *     filesystem tool. Records each operation in state.executionLog.
+ *
+ * When workspace is empty (test / simulation mode), Phase 2 is skipped —
+ * all existing tests continue to pass without modification.
  */
 
-import type { AegisState, AegisStateUpdate, CodeChange } from "../state.js";
+import type { AegisState, AegisStateUpdate, CodeChange, RecoveryContext } from "../state.js";
 import { DeveloperAgent } from "../../agents/developer/developer.js";
+import {
+  writeFile,
+  deleteFile,
+} from "../../tools/filesystem/index.js";
+
+/**
+ * Format the latest RecoveryContext into a human-readable string for the Developer.
+ * Returns undefined when there is no recovery history (first attempt).
+ */
+function formatRecoveryContext(recoveryContext: RecoveryContext[]): string | undefined {
+  if (!recoveryContext || recoveryContext.length === 0) return undefined;
+
+  const latest = recoveryContext[recoveryContext.length - 1]!;
+
+  const lines = [
+    `Failing agent: ${latest.failingAgent}`,
+    `Reason: ${latest.reason}`,
+    `Attempt: ${latest.attemptNumber}`,
+  ];
+
+  if (latest.details.length > 0) {
+    lines.push("Details:");
+    latest.details.forEach((d) => lines.push(`  - ${d}`));
+  }
+
+  return lines.join("\n");
+}
 
 /**
  * Creates a developer node using a provided DeveloperAgent instance or defaults to standard DeveloperAgent.
@@ -26,7 +66,10 @@ export function createDeveloperNode(agent?: DeveloperAgent) {
     }
 
     try {
-      const result = await developer.develop(state.task, state.architecture);
+      // ── Phase 1: LLM generates the implementation plan ───────────────────
+      // Feature 18: extract recovery context so Developer knows what to fix on retry
+      const recoveryCtx = formatRecoveryContext(state.recoveryContext ?? []);
+      const result = await developer.develop(state.task, state.architecture, recoveryCtx);
 
       const newCodeChanges: CodeChange[] = result.fileChanges.map((fc) => ({
         path: fc.path,
@@ -35,9 +78,40 @@ export function createDeveloperNode(agent?: DeveloperAgent) {
         content: fc.content,
       }));
 
+      const executionLog: string[] = [];
+
+      // ── Phase 2: Real file execution (only when workspace is configured) ──
+      if (state.workspace && state.workspace.trim() !== "") {
+        const workspace = state.workspace.trim();
+
+        for (const change of result.fileChanges) {
+          try {
+            if (change.action === "delete") {
+              const del = await deleteFile(workspace, change.path);
+              executionLog.push(
+                `[DEV-TOOL] DELETE ${change.path} → ${del.deleted ? "deleted" : "not found (ok)"}`
+              );
+            } else {
+              // "add" or "modify" — write the file
+              const content = change.content ?? "";
+              const write = await writeFile(workspace, change.path, content);
+              executionLog.push(
+                `[DEV-TOOL] WRITE ${change.path} → ${write.bytesWritten} bytes written`
+              );
+            }
+          } catch (toolErr) {
+            // A tool error does not abort the whole workflow — log it
+            executionLog.push(
+              `[DEV-TOOL] ERROR on ${change.path}: ${(toolErr as Error).message}`
+            );
+          }
+        }
+      }
+
       return {
         status: "developing",
         codeChanges: newCodeChanges,
+        executionLog,
       };
     } catch (err) {
       return {

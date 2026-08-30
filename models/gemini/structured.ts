@@ -125,8 +125,8 @@ export async function callStructured<T extends z.ZodTypeAny>(
   const client = getClient();
   const modelName = config.model ?? "gemini-3.5-flash";
 
-  // Retry once on transient 5xx errors (e.g. 503 high demand)
-  async function attempt(): Promise<z.infer<T>> {
+  // Retry up to 3 times on transient errors with exponential backoff (2s, 4s, 8s)
+  async function callOnce(): Promise<z.infer<T>> {
     const response = await client.models.generateContent({
       model: modelName,
       contents: prompt,
@@ -146,16 +146,30 @@ export async function callStructured<T extends z.ZodTypeAny>(
     return schema.parse(cleaned) as z.infer<T>;
   }
 
-  try {
-    return await attempt();
-  } catch (err) {
-    const msg = String(err);
-    const isTransient = msg.includes("503") || msg.includes("UNAVAILABLE") || msg.includes("high demand");
-    if (isTransient) {
-      // Wait 2s then retry once
-      await new Promise((r) => setTimeout(r, 2000));
-      return await attempt();
+  const MAX_RETRIES = 3;
+  let lastError: unknown;
+
+  for (let i = 0; i <= MAX_RETRIES; i++) {
+    try {
+      return await callOnce();
+    } catch (err) {
+      lastError = err;
+      const msg = String(err);
+      const isTransient =
+        msg.includes("503") ||
+        msg.includes("429") ||
+        msg.includes("UNAVAILABLE") ||
+        msg.includes("RESOURCE_EXHAUSTED") ||
+        msg.includes("high demand");
+
+      if (isTransient && i < MAX_RETRIES) {
+        const backoffMs = Math.pow(2, i + 1) * 1000; // 2s, 4s, 8s
+        await new Promise((r) => setTimeout(r, backoffMs));
+        continue;
+      }
+      throw err;
     }
-    throw err;
   }
+
+  throw lastError;
 }

@@ -38,14 +38,33 @@ export class DeveloperAgent {
     private model: DeveloperModel = new GeminiDeveloperModel()
   ) {}
 
-  async develop(task: string, architecture?: string): Promise<DeveloperResult> {
+  /**
+   * Generate or repair code changes for the given task.
+   *
+   * @param task             - The engineering task description.
+   * @param architecture     - Optional architecture design context.
+   * @param recoveryContext  - Optional structured failure context from a previous attempt.
+   *                          When provided, the Developer will focus on fixing the issues
+   *                          described rather than generating fresh code from scratch.
+   */
+  async develop(
+    task: string,
+    architecture?: string,
+    recoveryContext?: string
+  ): Promise<DeveloperResult> {
     if (!task.trim()) {
       throw new Error("Developer task cannot be empty.");
     }
 
-    const fullPrompt = architecture && architecture.trim() !== ""
-      ? `${task.trim()}\n\nArchitecture Context:\n${architecture.trim()}`
-      : task.trim();
+    let fullPrompt = task.trim();
+
+    if (architecture && architecture.trim() !== "") {
+      fullPrompt += `\n\nArchitecture Context:\n${architecture.trim()}`;
+    }
+
+    if (recoveryContext && recoveryContext.trim() !== "") {
+      fullPrompt += `\n\nREPAIR CONTEXT (from previous failed attempt):\n${recoveryContext.trim()}\n\nFocus on fixing the issues described above. Do not regenerate code that already works.`;
+    }
 
     const result = await this.model.generateStructured<DeveloperResult>(
       DEVELOPER_SYSTEM_PROMPT,

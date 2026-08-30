@@ -46,7 +46,7 @@ async function runTests(): Promise<void> {
       }
     }
 
-    console.log(`${PASS} Test 1: All 9 required Aegis state fields defined in Annotation.spec`);
+    console.log(`${PASS} Test 1: All 11 required Aegis state fields defined in Annotation.spec`);
     passed++;
   } catch (err) {
     console.log(`${FAIL} Test 1: ${(err as Error).message}`);
@@ -80,6 +80,9 @@ async function runTests(): Promise<void> {
       status: "testing",
       retryCount: 0,
       maxRetries: 3,
+      workspace: "",
+      executionLog: [],
+      recoveryContext: [],
     };
 
     if (sampleState.status !== "testing") {

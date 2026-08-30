@@ -5,7 +5,12 @@
  *
  * Provides conditional routing decision functions connecting the 7 Aegis specialized agents:
  * Planner -> Researcher -> Architect -> Developer -> Tester -> Reviewer -> Security -> END
- * Includes feedback loop routing back to Developer via retryLoop when validation fails.
+ *
+ * Routing rules:
+ * - Any node returning status "failed" → immediately route to "errorHandler"
+ * - Tester/Reviewer/Security finding issues → route to "retryLoop" if budget allows
+ * - Security returning "completed" (all clear) → route to END
+ * - Retry budget exhausted → route to "errorHandler"
  */
 
 import { END } from "@langchain/langgraph";
@@ -37,9 +42,9 @@ export function routeAfterDeveloper(state: AegisState): "tester" | "errorHandler
 
 /**
  * Route decision after Tester node:
- * - If testPassed -> route to "reviewer"
- * - If testFailed and retryCount < maxRetries -> route to "retryLoop" (repair)
- * - Else (max retries reached or terminal error) -> route to "errorHandler"
+ * - If tests passed → route to "reviewer"
+ * - If tests failed and retryCount < maxRetries → route to "retryLoop" (repair)
+ * - Else (max retries reached or hard failure) → route to "errorHandler"
  */
 export function routeAfterTester(state: AegisState): "reviewer" | "retryLoop" | "errorHandler" {
   if (state.status === "failed") return "errorHandler";
@@ -56,9 +61,9 @@ export function routeAfterTester(state: AegisState): "reviewer" | "retryLoop" | 
 
 /**
  * Route decision after Reviewer node:
- * - If approved -> route to "security"
- * - If rejected and retryCount < maxRetries -> route to "retryLoop" (repair)
- * - Else -> route to "errorHandler"
+ * - If approved → route to "security"
+ * - If rejected and retryCount < maxRetries → route to "retryLoop" (repair)
+ * - Else → route to "errorHandler"
  */
 export function routeAfterReviewer(state: AegisState): "security" | "retryLoop" | "errorHandler" {
   if (state.status === "failed") return "errorHandler";
@@ -75,16 +80,18 @@ export function routeAfterReviewer(state: AegisState): "security" | "retryLoop" 
 
 /**
  * Route decision after Security node:
- * - If completed (secure) -> route to END
- * - If unsecure and retryCount < maxRetries -> route to "retryLoop" (repair)
- * - Else -> route to "errorHandler"
+ * - If status "completed" (all clear) → route to END
+ * - If status "securing" (vulnerabilities found) and retryCount < maxRetries → route to "retryLoop"
+ * - Else (status "failed" or retries exhausted) → route to "errorHandler"
  */
 export function routeAfterSecurity(state: AegisState): typeof END | "retryLoop" | "errorHandler" {
   if (state.status === "completed") return END;
 
   const retries = state.retryCount ?? 0;
   const maxRetries = state.maxRetries ?? 3;
-  if (retries < maxRetries) return "retryLoop";
+
+  // "securing" = vulnerabilities found, retry is an option
+  if (state.status === "securing" && retries < maxRetries) return "retryLoop";
 
   return "errorHandler";
 }

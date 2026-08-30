@@ -26,7 +26,14 @@ export function createSecurityNode(agent?: SecurityAgent) {
     }
 
     try {
-      const codeChangesContext = state.codeChanges.map((c) => c.path).join(", ");
+      // Build full code change context (path + content preview for LLM)
+      const codeChangesContext = state.codeChanges
+        .map((c) => {
+          const preview = c.content ? `\n${c.content.slice(0, 600)}` : "";
+          return `[${c.action.toUpperCase()}] ${c.path}: ${c.summary ?? ""}${preview}`;
+        })
+        .join("\n\n");
+
       const result = await securityAgent.audit(state.task, codeChangesContext, state.architecture);
 
       const securitySummaryFormatted = [
@@ -37,11 +44,11 @@ export function createSecurityNode(agent?: SecurityAgent) {
       ].join("\n");
 
       return {
-        status: result.secure ? "completed" : "failed",
+        status: result.secure ? "completed" : "securing",
         research: `${state.research}\n\n${securitySummaryFormatted}`.trim(),
         errors: result.secure
-          ? state.errors
-          : state.errors.concat(result.vulnerabilities.map((v) => `[SECURITY - ${v.severity.toUpperCase()}] ${v.vulnerability}`)),
+          ? []
+          : result.vulnerabilities.map((v) => `[SECURITY - ${v.severity.toUpperCase()}] ${v.vulnerability}`),
       };
     } catch (err) {
       return {

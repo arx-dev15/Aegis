@@ -1,7 +1,7 @@
 /**
  * testAll.ts
  *
- * Aegis Master Test Runner — Runs all unit and workflow test suites for Features 01–16.
+ * Aegis Master Test Runner — Runs all unit and workflow test suites for Features 01–18.
  *
  * Command:
  *   npx tsx testAll.ts
@@ -30,18 +30,25 @@ const testFiles = [
 
   // Master Multi-Agent Workflow Test (Feature 16)
   "graph/multiAgentWorkflow.test.ts",
+
+  // Agent Routing & Conditional Execution Tests (Feature 17)
+  "graph/edges/agentRouter.test.ts",
+  "graph/dynamicRoutingWorkflow.test.ts",
+
+  // Failure Recovery + Iteration Loops Tests (Feature 18)
+  "graph/failureRecovery.test.ts",
 ];
 
 function runAll() {
   console.log("=================================================");
-  console.log("  AEGIS MASTER TEST SUITE (Features 01 – 16)");
+  console.log("  AEGIS MASTER TEST SUITE (Features 01 – 18)");
   console.log("=================================================\n");
 
   let totalPassed = 0;
   let totalFailed = 0;
 
   for (const file of testFiles) {
-    process.stdout.write(`Running ${file.padEnd(35)} ... `);
+    process.stdout.write(`Running ${file.padEnd(38)} ... `);
     try {
       execSync(`npx tsx ${file}`, { stdio: "pipe" });
       console.log("✅ PASSED");
