@@ -33,3 +33,6 @@ export * from "./reviewerWorkflow.js";
 export * from "./securityWorkflow.js";
 export * from "./multiAgentWorkflow.js";
 export * from "./dynamicRoutingWorkflow.js";
+export * from "./approvalTypes.js";
+export * from "./edges/approvalGate.js";
+export * from "./approvalWorkflow.js";

@@ -9,6 +9,7 @@
  */
 
 import { Annotation } from "@langchain/langgraph";
+import type { ApprovalRequest, ApprovalDecision } from "./approvalTypes.js";
 
 // ── Supporting Types ─────────────────────────────────────────────────────────
 
@@ -21,6 +22,7 @@ export type ExecutionStatus =
   | "testing"
   | "reviewing"
   | "securing"
+  | "paused"
   | "completed"
   | "failed";
 
@@ -164,6 +166,38 @@ export const AegisStateAnnotation = Annotation.Root({
   recoveryContext: Annotation<RecoveryContext[]>({
     reducer: (existing, update) => existing.concat(update),
     default: () => [],
+  }),
+
+  /**
+   * Feature 21 — Unique identifier for current execution run for short-term memory scoping.
+   */
+  runId: Annotation<string>({
+    reducer: (_, update) => update,
+    default: () => "",
+  }),
+
+  /**
+   * Feature 21/22 — Formatted memory context (short-term execution notes + long-term decisions).
+   */
+  memoryContext: Annotation<string>({
+    reducer: (_, update) => update,
+    default: () => "",
+  }),
+
+  /**
+   * Feature 23 — Pending approval request when graph execution is paused for human decision.
+   */
+  pendingApproval: Annotation<ApprovalRequest | null>({
+    reducer: (_, update) => update,
+    default: () => null,
+  }),
+
+  /**
+   * Feature 23 — Human approval decision (approve or reject) returned to resume graph execution.
+   */
+  approvalDecision: Annotation<ApprovalDecision | null>({
+    reducer: (_, update) => update,
+    default: () => null,
   }),
 });
 

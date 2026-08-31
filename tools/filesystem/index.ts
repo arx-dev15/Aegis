@@ -13,6 +13,7 @@
 
 import { promises as fs } from "fs";
 import path from "path";
+import { enforceToolGuardrail } from "../guardrails/index.js";
 
 // ── Path Safety ───────────────────────────────────────────────────────────────
 
@@ -21,6 +22,16 @@ import path from "path";
  * Throws if the path would escape the sandbox.
  */
 function safePath(rootDir: string, relativePath: string): string {
+  const guard = enforceToolGuardrail({
+    toolName: "filesystem",
+    action: "read_file",
+    target: relativePath,
+  });
+
+  if (!guard.allowed) {
+    throw new Error(`[GUARDRAIL-BLOCKED] ${guard.reason}`);
+  }
+
   const resolved = path.resolve(rootDir, relativePath);
   const root = path.resolve(rootDir);
 
@@ -50,6 +61,16 @@ export async function writeFile(
   relativePath: string,
   content: string
 ): Promise<WriteResult> {
+  const guard = enforceToolGuardrail({
+    toolName: "filesystem",
+    action: "write_file",
+    target: relativePath,
+  });
+
+  if (!guard.allowed) {
+    throw new Error(`[GUARDRAIL-BLOCKED] ${guard.reason}`);
+  }
+
   const fullPath = safePath(rootDir, relativePath);
   await fs.mkdir(path.dirname(fullPath), { recursive: true });
   await fs.writeFile(fullPath, content, "utf-8");
@@ -113,6 +134,16 @@ export async function deleteFile(
   rootDir: string,
   relativePath: string
 ): Promise<DeleteResult> {
+  const guard = enforceToolGuardrail({
+    toolName: "filesystem",
+    action: "delete_file",
+    target: relativePath,
+  });
+
+  if (!guard.allowed) {
+    throw new Error(`[GUARDRAIL-BLOCKED] ${guard.reason}`);
+  }
+
   const fullPath = safePath(rootDir, relativePath);
   try {
     await fs.unlink(fullPath);

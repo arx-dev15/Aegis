@@ -87,10 +87,9 @@ export async function resolveApproval(req: Request, res: Response, next: NextFun
       }
       memApprovals[id] = { ...approval, status: newStatus, resolved_at: now, resolution: input.reason ?? null }
       const runId = approval.run_id
-      // If approved, tell agent service to resume
-      if (input.action === 'approve') {
-        await agentService.resumeRun(runId)
-      }
+      // Tell agent service to resume with human decision (approve or reject)
+      await agentService.resumeRun(runId, id, input.action, input.reason ?? undefined)
+
       broadcast({
         type: 'approval:resolved',
         runId,
@@ -115,9 +114,7 @@ export async function resolveApproval(req: Request, res: Response, next: NextFun
       [newStatus, input.reason ?? null, id],
     )
 
-    if (input.action === 'approve') {
-      await agentService.resumeRun(existing.run_id)
-    }
+    await agentService.resumeRun(existing.run_id, id, input.action, input.reason ?? undefined)
 
     broadcast({
       type: 'approval:resolved',

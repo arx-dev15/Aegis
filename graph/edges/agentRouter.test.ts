@@ -30,6 +30,10 @@ function createBaseState(overrides: Partial<AegisState> = {}): AegisState {
     workspace: "",
     executionLog: [],
     recoveryContext: [],
+    runId: "",
+    memoryContext: "",
+    pendingApproval: null,
+    approvalDecision: null,
     ...overrides,
   };
 }

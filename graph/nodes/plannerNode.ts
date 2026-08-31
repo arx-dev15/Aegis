@@ -10,6 +10,7 @@
 
 import type { AegisState, AegisStateUpdate, PlanStep } from "../state.js";
 import { PlannerAgent } from "../../agents/planner/planner.js";
+import { memoryManager } from "../../memory/memoryManager.js";
 
 /**
  * Creates a planner node using a provided PlannerAgent instance or defaults to standard PlannerAgent.
@@ -26,7 +27,14 @@ export function createPlannerNode(agent?: PlannerAgent) {
     }
 
     try {
-      const result = await planner.plan(state.task);
+      const memoryContext = state.memoryContext || (state.runId ? memoryManager.getFormattedMemoryContext({ runId: state.runId }) : "");
+      const fullTask = memoryContext ? `${state.task}\n\n${memoryContext}` : state.task;
+
+      const result = await planner.plan(fullTask);
+
+      if (state.runId) {
+        memoryManager.shortTerm.set(state.runId, "planner_summary", result.summary, "step_note");
+      }
 
       const planSteps: PlanStep[] = result.steps.map((step) => ({
         id: step.id,

@@ -10,6 +10,7 @@
 
 import type { AegisState, AegisStateUpdate } from "../state.js";
 import { ResearcherAgent } from "../../agents/researcher/researcher.js";
+import { memoryManager } from "../../memory/memoryManager.js";
 
 /**
  * Creates a researcher node using a provided ResearcherAgent instance or defaults to standard ResearcherAgent.
@@ -26,7 +27,14 @@ export function createResearcherNode(agent?: ResearcherAgent) {
     }
 
     try {
-      const result = await researcher.research(state.task, state.research);
+      const memoryContext = state.memoryContext || (state.runId ? memoryManager.getFormattedMemoryContext({ runId: state.runId }) : "");
+      const baseResearch = memoryContext ? `${state.research}\n\n${memoryContext}`.trim() : state.research;
+
+      const result = await researcher.research(state.task, baseResearch);
+
+      if (state.runId) {
+        memoryManager.shortTerm.set(state.runId, "researcher_summary", result.summary, "step_note");
+      }
 
       const findingsFormatted = result.findings
         .map((f) => `- [${f.topic}] ${f.finding} (Evidence: ${f.evidence}${f.source ? `, Source: ${f.source}` : ""})`)

@@ -912,15 +912,15 @@ Build ONE feature at a time.
 
 ## KNOWLEDGE + MEMORY
 
-[ ] Feature 20 — RAG Pipeline
-[ ] Feature 21 — Project Knowledge Retrieval
-[ ] Feature 22 — Short-Term Memory
-[ ] Feature 23 — Long-Term Memory
-[ ] Feature 24 — Procedural Skills
+[x] Feature 19 — RAG Pipeline
+[x] Feature 20 — Project Knowledge Retrieval
+[x] Feature 21 — Short-Term Memory
+[x] Feature 22 — Long-Term Memory
+[ ] Feature 23 — Procedural Skills
 
 ## SAFETY + EXTERNAL SYSTEMS
 
-[ ] Feature 25 — Human-in-the-Loop
+[x] Feature 23 — Human-in-the-Loop
 [ ] Feature 26 — Tool Permissions / Guardrails
 [ ] Feature 27 — GitHub Integration
 [ ] Feature 28 — Terminal / Sandbox Execution
@@ -973,14 +973,20 @@ Do not add random features simply because they are interesting.
 [x] Feature 16 — Full Aegis Multi-Agent Workflow
 [x] Feature 17 — Agent Routing + Conditional Execution
 [x] Feature 18 — Failure Recovery + Iteration Loops
+[x] Feature 19 — RAG Pipeline
+[x] Feature 20 — Project Knowledge Retrieval
+[x] Feature 21 — Short-Term Memory
+[x] Feature 22 — Long-Term Memory
+[x] Feature 23 — Human-in-the-Loop
 
 ## Currently Building
 
-Feature 19 — Task Dependencies + Delegation
+Feature 24 — Tool Permissions / Guardrails
 
 ## Next
 
-Feature 20 — RAG Pipeline
+Feature 26 — Tool Permissions / Guardrails
+
 
 ---
 
@@ -1618,6 +1624,184 @@ Verification:
 - Master test runner (`npm run test`): 18/18 test suites passed (0 failures).
 
 ---
+
+### Feature 19 — RAG Pipeline
+
+Files created:
+- `rag/types.ts` [NEW] — Core shared types: `Document`, `Chunk`, `EmbeddedChunk`, `RetrievalResult`
+- `rag/loaders/fileLoader.ts` [NEW] — Filesystem document loader: `loadFile`, `loadFiles`, `loadDirectory`
+- `rag/chunkers/textChunker.ts` [NEW] — Deterministic sliding-window text chunker: `chunkDocument`, `chunkDocuments`
+- `rag/embeddings/geminiEmbedder.ts` [NEW] — Gemini embedding adapter: `GeminiEmbedder`, `EmbedderInterface`
+- `rag/vector-store/inMemoryStore.ts` [NEW] — In-memory cosine similarity vector store: `InMemoryVectorStore`, `VectorStoreInterface`
+- `rag/retriever/retriever.ts` [NEW] — Query-to-embedding-to-search retriever: `Retriever`
+- `rag/pipeline.ts` [NEW] — Public pipeline API: `RagPipeline`, `createRagPipeline`
+- `rag/index.ts` [NEW] — Barrel export for entire rag/ module
+- `rag/rag.test.ts` [NEW] — 9-test suite covering all pipeline stages
+- `testAll.ts` [MODIFIED] — Added `rag/rag.test.ts` to master runner
+- `AGENT_BUILD_CONTEXT.md` [MODIFIED]
+
+Data Flow:
+```
+Documents                            (files, text)
+ → loadFile / loadDirectory          (rag/loaders/fileLoader.ts)
+ → chunkDocument / chunkDocuments    (rag/chunkers/textChunker.ts)
+ → GeminiEmbedder.embedBatch         (rag/embeddings/geminiEmbedder.ts)
+ → InMemoryVectorStore.add           (rag/vector-store/inMemoryStore.ts)
+
+Query
+ → GeminiEmbedder.embed              (rag/embeddings/geminiEmbedder.ts)
+ → InMemoryVectorStore.search        (cosine similarity)
+ → Retriever.retrieveContext         (rag/retriever/retriever.ts)
+ → Agent Prompt Context              (ready for Feature 20)
+```
+
+Key decisions:
+- Reused existing `getClient()` from `models/gemini/model.ts` for embedding. No new dependency added.
+- Embedding model: `gemini-embedding-001` (confirmed available for this API key; produces 3072-dim vectors).
+- Interface-based design (`EmbedderInterface`, `VectorStoreInterface`) allows backend swap without touching pipeline or retriever.
+- All RAG pipeline components are injectable — tests run entirely without live API calls using mock embedder.
+- In-memory vector store uses linear cosine similarity scan. Simple, correct, and maintainable for Feature 19. Persistent store deferred to when genuinely needed.
+- Chunking is deterministic (character-based sliding window, optional sentence-boundary split). No LLM calls in chunker.
+- No agents were modified. RAG is standalone infrastructure; Feature 20 will connect it to agents.
+- No new npm packages installed — `@google/genai` already had `embedContent` capability.
+
+Verification:
+- TypeScript compilation (`npx tsc --project tsconfig.agentic.json --noEmit`): Passed with 0 errors.
+- TypeScript compilation (`npx tsc --noEmit`): Passed with 0 errors.
+- Feature 19 tests (`npx tsx rag/rag.test.ts`): 9/9 passed (including live Gemini embedding test).
+- Master test runner (`npm run test`): 19/19 test suites passed (0 failures).
+
+---
+
+### Feature 20 — Project Knowledge Retrieval
+
+Files created/modified:
+- `rag/projectKnowledge.ts` [NEW] — `ProjectKnowledge` service providing `ingestProject`, `ingestFiles`, `ingestDocument`, `queryKnowledge`, `getFormattedContext`, and `enhanceContext`.
+- `rag/index.ts` [MODIFIED] — Re-exported `ProjectKnowledge`, `createProjectKnowledge`, `ProjectKnowledgeOptions`, and `QueryKnowledgeOptions`.
+- `rag/projectKnowledge.test.ts` [NEW] — 5-test suite covering project knowledge ingestion, metadata preservation, empty/irrelevant query safety, top-K limits, context formatting/enhancement, and agent integration.
+- `testAll.ts` [MODIFIED] — Added `rag/projectKnowledge.test.ts` to master runner
+- `AGENT_BUILD_CONTEXT.md` [MODIFIED] — Updated Feature 20 progress.
+
+Data Flow:
+```
+Project Files / Codebase
+ → ProjectKnowledge.ingestProject(...) / ingestFiles(...)
+ → RagPipeline (Feature 19)
+ → Chunks + Vector Store Embeddings
+
+Agent Query / Request
+ → ProjectKnowledge.getFormattedContext(query, topK)
+ → Formatted Markdown Context Block with Source Metadata & Scores
+ → Agent Prompt (e.g. ResearcherAgent / PlannerAgent)
+```
+
+Key Decisions:
+- Reused Feature 19 `RagPipeline` directly. No second RAG pipeline, extra database, or duplicate vector store was created.
+- Project Knowledge Retrieval is exposed as an explicit service (`ProjectKnowledge`) that agents or nodes can call on demand. Retrieval is NOT automatically injected into every agent call.
+- Context formatting preserves clear source headers (`[PROJECT KNOWLEDGE Chunk N]`, `Source: <path>`, `Relevance Score: <score>`).
+- Provided `enhanceContext()` helper for cleanly combining base agent notes with retrieved project knowledge context.
+- Zero existing agent interfaces or graph structures were modified, maintaining 100% backward compatibility.
+
+Verification:
+- TypeScript build check (`npx tsc --project tsconfig.agentic.json --noEmit`): Passed with 0 errors.
+- TypeScript build check (`npx tsc --noEmit`): Passed with 0 errors.
+- Feature 20 unit tests (`npx tsx rag/projectKnowledge.test.ts`): 5/5 passed.
+- Aegis Master Test Runner (`npx tsx testAll.ts`): 20/20 test suites passed (0 failures).
+
+---
+
+### Feature 21 — Short-Term Memory & Feature 22 — Long-Term Memory
+
+Files created/modified:
+- `memory/types.ts` [NEW] — Short-term entry & category schemas, long-term record & category schemas, memory query options, formatted context options.
+- `memory/short-term/shortTermMemory.ts` [NEW] — `ShortTermMemory` service providing run-isolated execution scratchpad and temporary key-value state (`set`, `get`, `getCategory`, `getAll`, `search`, `delete`, `clear`).
+- `memory/long-term/longTermMemory.ts` [NEW] — `LongTermMemory` service providing persistent storage of architectural decisions, preferences, and project patterns with JSON file backup (`memory/long-term/storage.json`), automatic disk rehydration, and CRUD query operations.
+- `memory/memoryManager.ts` [NEW] — Unified `MemoryManager` API exposing `shortTerm` and `longTerm` memory sub-systems plus `getFormattedMemoryContext()` builder.
+- `memory/index.ts` [NEW] — Public barrel export for Aegis memory module.
+- `graph/state.ts` [MODIFIED] — Added `runId` and `memoryContext` fields to `AegisStateAnnotation`.
+- `memory/memory.test.ts` [NEW] — 7-block test suite verifying short-term memory CRUD, run isolation, long-term CRUD, disk persistence across process restarts, memory manager formatting, RAG vs Memory distinction, and agent access integration.
+- `testAll.ts` [MODIFIED] — Registered `memory/memory.test.ts` in master runner.
+- `graph/test.ts` & `graph/edges/agentRouter.test.ts` [MODIFIED] — Added `runId` and `memoryContext` to test state builders.
+- `AGENT_BUILD_CONTEXT.md` [MODIFIED] — Updated progress and documented completed features.
+
+Key Decisions:
+- **Strict Layer Separation**: Short-term memory is strictly execution-scoped and isolated per `runId`. Long-term memory is persistent across runs and process restarts via file-backed JSON store with DB compatibility.
+- **RAG vs Memory Distinction**:
+  - RAG: Codebase documents / file vector embeddings ("What information exists in project knowledge?").
+  - Short-Term Memory: Active run scratchpad & execution status ("What is happening in this execution?").
+  - Long-Term Memory: Persistent architectural decisions & project rules ("What useful information/decisions should Aegis remember?").
+- **Non-Intrusive Agent Access**: Memory is exposed via unified `MemoryManager` and formatted context helper `getFormattedMemoryContext()`. Memory is not blindly dumped into every prompt; agents/nodes retrieve memory context as required.
+- **Zero Breaking Changes**: Preserved 100% backward compatibility with all Features 01–20.
+
+Verification:
+- TypeScript compilation (`npx tsc --project tsconfig.agentic.json --noEmit`): Passed with 0 errors.
+- TypeScript compilation (`npx tsc --noEmit`): Passed with 0 errors.
+- Memory unit tests (`npx tsx memory/memory.test.ts`): 7/7 passed.
+- Master test runner (`npx tsx testAll.ts`): 21/21 test suites passed (0 failures).
+
+---
+
+### Feature 23 — Human-in-the-Loop
+
+Files created/modified:
+- `graph/approvalTypes.ts` [NEW] — `ApprovalType`, `ApprovalRiskLevel`, `ApprovalRequest`, `ApprovalDecision`, `CreateApprovalRequestOptions`.
+- `graph/state.ts` [MODIFIED] — Added `"paused"` to `ExecutionStatus`, added `pendingApproval` & `approvalDecision` annotations to `AegisStateAnnotation`.
+- `graph/edges/approvalGate.ts` [NEW] — Policy engine helper `requiresApproval(action, options)` and factory `createApprovalRequest(options)`.
+- `graph/approvalWorkflow.ts` [NEW] — Approval-aware LangGraph workflow compiled with `MemorySaver` checkpointer, approval check gate node, graph interruption, and decision resolution helpers (`executeApprovalWorkflow`, `resolveApprovalAndResume`).
+- `graph/index.ts` [MODIFIED] — Re-exported approval types, approval gate, and approval workflow runtime.
+- `apps/api/services/agentService.ts` [MODIFIED] — Connected `startTask` and `resumeRun` to real approval workflow runtime engine.
+- `apps/api/controllers/approvals.ts` [MODIFIED] — Updated `resolveApproval` controller to pass human decisions (`action` & `reason`) to `agentService.resumeRun`.
+- `graph/approvalWorkflow.test.ts` [NEW] — 5-block test suite verifying safe action detection, protected action approval request creation, graph interruption/pausing (`status: "paused"`), human APPROVE resume execution, human REJECT action prevention, and state preservation.
+- `testAll.ts` [MODIFIED] — Registered `graph/approvalWorkflow.test.ts` in master test runner.
+- `graph/test.ts` & `graph/edges/agentRouter.test.ts` [MODIFIED] — Added `pendingApproval` & `approvalDecision` fields to test state builders.
+- `AGENT_BUILD_CONTEXT.md` [MODIFIED] — Updated Feature 23 progress.
+
+Key Decisions:
+- **Genuine Graph Interruption**: Uses LangGraph's `MemorySaver` checkpointer and `status: "paused"` state annotation. Execution genuinely halts rather than simulating approval.
+- **Human Decision Handling**:
+  - `APPROVE`: Resumes graph execution from checkpoint with `approvalDecision` attached and executes protected file/command changes.
+  - `REJECT`: Resumes graph execution, **skips/prevents** execution of protected changes, logs human refusal context in state, and terminates cleanly (`status: "completed"` with refusal error log).
+- **Backend API Cohesion**: Integrated directly with existing backend controllers (`apps/api/controllers/approvals.ts`) and API service boundaries (`apps/api/services/agentService.ts`) with zero duplicate approval endpoints created.
+
+Verification:
+- TypeScript compilation (`npx tsc --project tsconfig.agentic.json --noEmit`): Passed with 0 errors.
+- TypeScript compilation (`npx tsc --noEmit`): Passed with 0 errors.
+- Feature 23 unit tests (`npx tsx graph/approvalWorkflow.test.ts`): 5/5 passed.
+- Aegis Master Test Runner (`npx tsx testAll.ts`): 22/22 test suites passed (0 failures).
+
+---
+
+### Feature 24 — Tool Permissions / Guardrails
+
+Files created/modified:
+- `tools/guardrails/types.ts` [NEW] — `ToolCategory`, `PermissionDecision`, `PermissionEvaluationInput`, `PermissionEvaluationResult`, `GuardrailOptions`.
+- `tools/guardrails/policyEngine.ts` [NEW] — `classifyToolAction`, `isDangerousAction`, `evaluatePermission` policy rules.
+- `tools/guardrails/enforcer.ts` [NEW] — `enforceToolGuardrail(input)` enforcement entry point.
+- `tools/guardrails/index.ts` [NEW] — Module barrel export.
+- `tools/filesystem/index.ts` [MODIFIED] — Enforced `enforceToolGuardrail` directly inside `writeFile`, `deleteFile`, `createDir`, and `safePath` file I/O operations.
+- `tools/terminal/index.ts` [MODIFIED] — Enforced `enforceToolGuardrail` directly inside `runCommand` before child process execution.
+- `tools/index.ts` [MODIFIED] — Re-exported guardrails module.
+- `tools/guardrails/guardrails.test.ts` [NEW] — 8-block test suite verifying read-only allow, safe mutation allow, sensitive require-approval, approved execution, rejected non-execution, dangerous command block (`rm -rf /`, `format C:`), path escape block (`../../etc/passwd`), and direct tool invocation interception.
+- `testAll.ts` [MODIFIED] — Registered `tools/guardrails/guardrails.test.ts` in master test runner.
+- `AGENT_BUILD_CONTEXT.md` [MODIFIED] — Updated Feature 24 progress.
+
+Key Decisions:
+- **Direct Tool Enforcement**: Guardrails are wired directly into low-level tools (`writeFile`, `deleteFile`, `runCommand`) so agents cannot bypass safety checks by invoking tools directly.
+- **Explicit Safety Policy**:
+  - `ALLOW`: Read-only and safe mutations execute immediately.
+  - `REQUIRE_APPROVAL`: Sensitive operations invoke Feature 23 Human-in-the-Loop approval gate.
+  - `BLOCK`: Dangerous system commands and path escape attempts are denied immediately with `ERR_DANGEROUS_ACTION_BLOCKED`.
+- **Zero Duplication**: Reuses Feature 23 approval infrastructure without creating duplicate approval mechanisms.
+
+Verification:
+- TypeScript compilation (`npx tsc --project tsconfig.agentic.json --noEmit`): Passed with 0 errors.
+- TypeScript compilation (`npx tsc --noEmit`): Passed with 0 errors.
+- Feature 24 unit tests (`npx tsx tools/guardrails/guardrails.test.ts`): 8/8 passed.
+- Aegis Master Test Runner (`npx tsx testAll.ts`): 23/23 test suites passed (0 failures).
+
+
+
+
 
 # 31. LOCKED AEGIS DIFFERENTIATORS
 

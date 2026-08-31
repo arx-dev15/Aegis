@@ -23,6 +23,7 @@
 
 import type { AegisState, AegisStateUpdate, CodeChange, RecoveryContext } from "../state.js";
 import { DeveloperAgent } from "../../agents/developer/developer.js";
+import { memoryManager } from "../../memory/memoryManager.js";
 import {
   writeFile,
   deleteFile,
@@ -69,7 +70,19 @@ export function createDeveloperNode(agent?: DeveloperAgent) {
       // ── Phase 1: LLM generates the implementation plan ───────────────────
       // Feature 18: extract recovery context so Developer knows what to fix on retry
       const recoveryCtx = formatRecoveryContext(state.recoveryContext ?? []);
-      const result = await developer.develop(state.task, state.architecture, recoveryCtx);
+      const memoryContext = state.memoryContext || (state.runId ? memoryManager.getFormattedMemoryContext({ runId: state.runId }) : "");
+      const baseArch = memoryContext ? `${state.architecture}\n\n${memoryContext}`.trim() : state.architecture;
+
+      const result = await developer.develop(state.task, baseArch, recoveryCtx);
+
+      if (state.runId) {
+        memoryManager.shortTerm.set(
+          state.runId,
+          "developer_summary",
+          `Generated ${result.fileChanges.length} file changes`,
+          "step_note"
+        );
+      }
 
       const newCodeChanges: CodeChange[] = result.fileChanges.map((fc) => ({
         path: fc.path,

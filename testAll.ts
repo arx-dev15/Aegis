@@ -1,7 +1,7 @@
 /**
  * testAll.ts
  *
- * Aegis Master Test Runner — Runs all unit and workflow test suites for Features 01–18.
+ * Aegis Master Test Runner — Runs all unit and workflow test suites for Features 01–20.
  *
  * Command:
  *   npx tsx testAll.ts
@@ -37,11 +37,26 @@ const testFiles = [
 
   // Failure Recovery + Iteration Loops Tests (Feature 18)
   "graph/failureRecovery.test.ts",
+
+  // RAG Pipeline Tests (Feature 19)
+  "rag/rag.test.ts",
+
+  // Project Knowledge Retrieval Tests (Feature 20)
+  "rag/projectKnowledge.test.ts",
+
+  // Memory Layer Tests (Features 21 & 22)
+  "memory/memory.test.ts",
+
+  // Human-in-the-Loop Approval Tests (Feature 23)
+  "graph/approvalWorkflow.test.ts",
+
+  // Tool Permissions / Guardrails Tests (Feature 24)
+  "tools/guardrails/guardrails.test.ts",
 ];
 
 function runAll() {
   console.log("=================================================");
-  console.log("  AEGIS MASTER TEST SUITE (Features 01 – 18)");
+  console.log("  AEGIS MASTER TEST SUITE (Features 01 – 24)");
   console.log("=================================================\n");
 
   let totalPassed = 0;

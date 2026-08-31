@@ -16,6 +16,7 @@
  */
 
 import { spawn } from "child_process";
+import { enforceToolGuardrail } from "../guardrails/index.js";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -59,6 +60,24 @@ export function runCommand(
   options: RunCommandOptions = {}
 ): Promise<CommandResult> {
   const { cwd = process.cwd(), env = {}, timeoutMs = 60_000 } = options;
+
+  const guard = enforceToolGuardrail({
+    toolName: "terminal",
+    action: "execute_terminal",
+    target: command,
+  });
+
+  if (!guard.allowed) {
+    return Promise.resolve({
+      command,
+      exitCode: 1,
+      stdout: "",
+      stderr: `[GUARDRAIL-BLOCKED] ${guard.reason}`,
+      timedOut: false,
+      durationMs: 0,
+      success: false,
+    });
+  }
 
   return new Promise((resolve) => {
     const startTime = Date.now();

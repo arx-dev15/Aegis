@@ -83,6 +83,10 @@ async function runTests(): Promise<void> {
       workspace: "",
       executionLog: [],
       recoveryContext: [],
+      runId: "",
+      memoryContext: "",
+      pendingApproval: null,
+      approvalDecision: null,
     };
 
     if (sampleState.status !== "testing") {
