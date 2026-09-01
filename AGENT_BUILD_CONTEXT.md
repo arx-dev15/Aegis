@@ -978,14 +978,16 @@ Do not add random features simply because they are interesting.
 [x] Feature 21 — Short-Term Memory
 [x] Feature 22 — Long-Term Memory
 [x] Feature 23 — Human-in-the-Loop
+[x] Feature 24 — Tool Permissions / Guardrails
+[x] Feature 25 — GitHub Integration
 
 ## Currently Building
 
-Feature 24 — Tool Permissions / Guardrails
+Feature 26 — Terminal / Sandbox Execution
 
 ## Next
 
-Feature 26 — Tool Permissions / Guardrails
+Feature 27 — MCP Integration
 
 
 ---
@@ -1798,6 +1800,35 @@ Verification:
 - TypeScript compilation (`npx tsc --noEmit`): Passed with 0 errors.
 - Feature 24 unit tests (`npx tsx tools/guardrails/guardrails.test.ts`): 8/8 passed.
 - Aegis Master Test Runner (`npx tsx testAll.ts`): 23/23 test suites passed (0 failures).
+
+---
+
+### Feature 25 — GitHub Integration
+
+Files created/modified:
+- `tools/github/client.ts` [NEW] — `GitHubClient` REST client using Node native `fetch` with error normalization & credential masking. Supports live unauthenticated reads to public repos and authenticated reads/writes.
+- `tools/github/index.ts` [NEW] — `GithubInputSchema`, `githubTool`, and `executeGithubOperation` with Feature 24 guardrail enforcement.
+- `apps/api/controllers/projects.ts` [MODIFIED] — Added `getProjectGithubData` controller to fetch live real-time GitHub repository status (`stars`, `forks`, `openIssues`, `defaultBranch`, `url`) from `api.github.com`.
+- `apps/api/routes/projects.ts` [MODIFIED] — Registered route `GET /api/projects/:id/github`.
+- `demoGithub.ts` [REFACTORED] — Completely eliminated all hardcoded mock/fake fallback data (`ghp_mock_demo_token`, fake static JSON objects); all executions hit live `https://api.github.com` REST endpoints.
+- `tools/guardrails/policyEngine.ts` [MODIFIED] — Registered 10 GitHub read actions in `READ_ONLY_ACTIONS`, 3 GitHub write actions in `SENSITIVE_MUTATION_ACTIONS`, and administrative actions in `isDangerousAction`.
+- `tools/index.ts` [MODIFIED] — Re-exported GitHub tool module.
+- `tools/github/github.test.ts` [NEW] — 7-level comprehensive test suite (Unit & Validation, Client & Error Normalization, Permission & Zero-Bypass Test, Agent Integration, Graph Workflow Integration, Multi-Agent System Integration, Security Audit & E2E Verification).
+- `testAll.ts` [MODIFIED] — Registered `tools/github/github.test.ts` in master test runner.
+- `AGENT_BUILD_CONTEXT.md` [MODIFIED] — Updated Feature 25 progress.
+
+Key Decisions:
+- **Zero Hardcoded/Fake Data**: All production tool executions and scripts make real live HTTP calls to `api.github.com`. No mock/demo static JSON fallbacks exist.
+- **Backend API Integration**: Exposed `GET /api/projects/:id/github` to serve live GitHub metadata to Aegis backend and frontend interfaces without leaking credentials.
+- **Strict Guardrail & Zero-Bypass Protection**: All GitHub mutations pass through Feature 24 `enforceToolGuardrail()`. When unapproved or denied, the GitHub HTTP client is **never** invoked.
+- **Strict Credential Protection**: `GITHUB_TOKEN` is loaded securely from environment (`process.env.GITHUB_TOKEN`) and stripped/masked from all error strings, tool outputs, logs, WebSocket payloads, and thrown exceptions.
+
+Verification:
+- TypeScript compilation (`npx tsc --project tsconfig.agentic.json --noEmit`): Passed with 0 errors.
+- TypeScript compilation (`npx tsc --noEmit`): Passed with 0 errors.
+- Real Live Script (`npx tsx demoGithub.ts`): Connected live to `api.github.com` (fetched live stars, commits, branches).
+- Feature 25 test suite (`npx tsx tools/github/github.test.ts`): 7/7 test levels passed.
+- Aegis Master Test Runner (`npx tsx testAll.ts`): 24/24 test suites passed (0 failures).
 
 
 

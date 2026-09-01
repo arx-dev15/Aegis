@@ -52,11 +52,14 @@ const testFiles = [
 
   // Tool Permissions / Guardrails Tests (Feature 24)
   "tools/guardrails/guardrails.test.ts",
+
+  // GitHub Integration Tests (Feature 25)
+  "tools/github/github.test.ts",
 ];
 
 function runAll() {
   console.log("=================================================");
-  console.log("  AEGIS MASTER TEST SUITE (Features 01 – 24)");
+  console.log("  AEGIS MASTER TEST SUITE (Features 01 – 25)");
   console.log("=================================================\n");
 
   let totalPassed = 0;

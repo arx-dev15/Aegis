@@ -52,6 +52,17 @@ const READ_ONLY_ACTIONS = new Set([
   "calculator",
   "get",
   "query_knowledge",
+  // Feature 25 — GitHub Read Actions
+  "get_repository",
+  "list_branches",
+  "get_branch",
+  "list_contents",
+  "get_file",
+  "list_commits",
+  "get_issue",
+  "list_issues",
+  "get_pull_request",
+  "list_pull_requests",
 ]);
 
 /**
@@ -70,6 +81,10 @@ const SENSITIVE_MUTATION_ACTIONS = new Set([
   "run_migration",
   "modify",
   "delete",
+  // Feature 25 — GitHub Write Actions
+  "create_or_update_file",
+  "create_issue",
+  "create_pull_request",
 ]);
 
 /**

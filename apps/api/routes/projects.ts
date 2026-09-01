@@ -11,6 +11,7 @@ const router = Router()
 router.get('/', projectsCtrl.listProjects)
 router.post('/', validate(CreateProjectSchema), projectsCtrl.createProject)
 router.get('/:id', projectsCtrl.getProject)
+router.get('/:id/github', projectsCtrl.getProjectGithubData)
 router.patch('/:id', validate(UpdateProjectSchema), projectsCtrl.updateProject)
 router.delete('/:id', projectsCtrl.deleteProject)
 

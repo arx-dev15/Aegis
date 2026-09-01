@@ -142,3 +142,44 @@ export async function deleteProject(req: Request, res: Response, next: NextFunct
     next(err)
   }
 }
+
+export async function getProjectGithubData(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { id } = req.params
+    let repoName = ''
+
+    if (config.SKIP_DB) {
+      const p = memProjects[id]
+      if (!p) return next(createError('Project not found', 404, 'NOT_FOUND'))
+      repoName = p.repo || ''
+    } else {
+      const p = await queryOne(`SELECT repo FROM projects WHERE id = $1`, [id])
+      if (!p) return next(createError('Project not found', 404, 'NOT_FOUND'))
+      repoName = p.repo || ''
+    }
+
+    if (!repoName || repoName.trim() === '') {
+      return res.json({ data: null, message: 'No GitHub repository configured for this project.' })
+    }
+
+    const parts = repoName.split('/')
+    if (parts.length < 2) {
+      return res.json({ data: null, error: `Invalid repository format "${repoName}". Expected "owner/repository".` })
+    }
+
+    const [owner, repo] = parts
+    const { defaultGitHubClient } = await import('../../../tools/github/index.js')
+    
+    try {
+      const repoData = await defaultGitHubClient.getRepository(owner, repo)
+      return res.json({ data: repoData })
+    } catch (err: any) {
+      return res.status(200).json({
+        data: null,
+        error: err.message || 'Failed to fetch live GitHub repository data.',
+      })
+    }
+  } catch (err) {
+    next(err)
+  }
+}
