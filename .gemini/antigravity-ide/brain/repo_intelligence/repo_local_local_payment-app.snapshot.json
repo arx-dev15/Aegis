@@ -1,0 +1,64 @@
+{
+  "repository": {
+    "id": "repo_local_local_payment-app",
+    "provider": "local",
+    "owner": "local",
+    "name": "payment-app",
+    "url": "D:\\Rakshith\\Code Playback\\Aegis\\.tmp\\isolation_test",
+    "defaultBranch": "main",
+    "analyzedRevision": "main",
+    "commitSha": "latest",
+    "status": "pending",
+    "createdAt": "2026-09-03T17:42:32.965Z",
+    "updatedAt": "2026-09-03T17:42:32.965Z"
+  },
+  "files": [
+    {
+      "id": "file_b9cfc7f2cdf7",
+      "repoId": "repo_scan_isolation_test",
+      "path": "package.json",
+      "name": "package.json",
+      "extension": ".json",
+      "language": "JSON",
+      "size": 27,
+      "hash": "ee46e2536abc5f3f",
+      "category": "CONFIG",
+      "lines": 1,
+      "revision": "main"
+    },
+    {
+      "id": "file_a02df0e00e9d",
+      "repoId": "repo_scan_isolation_test",
+      "path": "src/paymentService.ts",
+      "name": "paymentService.ts",
+      "extension": ".ts",
+      "language": "TypeScript",
+      "size": 71,
+      "hash": "36434439567fcca6",
+      "category": "SOURCE",
+      "lines": 1,
+      "revision": "main"
+    }
+  ],
+  "symbols": [
+    {
+      "id": "s_new",
+      "repoId": "repo_payment_app",
+      "fileId": "fb1",
+      "filePath": "src/paymentService.ts",
+      "name": "StripePaymentAdapter",
+      "kind": "class",
+      "startLine": 1,
+      "endLine": 10,
+      "exported": true,
+      "language": "TypeScript"
+    }
+  ],
+  "importsExports": [],
+  "dependencies": [],
+  "apis": [],
+  "databases": [],
+  "tests": [],
+  "gitCommits": [],
+  "relationships": []
+}

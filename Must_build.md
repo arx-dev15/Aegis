@@ -1,250 +1,77 @@
-🧠 MUST BUILD
+# Aegis Essential Capabilities Roadmap
 
-These are the features that define Aegis.
+This document lists the core capabilities that define **Aegis** as an AI Engineering Operating System. Each item is explicitly labeled with its implementation status.
 
-1. Project Workspace
+---
 
-User creates/connects a project.
+## 1. Core Platform & Workspace Capabilities
 
-Project
-├── repository
-├── tech stack
-├── project context
-├── files
-├── architecture
-└── history
+### 1.1 Project Workspace & Understanding `[COMPLETED]`
+Aegis inspects codebases, parses AST symbols, builds relationship graphs, and classifies files into an evidence-backed model before taking engineering action.
 
-Aegis understands the project before acting.
+### 1.2 Multi-Agent Orchestration `[COMPLETED]`
+Aegis deploys 7 specialized engineering agents (Planner, Researcher, Architect, Developer, Tester, Reviewer, Security) managed by a LangGraph StateGraph orchestrator with dynamic handoff and failure recovery loops.
 
-2. AI Planner Agent
+### 1.3 Repository Intelligence & Impact Analysis `[COMPLETED]`
+Extracts Express/Next.js API routes, SQL/Prisma schemas, manifest dependencies, and AST symbol relationships (`CALLS`, `IMPORTS`, `USES`). Computes dynamic impact reports (`computeDynamicImpactReport`) to calculate blast radius before making code changes.
 
-User:
+### 1.4 Codebase-Aware RAG Pipeline `[COMPLETED]`
+Deterministic sliding-window text chunking, Gemini embeddings (`gemini-embedding-001`), and cosine similarity vector search (`rag/projectKnowledge.ts`) for context injection.
 
-Build authentication with JWT and Google OAuth.
+### 1.5 Dual Memory System `[COMPLETED]`
+Execution-isolated short-term working scratchpad (`runId`) and file-backed persistent long-term memory (`memory/long-term/storage.json`) for retaining project facts and architectural decisions across process restarts.
 
-Planner generates:
+### 1.6 Safety, Policy Guardrails & Human-in-the-Loop `[COMPLETED]`
+Direct low-level tool enforcement (`tools/guardrails/`) blocking dangerous actions (`rm -rf /`) and graph interruption (`status: "paused"`) requiring explicit human approval before executing sensitive file, terminal, or GitHub mutations.
 
-1. Analyze existing authentication
-2. Design auth architecture
-3. Configure OAuth
-4. Implement JWT
-5. Add middleware
-6. Add tests
-7. Security review
-3. Research Agent
+### 1.7 Real GitHub Integration `[COMPLETED]`
+Live REST integration (`tools/github/`) using `api.github.com` with `GITHUB_TOKEN` from `.env` and credential masking. No fake or mock production data.
 
-Can research:
+### 1.8 Interactive CLI & REST API Gateway `[COMPLETED]`
+First-class interactive command-line tool (`cli.ts`) and Express REST API server (`apps/api/`) exposing repository connection, status, search, and impact analysis capabilities.
 
-documentation
-APIs
-libraries
-technical approaches
-existing project knowledge
+---
 
-And provide evidence-backed context to downstream agents.
+## 2. In-Progress & Planned Essential Capabilities
 
-4. Architect Agent
+### 2.1 Terminal & Sandbox Execution `[IN PROGRESS]`
+Sandboxed runner for executing `npm test`, `npm run build`, and `git diff` commands securely inside controlled environments (`tools/terminal/`).
 
-Converts the plan into an implementation architecture.
+### 2.2 Model Context Protocol (MCP) Integration `[PLANNED]`
+Standardized Model Context Protocol server/client interface (`tools/mcp/`) enabling seamless tool and context integration across external services.
 
-Example:
+### 2.3 Session Runtime, Checkpointing & Branching `[PLANNED]`
+Persistent session state checkpoints allowing execution history reconstruction, task branching, and rewinding (`graph/checkpointing/`).
 
-Auth Controller
-      ↓
-Auth Service
-      ↓
-JWT Service
-      ↓
-User Repository
-      ↓
-PostgreSQL
+### 2.4 Observability, Tracing & Token/Cost Tracking `[PLANNED]`
+Detailed execution tracing tracking agent runs, LLM latency, token counts, tool calls, and monetary costs (`observability/`).
 
-It should also explain why it chose the architecture.
+### 2.5 Agent Evaluation & Benchmarks `[PLANNED]`
+Automated benchmark suite measuring planning accuracy, retrieval precision, code correctness, and trajectory success (`evaluation/`).
 
-5. Developer Agent
+### 2.6 Architecture Simplification & Refactor `[PLANNED]`
+Post-stability consolidation to reduce file fragmentation and simplify imports while preserving 100% of capabilities, APIs, and tests.
 
-The important one.
+---
 
-It can:
+## 3. Implementation Status Matrix
 
-read files
-write files
-modify files
-create files
-run commands
-install dependencies
-
-But dangerous actions require approval.
-
-6. Tester Agent
-
-Aegis should actually test what it builds.
-
-Implementation
-      ↓
-Run tests
-      ↓
-Failure?
- ┌────┴────┐
- YES       NO
-  ↓         ↓
-Developer  Review
-
-This creates an actual agentic feedback loop.
-
-7. Code Reviewer Agent
-
-Reviews:
-
-correctness
-architecture
-maintainability
-code quality
-edge cases
-
-Produces:
-
-PASS
-or
-CHANGES REQUIRED
-8. Security Agent
-
-Checks:
-
-authentication
-authorization
-secrets
-injection
-unsafe dependencies
-exposed APIs
-dangerous commands
-common vulnerabilities
-9. LangGraph Orchestration
-
-The entire engineering process becomes a stateful graph.
-
-START
- ↓
-Planner
- ↓
-Researcher
- ↓
-Architect
- ↓
-Developer
- ↓
-Tester
- ├── FAIL → Developer
- └── PASS
-       ↓
-    Reviewer
-       ↓
-    Security
-       ↓
-Human Approval
-       ↓
-      END
-
-This is the heart of Aegis.
-
-10. RAG / Project Knowledge
-
-Aegis should understand:
-
-README
-documentation
-source code
-architecture docs
-API docs
-previous decisions
-project knowledge
-
-Pipeline:
-
-Documents
- ↓
-Chunk
- ↓
-Embed
- ↓
-Vector Store
- ↓
-Retrieve
- ↓
-Agent Context
-11. Memory
-
-Aegis remembers project-level information.
-
-For example:
-
-"This project uses PostgreSQL, Prisma and JWT."
-
-It shouldn't rediscover that every time.
-
-We'll have:
-
-Short-term memory
-→ current task execution
-
-Long-term memory
-→ project knowledge + previous decisions
-12. Human-in-the-Loop
-
-This is non-negotiable.
-
-Before:
-
-git push
-database migration
-production deployment
-delete files
-execute dangerous command
-
-Aegis pauses:
-
-⚠️ APPROVAL REQUIRED
-
-Action:
-Run database migration
-
-Reason:
-Creates 3 new tables.
-
-[Approve] [Reject]
-
-🏆 Final Aegis
-
-Eventually the dashboard looks roughly like:
-
-                         AEGIS
-                           │
-            ┌──────────────┼──────────────┐
-            │              │              │
-         PROJECT         AGENTS         MEMORY
-            │              │              │
-            │       ┌──────┼──────┐       │
-            │       │      │      │       │
-            │    Planner Research Dev     │
-            │              │              │
-            │          Architect         │
-            │              │              │
-            │           Tester           │
-            │              │              │
-            │           Reviewer         │
-            │              │              │
-            └──────────────┼──────────────┘
-                           │
-                    ORCHESTRATOR
-                      LangGraph
-                           │
-              ┌────────────┼────────────┐
-              │            │            │
-            Tools         RAG         Memory
-              │            │            │
-          GitHub       Vector DB    PostgreSQL
-          Terminal     Embeddings   Redis
-          Browser
-              │
-              ▼
-            GEMINI
+| Capability | Status | Core Component |
+| :--- | :--- | :--- |
+| Multi-Agent System (7 Agents) | `[COMPLETED]` | `agents/` |
+| LangGraph Workflow Orchestration | `[COMPLETED]` | `graph/` |
+| Dynamic Routing & Failure Recovery | `[COMPLETED]` | `graph/edges/agentRouter.ts`, `graph/nodes/recoveryNode.ts` |
+| Repository Intelligence Engine | `[COMPLETED]` | `repo-intelligence/` |
+| Codebase-Aware RAG | `[COMPLETED]` | `rag/` |
+| Dual Memory (Short & Long Term) | `[COMPLETED]` | `memory/` |
+| Policy Guardrails & Safety | `[COMPLETED]` | `tools/guardrails/` |
+| Human-in-the-Loop Approvals | `[COMPLETED]` | `graph/approvalWorkflow.ts` |
+| Real GitHub Integration | `[COMPLETED]` | `tools/github/` |
+| Interactive CLI | `[COMPLETED]` | `cli.ts` |
+| Express API & Web Dashboard | `[COMPLETED]` | `apps/api/`, `apps/web/` |
+| Terminal / Sandbox Execution | `[IN PROGRESS]` | `tools/terminal/` |
+| MCP Integration | `[PLANNED]` | `tools/mcp/` |
+| Session Resume & Branching | `[PLANNED]` | `graph/checkpointing/` |
+| Observability & Tracing | `[PLANNED]` | `observability/` |
+| Agent Evaluation Suite | `[PLANNED]` | `evaluation/` |
+| Architecture Simplification | `[PLANNED]` | Planned post-stability consolidation |

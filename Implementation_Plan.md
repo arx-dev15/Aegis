@@ -1,537 +1,62 @@
+# Aegis Technical Implementation Strategy Plan
 
-Aegis = Autonomous AI Engineering Operating System
+This document details the practical implementation strategies for key Aegis subsystems, serving as a technical guide for AI coding agents and human engineers.
 
-A user gives Aegis a software task, and Aegis can understand → plan → research → design → implement → test → review → get approval → execute.
+---
 
-Core user flow
-User gives task
-      ↓
-Understand project
-      ↓
-Plan
-      ↓
-Research
-      ↓
-Architecture
-      ↓
-Implementation
-      ↓
-Testing
-      ↓
-Code Review
-      ↓
-Security Review
-      ↓
-Human Approval
-      ↓
-Execute
-      ↓
-Report
+## 1. Implementation Principles
 
-PHASE 1 — Gemini + LangChain
+1. **Non-Destructive Additive Development**: Every new capability must integrate cleanly without deleting working backend, frontend, or agent code.
+2. **Explicit Data Flow over Over-Abstraction**: Prefer explicit function calls, typed interfaces, and clean State Annotations over deep class inheritance or magic dependency injection.
+3. **Production Realism**: Production code uses real external data (e.g. live `api.github.com` REST APIs, real filesystem operations). Mocks are strictly isolated to automated unit test files.
+4. **Safety by Default**: Destructive or sensitive actions pass through explicit policy guardrails (`tools/guardrails/`) and Human-in-the-Loop approval gates (`graph/approvalWorkflow.ts`).
 
-Our first mini-system:
+---
 
-User
- ↓
-LangChain
- ↓
-Gemini
- ↓
-Structured response
+## 2. Component Implementation Strategies
 
-We'll learn:
+### 2.1 Agent Implementation Strategy (`agents/`) `[IMPLEMENTED]`
+- **Base Agent (`agents/agent.ts`)**: Implements `callStructured<T>()` using `@google/genai` to bind Zod schemas directly to Gemini model responses.
+- **Model Isolation**: Agents invoke `callStructured` through typed model wrappers (`GeminiPlannerModel`, `GeminiArchitectModel`, etc.), allowing test code to inject mock models seamlessly while production code targets `gemini-2.5-flash`.
+- **Specialization**: Each of the 7 agents defines a single responsibility with a strict Zod output schema (`agents/<agent>/types.ts`).
 
-Gemini models
-API keys
-LangChain models
-messages
-system/user messages
-temperature
-tokens
-structured output
-streaming
-error handling
-PHASE 2 — Tools
+### 2.2 Orchestration Strategy (`graph/`) `[IMPLEMENTED]`
+- **LangGraph State (`graph/state.ts`)**: `AegisStateAnnotation` acts as the single source of truth across all graph nodes.
+- **Dynamic Handoff (`graph/edges/agentRouter.ts`)**: `determineNextAgent(state)` inspects task status and artifact existence to route dynamically. If plan and architecture are pre-populated, execution skips prior nodes and proceeds straight to `developer`.
+- **Failure Recovery (`graph/nodes/recoveryNode.ts`)**: When tests fail (`testResults.passed === false`) or code review rejects a diff, `recoveryNode` constructs a `RecoveryContext` (failing agent, reason, attempt number) and routes back to Developer or Architect without re-running the entire workflow.
 
-Then we make the AI capable of doing things.
+### 2.3 Repository Intelligence Strategy (`repo-intelligence/`) `[IMPLEMENTED]`
+- **AST Parsing (`repo-intelligence/parsers/tsParser.ts`)**: Uses `ts-morph` to traverse TypeScript/JavaScript ASTs, extracting symbols (classes, functions, methods, interfaces, types), line ranges, and export flags.
+- **Domain Extractors (`repo-intelligence/extractors/`)**: Extracts Express/Next.js routes (`apiExtractor`), SQL/Prisma schemas (`databaseExtractor`), dependencies (`dependencyExtractor`), and test targets (`testExtractor`).
+- **Graph Synthesis (`repo-intelligence/relationships/graphEngine.ts`)**: Creates provenanced edges (`CALLS`, `IMPORTS`, `HANDLES`, `QUERIES`, `TESTED_BY`, `USES`) with line-level evidence and confidence ratings (`exact`, `inferred`).
+- **Impact Analysis (`repo-intelligence/retrieval/hybridRetriever.ts`)**: Implements a 5-stage target resolution pipeline (`exact` -> `case` -> `partial` -> `candidate` -> `unresolved`) and dynamic multi-hop BFS traversal (`computeDynamicImpactReport`).
 
-Example:
+### 2.4 Real GitHub Strategy (`tools/github/`) `[IMPLEMENTED]`
+- **Live API Integration**: `GitHubClient` (`tools/github/client.ts`) uses Node native `fetch` against `api.github.com` with `GITHUB_TOKEN` from `.env`.
+- **Guardrail Integration**: Tool calls pass through `enforceToolGuardrail()`. Read operations execute immediately; branch/commit/PR creations require human approval.
+- **Credential Protection**: Tokens are masked from error messages, tool outputs, and WebSocket payloads.
 
-AI
- │
- ├── calculator
- ├── web search
- ├── file reader
- ├── file writer
- ├── GitHub
- ├── database
- └── code executor
+### 2.5 Safety & Approval Strategy (`tools/guardrails/` & `graph/approvalWorkflow.ts`) `[IMPLEMENTED]`
+- **Policy Engine**: `evaluatePermission(input)` evaluates tool actions into `ALLOW`, `REQUIRE_APPROVAL`, or `BLOCK`.
+- **Graph Interruption**: `approvalCheckGateNode` checks policy decisions. If `REQUIRE_APPROVAL`, state transitions to `status: "paused"` and graph interrupts via `MemorySaver` checkpointer.
+- **Resume Handling**: Human decisions (`APPROVE` / `REJECT`) are passed via `resolveApprovalAndResume()`. If `APPROVE`, execution continues; if `REJECT`, sensitive actions are prevented and execution logs refusal context.
 
-The important concept:
+### 2.6 Dual Memory Strategy (`memory/`) `[IMPLEMENTED]`
+- **Short-Term Memory**: Execution-scoped scratchpad (`memory/short-term/shortTermMemory.ts`) tied to `runId`.
+- **Long-Term Memory**: Persistent store (`memory/long-term/longTermMemory.ts`) rehydrating from `memory/long-term/storage.json` across process restarts.
+- **Separation from RAG**: Memory stores architectural facts and project rules; RAG embeds raw codebase document chunks.
 
-LLM doesn't execute tools.
+### 2.7 Interactive CLI Strategy (`cli.ts`) `[IMPLEMENTED]`
+- **First-Class Entrypoint**: `cli.ts` imports Aegis core services directly.
+- **Automatic Token Resolution**: Reads `GITHUB_TOKEN` from `.env` automatically if not explicitly supplied as an argument.
+- **Commands**: Supports `connect <url>`, `status <repoId>`, `search <repoId> "<query>"`, and `impact <repoId> <targetEntity>`.
 
-It decides which tool should be used.
+---
 
-User
- ↓
-LLM
- ↓
-"I need to search the web"
- ↓
-Tool Call
- ↓
-Search Tool
- ↓
-Result
- ↓
-LLM
- ↓
-Answer
+## 3. Strategy for Future Architecture Simplification `[PLANNED]`
 
-That's the foundation of agentic systems.
-
-PHASE 3 — Our first Agent
-
-We'll build:
-
-Research Agent
-
-User:
-
-"Research the best authentication architecture for a MERN SaaS."
-
-Agent:
-
-Think
- ↓
-Search
- ↓
-Read
- ↓
-Compare
- ↓
-Reason
- ↓
-Produce structured report
-
-Now we're actually building an agent, not a chatbot.
-
-PHASE 4 — LangGraph
-
-This is where things become 🔥.
-
-Instead of:
-
-LLM → Tool → LLM
-
-we create a graph:
-
-                ┌──────────────┐
-                │    START     │
-                └──────┬───────┘
-                       ↓
-                 ┌───────────┐
-                 │  Planner  │
-                 └─────┬─────┘
-                       ↓
-                 ┌───────────┐
-                 │ Research  │
-                 └─────┬─────┘
-                       ↓
-                 ┌───────────┐
-                 │ Architect │
-                 └─────┬─────┘
-                       ↓
-                 ┌───────────┐
-                 │Implementer│
-                 └─────┬─────┘
-                       ↓
-                 ┌───────────┐
-                 │   Tests   │
-                 └─────┬─────┘
-                       ↓
-                    PASS?
-                   /     \
-                 YES      NO
-                  ↓        ↓
-               REVIEW   IMPLEMENT
-                  │        │
-                  └────┬───┘
-                       ↓
-                      END
-
-This teaches you the actual mental model of agent orchestration.
-
-PHASE 5 — State
-
-This is extremely important.
-
-The graph needs to remember what's happening.
-
-Something like:
-
-type AgentState = {
-  userRequest: string;
-
-  plan: Task[];
-
-  research: ResearchResult[];
-
-  architecture: Architecture;
-
-  filesChanged: string[];
-
-  testResults: TestResult[];
-
-  review: ReviewResult;
-
-  errors: string[];
-
-  currentStep: string;
-};
-
-Now you understand why LangGraph exists.
-
-It's not just "LangChain but cooler."
-
-It's managing stateful workflows involving LLMs and tools.
-
-PHASE 6 — Multi-Agent
-
-Now we introduce specialized agents.
-
-Planner
-
-Breaks the problem down.
-
-Researcher
-
-Finds information.
-
-Architect
-
-Designs the solution.
-
-Developer
-
-Writes implementation.
-
-Reviewer
-
-Reviews code.
-
-Tester
-
-Runs tests.
-
-Security Agent
-
-Checks vulnerabilities.
-
-Documentation Agent
-
-Generates documentation.
-
-And our orchestrator coordinates them.
-
-                  ORCHESTRATOR
-                       │
-        ┌──────────────┼──────────────┐
-        ↓              ↓              ↓
-     Research       Planning      Architecture
-        │              │              │
-        └──────────────┼──────────────┘
-                       ↓
-                  Development
-                       ↓
-              ┌────────┴────────┐
-              ↓                 ↓
-           Testing           Security
-              │                 │
-              └────────┬────────┘
-                       ↓
-                    Review
-                       ↓
-                 Human Approval
-PHASE 7 — RAG
-
-Now Aegis needs knowledge.
-
-We'll give it:
-
-Documentation
-GitHub repositories
-Project files
-Architecture docs
-Technical papers
-Internal knowledge
-Previous decisions
-
-Pipeline:
-
-Documents
- ↓
-Chunking
- ↓
-Embeddings
- ↓
-Vector Database
- ↓
-Retriever
- ↓
-Relevant Context
- ↓
-Agent
-
-And we'll implement both:
-
-Basic RAG
-
-and eventually:
-
-Agentic RAG
-
-where the agent decides:
-
-"I don't have enough information. Search the knowledge base again."
-
-PHASE 8 — Memory
-
-We'll separate:
-
-Short-term memory
-
-Current graph execution.
-
-conversation
-task state
-tool results
-errors
-Long-term memory
-
-Across executions.
-
-user preferences
-project architecture
-past decisions
-successful solutions
-known bugs
-
-This is where PostgreSQL/Redis/vector storage becomes useful.
-
-PHASE 9 — Human-in-the-loop
-
-This is VERY important for real agentic systems.
-
-We don't allow an autonomous agent to blindly execute everything.
-
-For example:
-
-Agent wants to:
-
-DELETE DATABASE
-       ↓
-        🚨
-       ↓
-HUMAN APPROVAL
-       ↓
-Approve / Reject
-
-Same for:
-
-git push
-production deployment
-database migration
-sending emails
-deleting files
-
-This teaches you how real production agents should be designed.
-
-PHASE 10 — MCP
-
-Then we'll introduce Model Context Protocol.
-
-Instead of manually creating every integration:
-
-Agent
- ├── GitHub tool
- ├── Slack tool
- ├── filesystem tool
- ├── database tool
- └── browser tool
-
-we learn how standardized tool/context interfaces work.
-
-PHASE 11 — Observability
-
-This is where our project starts feeling production-grade.
-
-We track:
-
-Agent execution
-       ↓
-Trace
-       ↓
-┌─────────────────────┐
-│ Planner             │
-│  └─ LLM call        │
-│                     │
-│ Researcher          │
-│  ├─ Search           │
-│  ├─ LLM call        │
-│  └─ Retrieval       │
-│                     │
-│ Developer           │
-│  ├─ File write      │
-│  └─ Test            │
-└─────────────────────┘
-
-We'll monitor:
-
-latency
-token usage
-cost
-failures
-tool calls
-agent loops
-hallucinations
-retrieval quality
-PHASE 12 — Evaluation
-
-This is something most beginners completely ignore.
-
-We create datasets like:
-
-
-Input
-Expected behavior
-Actual behavior
-Score
-
-Then evaluate:
-
-Planning quality
-Tool selection
-RAG accuracy
-Answer quality
-Safety
-Task completion
-
-Now you're learning LLM engineering, not just API usage.
-
-PHASE 13 — Production Backend
-
-Eventually:
-
-                React
-                  │
-                  ▼
-             API Gateway
-                  │
-                  ▼
-              Express
-                  │
-          ┌───────┴────────┐
-          ↓                ↓
-      PostgreSQL         Redis
-          │                │
-          └───────┬────────┘
-                  ↓
-             LangGraph
-                  │
-        ┌─────────┼─────────┐
-        ↓         ↓         ↓
-      Agents    Tools      RAG
-                  │
-                  ↓
-                Gemini
-
-Then:
-
-Docker
- ↓
-CI/CD
- ↓
-Cloud
- ↓
-Monitoring
-📁 Final architecture
-
-Something approximately like:
-
-aegis/
-│
-├── apps/
-│   ├── web/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── hooks/
-│   │   └── lib/
-│   │
-│   └── api/
-│       ├── routes/
-│       ├── controllers/
-│       ├── middleware/
-│       └── server.ts
-│
-├── agents/
-│   ├── planner/
-│   ├── researcher/
-│   ├── architect/
-│   ├── developer/
-│   ├── reviewer/
-│   ├── tester/
-│   └── security/
-│
-├── graph/
-│   ├── state.ts
-│   ├── nodes/
-│   ├── edges/
-│   └── workflow.ts
-│
-├── tools/
-│   ├── filesystem/
-│   ├── github/
-│   ├── search/
-│   ├── terminal/
-│   ├── database/
-│   └── browser/
-│
-├── rag/
-│   ├── loaders/
-│   ├── chunkers/
-│   ├── embeddings/
-│   ├── retriever/
-│   └── vector-store/
-│
-├── memory/
-│   ├── short-term/
-│   └── long-term/
-│
-├── models/
-│   ├── gemini/
-│   └── embeddings/
-│
-├── evaluation/
-│   ├── datasets/
-│   ├── evaluators/
-│   └── benchmarks/
-│
-├── observability/
-│
-├── database/
-│
-├── shared/
-│   ├── types/
-│   ├── utils/
-│   └── config/
-│
-├── docker/
-│
-└── package.json
-
-But we absolutely will NOT start with this.
-
-We'll grow into it.
+Once all core features are stable, an architectural consolidation will be executed under these strict rules:
+1. **Zero Behavioral Changes**: All existing agent capabilities, API endpoints, WebSocket handlers, and tests must remain 100% functional.
+2. **Consolidate Fragmented Files**: Merge single-function helper files into domain-cohesive modules.
+3. **Simplify Import Graphs**: Eliminate unnecessary barrel file nesting.
+4. **Preserve Public Contracts**: Keep public exported function signatures intact so external callers (CLI, API controllers, tests) require zero refactoring.

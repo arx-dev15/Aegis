@@ -1,86 +1,80 @@
-First PR
+# Aegis Feature Development & Pull Request Standard
 
-PR #1 — Project Foundation
+This document defines the standard PR and feature development process for **Aegis**.
 
-feat: initialize Aegis agent platform
+---
 
-Contains:
+## 1. Development Principles & Non-Destructive Rule
 
-aegis/
-├── apps/
-├── agents/
-├── graph/
-├── tools/
-├── rag/
-├── memory/
-├── models/
-├── shared/
-├── package.json
-├── tsconfig.json
-├── .env.example
-├── .gitignore
-└── README.md
+1. **Additive & Non-Destructive**: Every PR must be additive. Do NOT delete working functionality, rewrite existing application APIs, or replace working frontend/backend components.
+2. **Real Data Only**: Production code MUST use real external data (e.g. live `api.github.com` REST APIs, real filesystem operations). Mocks are acceptable strictly inside automated unit test files (`*.test.ts`).
+3. **No Over-Engineering**: Do NOT introduce unnecessary abstractions, factory layers, or unrequested dependencies. Keep code TypeScript-first, simple, readable, and properly typed.
+4. **Guardrails & Security**: Dangerous system commands and sensitive file/repo mutations must pass through Feature 24 guardrail enforcement (`tools/guardrails/`). Credentials (e.g. `GITHUB_TOKEN`) must never be hardcoded or exposed in logs.
 
-No agents yet. No LangGraph complexity yet.
+---
 
-Just a clean foundation.
+## 2. Commit Naming Convention
 
-PR #2
-feat: integrate Gemini with LangChain
+Commits follow the conventional commit format:
 
-Deliverable:
+```bash
+feat: <feature_name_or_description>
+fix: <bug_fix_description>
+docs: <documentation_update_description>
+test: <test_addition_or_update_description>
+```
 
-User Input
-    ↓
-LangChain
-    ↓
-Gemini
-    ↓
-Structured Output
-PR #3
-feat: add agent tool-calling system
+Examples:
+- `feat: implement Repository Intelligence AST parser and relationship graph`
+- `fix: resolve state annotation property in failure recovery node`
+- `docs: synchronize master architecture and agent flow documentation`
 
-Deliverable:
+---
 
-Agent
- ├── Calculator
- ├── File System
- └── Search
-PR #4
-feat: implement LangGraph orchestration
+## 3. Standard Pull Request Template
 
-Deliverable:
+Every PR submitted to the Aegis repository must follow this structure:
 
-START
- ↓
-Planner
- ↓
-Researcher
- ↓
-Responder
- ↓
-END
-PR #5
-feat: implement multi-agent engineering workflow
+```markdown
+## Summary
+Brief description of what feature or bug fix was implemented.
 
-Deliverable:
+## Changes
+- List of new files created
+- List of existing files modified
 
-Planner
- ↓
-Researcher
- ↓
-Architect
- ↓
-Developer
- ↓
-Tester
- ↓
-Reviewer
-PR #6
-feat: add memory and RAG
-PR #7
-feat: add human-in-the-loop and guardrails
-PR #8
-feat: add observability and evaluation
-PR #9
-feat: productionize Aegis platform
+## Architecture & Integration
+- Where this change fits in the Aegis architecture (Agents, Graph, Tools, Intelligence, RAG, Memory, API, CLI).
+- How the change integrates with existing state and components.
+
+## Existing Functionality Preserved
+- Explicit confirmation that existing APIs, agents, graph workflows, and UI components remain fully functional and backward-compatible.
+
+## Verification & Test Results
+- TypeScript compilation check (`npx tsc --noEmit`): 0 errors
+- Feature-specific unit/integration tests
+- Aegis Master Test Runner (`npx tsx testAll.ts`): All test suites passing
+
+## Out of Scope
+- Intentionally excluded capabilities or future enhancements deferred to upcoming builds.
+```
+
+---
+
+## 4. PR Verification Checklist
+
+Before merging any PR into main, run the following verification pipeline:
+
+1. **TypeScript Type Check**:
+   ```bash
+   npx tsc --noEmit
+   ```
+2. **Agentic Type Check**:
+   ```bash
+   npx tsc --project tsconfig.agentic.json --noEmit
+   ```
+3. **Master Test Suite Execution**:
+   ```bash
+   npx tsx testAll.ts
+   ```
+4. **Documentation Synchronization**: Ensure `AGENT_BUILD_CONTEXT.md` and related architectural docs are updated with completed feature details.

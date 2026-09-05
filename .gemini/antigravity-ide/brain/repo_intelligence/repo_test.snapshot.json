@@ -1,0 +1,64 @@
+{
+  "repository": {
+    "id": "repo_test",
+    "provider": "local",
+    "owner": "local",
+    "name": "task-manager",
+    "url": "d:/test",
+    "defaultBranch": "main",
+    "analyzedRevision": "v1",
+    "commitSha": "c1",
+    "status": "ready",
+    "createdAt": "2026-09-03T17:22:08.695Z",
+    "updatedAt": "2026-09-03T17:22:08.696Z"
+  },
+  "files": [],
+  "symbols": [
+    {
+      "id": "s1",
+      "repoId": "repo_test",
+      "fileId": "f1",
+      "filePath": "src/userRepo.ts",
+      "name": "UserRepo",
+      "kind": "class",
+      "startLine": 1,
+      "endLine": 20,
+      "exported": true,
+      "language": "TypeScript"
+    },
+    {
+      "id": "s2",
+      "repoId": "repo_test",
+      "fileId": "f2",
+      "filePath": "src/userCtrl.ts",
+      "name": "UserController",
+      "kind": "class",
+      "startLine": 1,
+      "endLine": 25,
+      "exported": true,
+      "language": "TypeScript"
+    }
+  ],
+  "importsExports": [],
+  "dependencies": [],
+  "apis": [],
+  "databases": [],
+  "tests": [],
+  "gitCommits": [],
+  "relationships": [
+    {
+      "id": "r1",
+      "repoId": "repo_test",
+      "sourceId": "s2",
+      "sourceType": "symbol",
+      "targetId": "s1",
+      "targetType": "symbol",
+      "type": "USES",
+      "provenance": {
+        "filePath": "src/userCtrl.ts",
+        "reason": "Ctrl calls Repo"
+      },
+      "confidence": "exact"
+    }
+  ]
+}

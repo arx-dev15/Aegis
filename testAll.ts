@@ -55,11 +55,14 @@ const testFiles = [
 
   // GitHub Integration Tests (Feature 25)
   "tools/github/github.test.ts",
+
+  // Repository Intelligence Engine Tests (Feature 26)
+  "repo-intelligence/repoIntelligence.test.ts",
 ];
 
 function runAll() {
   console.log("=================================================");
-  console.log("  AEGIS MASTER TEST SUITE (Features 01 – 25)");
+  console.log("  AEGIS MASTER TEST SUITE (Features 01 – 26)");
   console.log("=================================================\n");
 
   let totalPassed = 0;

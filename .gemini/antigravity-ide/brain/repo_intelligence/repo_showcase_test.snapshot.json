@@ -1,0 +1,157 @@
+{
+  "repository": {
+    "id": "repo_showcase_test",
+    "provider": "local",
+    "owner": "local",
+    "name": "task-manager",
+    "url": "d:/projects/task-manager",
+    "defaultBranch": "main",
+    "analyzedRevision": "a82f91c",
+    "commitSha": "a82f91c",
+    "status": "ready",
+    "createdAt": "2026-09-03T16:27:48.603Z",
+    "updatedAt": "2026-09-03T16:27:48.604Z"
+  },
+  "files": [
+    {
+      "id": "f_auth_svc",
+      "repoId": "repo_showcase_test",
+      "path": "src/services/auth.service.ts",
+      "name": "auth.service.ts",
+      "extension": ".ts",
+      "language": "TypeScript",
+      "size": 1000,
+      "hash": "h1",
+      "category": "SOURCE",
+      "lines": 50,
+      "revision": "main"
+    },
+    {
+      "id": "f_proj_svc",
+      "repoId": "repo_showcase_test",
+      "path": "src/services/project.service.ts",
+      "name": "project.service.ts",
+      "extension": ".ts",
+      "language": "TypeScript",
+      "size": 1100,
+      "hash": "h2",
+      "category": "SOURCE",
+      "lines": 55,
+      "revision": "main"
+    },
+    {
+      "id": "f_user_svc",
+      "repoId": "repo_showcase_test",
+      "path": "src/services/user.service.ts",
+      "name": "user.service.ts",
+      "extension": ".ts",
+      "language": "TypeScript",
+      "size": 1200,
+      "hash": "h3",
+      "category": "SOURCE",
+      "lines": 60,
+      "revision": "main"
+    }
+  ],
+  "symbols": [
+    {
+      "id": "s_auth_svc",
+      "repoId": "repo_showcase_test",
+      "fileId": "f_auth_svc",
+      "filePath": "src/services/auth.service.ts",
+      "name": "AuthService",
+      "kind": "class",
+      "startLine": 10,
+      "endLine": 50,
+      "exported": true,
+      "language": "TypeScript"
+    },
+    {
+      "id": "s_proj_svc",
+      "repoId": "repo_showcase_test",
+      "fileId": "f_proj_svc",
+      "filePath": "src/services/project.service.ts",
+      "name": "ProjectService",
+      "kind": "class",
+      "startLine": 10,
+      "endLine": 55,
+      "exported": true,
+      "language": "TypeScript"
+    },
+    {
+      "id": "s_user_svc",
+      "repoId": "repo_showcase_test",
+      "fileId": "f_user_svc",
+      "filePath": "src/services/user.service.ts",
+      "name": "UserService",
+      "kind": "class",
+      "startLine": 10,
+      "endLine": 60,
+      "exported": true,
+      "language": "TypeScript"
+    }
+  ],
+  "importsExports": [],
+  "dependencies": [],
+  "apis": [
+    {
+      "id": "a_login",
+      "repoId": "repo_showcase_test",
+      "fileId": "f_auth_svc",
+      "filePath": "src/routes/auth.routes.ts",
+      "method": "POST",
+      "path": "/login",
+      "handlerName": "AuthController.login",
+      "confidence": "exact"
+    },
+    {
+      "id": "a_proj",
+      "repoId": "repo_showcase_test",
+      "fileId": "f_proj_svc",
+      "filePath": "src/routes/project.routes.ts",
+      "method": "POST",
+      "path": "/projects",
+      "handlerName": "ProjectController.create",
+      "confidence": "exact"
+    }
+  ],
+  "databases": [
+    {
+      "id": "d_user",
+      "repoId": "repo_showcase_test",
+      "fileId": "f_auth_svc",
+      "filePath": "src/services/auth.service.ts",
+      "technology": "prisma",
+      "entityType": "model",
+      "name": "User"
+    },
+    {
+      "id": "d_proj",
+      "repoId": "repo_showcase_test",
+      "fileId": "f_proj_svc",
+      "filePath": "src/services/project.service.ts",
+      "technology": "prisma",
+      "entityType": "model",
+      "name": "Project"
+    }
+  ],
+  "tests": [],
+  "gitCommits": [],
+  "relationships": [
+    {
+      "id": "r_user_dep",
+      "repoId": "repo_showcase_test",
+      "sourceId": "s_auth_svc",
+      "sourceType": "symbol",
+      "targetId": "s_user_svc",
+      "targetType": "symbol",
+      "type": "USES",
+      "provenance": {
+        "filePath": "src/services/auth.service.ts",
+        "startLine": 15,
+        "reason": "AuthService uses UserService for lookup"
+      },
+      "confidence": "exact"
+    }
+  ]
+}

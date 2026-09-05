@@ -11,3 +11,4 @@ export { calculatorTool, calculate, CalculatorInputSchema } from "./calculator/i
 export type { CalculatorInput } from "./calculator/index.js";
 export * from "./guardrails/index.js";
 export * from "./github/index.js";
+export * from "./repoIntelligence/repoExplorerTool.js";

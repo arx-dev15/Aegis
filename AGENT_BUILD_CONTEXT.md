@@ -921,29 +921,22 @@ Build ONE feature at a time.
 ## SAFETY + EXTERNAL SYSTEMS
 
 [x] Feature 23 — Human-in-the-Loop
-[ ] Feature 26 — Tool Permissions / Guardrails
-[ ] Feature 27 — GitHub Integration
+[x] Feature 24 — Tool Permissions / Guardrails
+[x] Feature 25 — GitHub Integration
+[x] Feature 26 — Repository Intelligence Engine
+[x] Feature 27 — Aegis CLI Foundation
 [ ] Feature 28 — Terminal / Sandbox Execution
-[ ] Feature 29 — Browser Integration
-[ ] Feature 30 — MCP Integration
+[ ] Feature 29 — MCP Integration
+[ ] Feature 30 — Session Runtime / Resume & Branching
 
-## QUALITY
+## QUALITY & OBSERVABILITY
 
-[ ] Feature 31 — Agent Evaluation
-[ ] Feature 32 — Benchmarking
-[ ] Feature 33 — Observability
-[ ] Feature 34 — Cost / Token Tracking
-[ ] Feature 35 — Failure / Trace Analysis
+[ ] Feature 31 — Observability & Token / Cost Tracking
+[ ] Feature 32 — Agent Evaluation & Benchmarking
 
-## RUNTIME + INTEGRATION
+## SIMPLIFICATION
 
-[ ] Feature 36 — Aegis CLI Foundation
-[ ] Feature 37 — Session Runtime / Resume
-[ ] Feature 38 — Headless / Automation Mode
-[ ] Feature 39 — Connect Agent Core to Existing Backend
-[ ] Feature 40 — Connect Live Agent State to Frontend
-[ ] Feature 41 — Full Aegis End-to-End Workflow
-[ ] Feature 42 — Production Hardening
+[ ] Feature 33 — Architecture Simplification Refactor
 
 IMPORTANT:
 The exact implementation order may change only when a genuine dependency requires it.
@@ -980,14 +973,16 @@ Do not add random features simply because they are interesting.
 [x] Feature 23 — Human-in-the-Loop
 [x] Feature 24 — Tool Permissions / Guardrails
 [x] Feature 25 — GitHub Integration
+[x] Feature 26 — Repository Intelligence Engine
+[x] Feature 27 — Aegis CLI Foundation
 
 ## Currently Building
 
-Feature 26 — Terminal / Sandbox Execution
+Feature 28 — Terminal / Sandbox Execution
 
 ## Next
 
-Feature 27 — MCP Integration
+Feature 29 — MCP Integration
 
 
 ---
@@ -1830,9 +1825,64 @@ Verification:
 - Feature 25 test suite (`npx tsx tools/github/github.test.ts`): 7/7 test levels passed.
 - Aegis Master Test Runner (`npx tsx testAll.ts`): 24/24 test suites passed (0 failures).
 
+---
 
+### Feature 26 — Repository Intelligence Engine
 
+Files created/modified:
+- `repo-intelligence/types.ts` [NEW] — Core domain models (`Repository`, `FileRecord`, `SymbolRecord`, `DependencyRecord`, `ApiRecord`, `DatabaseRecord`, `TestRecord`, `GitCommitRecord`, `RelationshipRecord`, `EvidenceRecord`, `RepositorySnapshot`).
+- `repo-intelligence/connection/connectionManager.ts` [NEW] — Connection validator, URL parser, credential masking, read-only guardrails.
+- `repo-intelligence/storage/jsonStore.ts` [NEW] — Primary file-backed JSON store implementation of `RepositoryIntelligenceStore`.
+- `repo-intelligence/storage/pgStore.ts` [NEW] — Pluggable PostgreSQL adapter implementation of `RepositoryIntelligenceStore`.
+- `repo-intelligence/scanner/classifier.ts` [NEW] — Categorizes files into `SOURCE`, `TEST`, `CONFIG`, `DOCS`, `SCHEMA`, `MIGRATION`, `GENERATED`, `ASSET`, `LOCKFILE`, `BINARY`, `UNKNOWN` & identifies primary language.
+- `repo-intelligence/scanner/security.ts` [NEW] — Untrusted static input isolation and secret value redacting (`SECRET_REDACTED`).
+- `repo-intelligence/scanner/fileScanner.ts` [NEW] — Tree walker with `.gitignore` and default ignore rules (`node_modules`, `.git`, `dist`, `.env*`), file hash & size calculator.
+- `repo-intelligence/parsers/tsCompilerLoader.ts` [NEW] — Resilient TypeScript compiler loader helper resolving AST API across workspace packages.
+- `repo-intelligence/parsers/tsParser.ts` [NEW] — AST symbol parser extracting Classes, Functions, Methods, Interfaces, Types, Enums, Vars, Components, line ranges, and visibility.
+- `repo-intelligence/extractors/importExportExtractor.ts` [NEW] — IMPORTS/EXPORTS extractor and relative path specifier resolver.
+- `repo-intelligence/extractors/dependencyExtractor.ts` [NEW] — Manifest & lockfile dependency extractor with monorepo workspace support.
+- `repo-intelligence/extractors/apiExtractor.ts` [NEW] — Express & Next.js API route extractor (methods, paths, handlers, confidence).
+- `repo-intelligence/extractors/databaseExtractor.ts` [NEW] — Database schema, model, ORM, and SQL query extractor.
+- `repo-intelligence/extractors/testExtractor.ts` [NEW] — Test suite extractor mapping test blocks to target source files and symbols.
+- `repo-intelligence/git/gitAnalyzer.ts` [NEW] — Git history analyzer for commits, authors, timestamps, and file co-change coupling.
+- `repo-intelligence/relationships/graphEngine.ts` [NEW] — Synthesizes provenanced graph edges (`CONTAINS`, `IMPORTS`, `HANDLES`, `QUERIES`, `TESTED_BY`, `USES`) with line-level evidence and confidence ratings (`exact`, `inferred`, `unresolved`).
+- `repo-intelligence/incremental/reanalyzer.ts` [NEW] — Git diff delta parser, incremental re-indexing, deletion invalidation, and rename tracking.
+- `repo-intelligence/retrieval/hybridRetriever.ts` [NEW] — Hybrid retrieval engine combining structural graph search with semantic RAG embeddings into evidence-traceable Markdown context.
+- `tools/repoIntelligence/repoExplorerTool.ts` [NEW] — Aegis tool for Planner, Researcher, Architect, Developer, Tester, Security agents.
+- `tools/index.ts` [MODIFIED] — Re-exported `repoExplorerTool`.
+- `apps/api/controllers/repoIntelligence.ts` [NEW] — Backend REST controllers for repository connection, snapshot retrieval, search, and 3 showcase query engines.
+- `apps/api/routes/repoIntelligence.ts` [NEW] — Express routes for repository intelligence API.
+- `apps/api/routes/index.ts` [MODIFIED] — Registered `/api/repo-intelligence` router.
+- `apps/web/components/repo-explorer/RepoExplorer.tsx` [NEW] — Web UI Repository Explorer component with overview metrics, file trees, symbol tables, API route matrices, DB models, Git timeline, and interactive showcase query flows.
+- `repo-intelligence/repoIntelligence.test.ts` [NEW] — Master E2E integration test suite.
+- `testAll.ts` [MODIFIED] — Registered `repo-intelligence/repoIntelligence.test.ts` in master test runner.
 
+Key Decisions:
+- **Interface-Based JSON-Primary Persistence**: `RepositoryIntelligenceStore` is defined as a clean interface with `JsonRepositoryStore` as the primary production storage for isolation and testability, with `PgRepositoryStore` as an optional pluggable backend.
+- **Line-Level Provenance & Typed Graph**: Edges record exact line ranges, file paths, evidence snippets, and confidence ratings (`exact`, `inferred`, `unresolved`).
+- **Showcase Query Verification**: Verified all 3 showcase flows with traceable evidence:
+  1. Showcase 1: Authentication Tracing
+  2. Showcase 2: Project Creation Flow
+  3. Showcase 3: UserService Impact Analysis
+
+### Feature 27 — Aegis CLI Foundation
+
+Files created:
+- `cli.ts` [NEW] — Interactive command-line tool allowing users to connect, check status, query codebase knowledge, and run impact analysis directly in the terminal.
+
+Key decisions:
+- Direct access to Aegis core services (`JsonRepositoryStore`, `queryRepositoryIntelligence`, `validateRepositoryAccess`).
+- Automatic fallback to `process.env.GITHUB_TOKEN` from `.env` file when token is not explicitly supplied as a command line argument.
+- Supports 4 primary commands: `connect <url_or_path>`, `status <repoId>`, `search <repoId> "<query>" [targetEntity]`, and `impact <repoId> <targetEntity>`.
+
+Verification:
+- TypeScript compilation (`npx tsc --noEmit`): Passed with 0 errors.
+- CLI connection test (`npx tsx cli.ts connect .`): Successfully indexed Aegis workspace (331 files, 895 symbols, 20,419 graph edges).
+- CLI remote test (`npx tsx cli.ts connect https://github.com/expressjs/express`): Successfully indexed GitHub express repo.
+- CLI status test (`npx tsx cli.ts status repo_local_local_aegis`): Generated complete status summary.
+- CLI impact test (`npx tsx cli.ts impact repo_local_local_aegis PlannerAgent`): Resolved exact target and direct dependents.
+
+---
 
 # 31. LOCKED AEGIS DIFFERENTIATORS
 

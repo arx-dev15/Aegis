@@ -1,0 +1,88 @@
+{
+  "repository": {
+    "id": "repo_hybrid_test",
+    "provider": "local",
+    "owner": "local",
+    "name": "task-manager",
+    "url": "d:/projects/task-manager",
+    "defaultBranch": "main",
+    "analyzedRevision": "a82f91c",
+    "commitSha": "a82f91c",
+    "status": "ready",
+    "createdAt": "2026-09-03T16:26:55.839Z",
+    "updatedAt": "2026-09-03T16:26:55.840Z"
+  },
+  "files": [
+    {
+      "id": "f1",
+      "repoId": "repo_hybrid_test",
+      "path": "src/services/auth.service.ts",
+      "name": "auth.service.ts",
+      "extension": ".ts",
+      "language": "TypeScript",
+      "size": 1000,
+      "hash": "h1",
+      "category": "SOURCE",
+      "lines": 50,
+      "revision": "main"
+    }
+  ],
+  "symbols": [
+    {
+      "id": "s1",
+      "repoId": "repo_hybrid_test",
+      "fileId": "f1",
+      "filePath": "src/services/auth.service.ts",
+      "name": "AuthService",
+      "kind": "class",
+      "startLine": 10,
+      "endLine": 50,
+      "exported": true,
+      "language": "TypeScript"
+    }
+  ],
+  "importsExports": [],
+  "dependencies": [],
+  "apis": [
+    {
+      "id": "a1",
+      "repoId": "repo_hybrid_test",
+      "fileId": "f1",
+      "filePath": "src/routes/auth.routes.ts",
+      "method": "POST",
+      "path": "/login",
+      "handlerName": "AuthController.login",
+      "confidence": "exact"
+    }
+  ],
+  "databases": [
+    {
+      "id": "d1",
+      "repoId": "repo_hybrid_test",
+      "fileId": "f1",
+      "filePath": "src/services/auth.service.ts",
+      "technology": "prisma",
+      "entityType": "model",
+      "name": "User"
+    }
+  ],
+  "tests": [],
+  "gitCommits": [],
+  "relationships": [
+    {
+      "id": "r1",
+      "repoId": "repo_hybrid_test",
+      "sourceId": "a1",
+      "sourceType": "api",
+      "targetId": "s1",
+      "targetType": "symbol",
+      "type": "HANDLES",
+      "provenance": {
+        "filePath": "src/routes/auth.routes.ts",
+        "startLine": 12,
+        "reason": "POST /login handled by AuthService.login"
+      },
+      "confidence": "exact"
+    }
+  ]
+}
