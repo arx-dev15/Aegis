@@ -174,6 +174,18 @@ export async function validateRepositoryAccess(
         }
       }
 
+      // If commitSha specified, verify commit SHA exists
+      if (options?.commitSha) {
+        const commitTarget = `https://api.github.com/repos/${parsed.owner}/${parsed.name}/commits/${options.commitSha}`;
+        const commitResp = await fetch(commitTarget, { headers });
+        if (!commitResp.ok) {
+          return {
+            valid: false,
+            error: `The selected commit SHA "${options.commitSha}" was not found in repository "${parsed.owner}/${parsed.name}".`,
+          };
+        }
+      }
+
       const repoId = `repo_gh_${parsed.owner}_${parsed.name}`;
 
       return {

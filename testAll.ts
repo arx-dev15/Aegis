@@ -58,6 +58,10 @@ const testFiles = [
 
   // Repository Intelligence Engine Tests (Feature 26)
   "repo-intelligence/repoIntelligence.test.ts",
+
+  // Controlled Host Execution Tests (Feature 28)
+  "tools/terminal/terminal.test.ts",
+  "graph/terminalWorkflow.test.ts",
 ];
 
 function runAll() {

@@ -82,23 +82,43 @@ export interface GeminiModel {
  *   const { text } = await model.invoke("Summarise this codebase.");
  */
 export function createModel(config: GeminiConfig = {}): GeminiModel {
-  const modelName = config.model ?? "gemini-3.5-flash";
+  const primaryModel = config.model ?? process.env.GEMINI_MODEL ?? "gemini-3.6-flash";
   const temperature = config.temperature ?? 0.2;
+  const FALLBACK_MODELS = Array.from(new Set([primaryModel, "gemini-3.6-flash", "gemini-3.7-flash", "gemini-3.5-flash", "gemini-flash-latest"]));
 
   async function invoke(prompt: string): Promise<GeminiResponse> {
     const client = getClient();
-    const response = await client.models.generateContent({
-      model: modelName,
-      contents: prompt,
-      config: {
-        temperature,
-        ...(config.maxOutputTokens ? { maxOutputTokens: config.maxOutputTokens } : {}),
-      },
-    });
-    return { text: response.text ?? "" };
+    let lastErr: any;
+
+    for (const targetModel of FALLBACK_MODELS) {
+      try {
+        const response = await client.models.generateContent({
+          model: targetModel,
+          contents: prompt,
+          config: {
+            temperature,
+            ...(config.maxOutputTokens ? { maxOutputTokens: config.maxOutputTokens } : {}),
+          },
+        });
+        return { text: response.text ?? "" };
+      } catch (err: any) {
+        lastErr = err;
+        const msg = String(err?.message || err);
+        if (msg.includes("429") || msg.includes("RESOURCE_EXHAUSTED") || msg.includes("Quota exceeded")) {
+          continue;
+        }
+        throw err;
+      }
+    }
+
+    const rawMsg = lastErr?.message || String(lastErr);
+    if (rawMsg.includes("429") || rawMsg.includes("RESOURCE_EXHAUSTED")) {
+      throw new Error(`[GEMINI-RATE-LIMIT] Gemini API Rate Limit / Quota Exceeded (HTTP 429). Free tier request quota reached. Please wait ~30-60 seconds for quota reset or update GOOGLE_API_KEY in .env.`);
+    }
+    throw lastErr;
   }
 
-  return { model: modelName, temperature, invoke };
+  return { model: primaryModel, temperature, invoke };
 }
 
 // ── Default instance ──────────────────────────────────────────────────────────

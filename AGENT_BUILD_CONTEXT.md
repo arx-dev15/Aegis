@@ -1,1929 +1,2926 @@
 # AEGIS — AGENT BUILD CONTEXT
 
-This file is the persistent build context for Aegis.
+This file is the persistent engineering context for AEGIS.
 
-IMPORTANT:
-Before implementing ANY feature, read this entire file first.
+Every AI coding agent working on AEGIS MUST read this file before
+planning or modifying the project.
 
-This file is the source of truth for:
-- existing project state
-- completed features
-- current feature
-- remaining features
-- architecture constraints
-- product direction
-- coding standards
+This file defines:
+
+- AEGIS product identity
+- current development milestone
+- current implementation state
+- MVP definition
+- development rules
 - integration rules
-- lessons worth adopting from other agent runtimes
-- things that must never be broken
+- verification rules
+- architecture constraints
+- agent responsibilities
+- repository intelligence direction
+- safety rules
+- feature history
+- paused roadmap
+- architecture refactoring policy
 
-Update this file AFTER every completed feature.
+The actual repository/source code is the implementation source of truth.
 
----
+This document describes the intended product and engineering rules.
 
-# 1. PROJECT
+If this document conflicts with the actual repository:
+1. Inspect the repository.
+2. Identify the discrepancy.
+3. Do not silently assume either side is correct.
+4. Report the discrepancy.
+5. Update this document only after the actual state is established.
 
-Aegis is an AI Engineering Operating System.
+If the project owner explicitly changes a decision, the newer explicit
+decision takes precedence.
 
-The goal is NOT to build another Claude Code clone or another generic chatbot.
 
-Aegis should be a software-engineering runtime that can:
+============================================================
+1. PROJECT IDENTITY
+============================================================
 
-Understand → Plan → Research → Architect → Implement → Test → Review → Secure → Ask for Approval → Execute → Verify → Learn
+Project:
 
-Aegis combines:
-- TypeScript
-- Node.js
-- React
-- LangChain
-- LangGraph
-- Gemini APIs
-- RAG
-- Memory
-- Agentic workflows
-- Tool calling
-- MCP
-- Evaluation
-- Observability
-- CLI/runtime integration
+AEGIS
 
-The implementation should remain understandable to a student developer while still following good engineering practices.
+Definition:
 
-Core mental model:
+AEGIS is an AI Engineering Operating System that understands a software
+repository, reasons about engineering tasks and changes, orchestrates
+specialized engineering agents, safely executes approved actions, and
+verifies the resulting work.
 
-CHATBOT:
-Input → Output
+AEGIS is NOT:
 
-AGENT:
-Goal → Reason → Action → Observation → Reason → Action → Result
+- a generic chatbot
+- a generic RAG application
+- a collection of independent LLM agents
+- a GitHub dashboard
+- a code-generation wrapper
+- a generic agent framework
+- a Claude Code clone
+- a Coding Harness clone
+- an Athena clone
 
-AEGIS:
-Goal
- ↓
-Project Understanding
- ↓
-Planning
- ↓
-Specialized Agents
- ↓
-Tools / External Systems
- ↓
-Observation + State
- ↓
-Verification
- ↓
-Reflection / Recovery
- ↓
-Memory / Skills
- ↓
-Result
+AEGIS is intended to become an engineering system.
 
----
+Core product idea:
 
-# 2. PRODUCT DIRECTION — LOCKED
+    User gives AEGIS a repository and an engineering task.
 
-Aegis must be DIFFERENT from Coding Harness, Hermes, Athena, Claude Code, OpenHands, etc.
+    AEGIS:
+    - understands the repository
+    - investigates the task
+    - creates an engineering plan
+    - requests approval when required
+    - performs approved changes
+    - runs appropriate verification
+    - reviews the result
+    - verifies the final state
+    - reports evidence to the user
 
-We may learn engineering concepts from them.
 
-We MUST NOT copy their implementation, architecture, naming, or product identity.
+============================================================
+2. CURRENT PROJECT MILESTONE
+============================================================
 
-Coding Harness is primarily an autonomous coding/execution harness.
+CURRENT MILESTONE:
 
-Aegis is an AI Engineering Operating System.
+    MVP VALIDATION
 
-Coding is one important capability inside Aegis, not the entire identity.
+FEATURE DEVELOPMENT IS CURRENTLY FROZEN.
 
-Aegis should eventually provide:
+Do NOT automatically continue to the next numbered feature.
 
-- Project intelligence
-- Specialized engineering agents
-- LangGraph orchestration
-- Tool execution
-- RAG/project knowledge
-- Short-term and long-term memory
-- Procedural skills
-- Human approval
-- Safe execution
-- GitHub integration
-- Terminal/sandbox execution
-- MCP
-- Evaluation
-- Observability
-- Web UI
-- API
-- First-class CLI
-- Full end-to-end engineering workflows
+Do NOT start Feature 28, 29, 30, 31, 32, or 33 simply because they
+appear next in the historical roadmap.
 
-Product principle:
+The immediate objective is:
 
-"Build a runtime in which AI can perform software engineering responsibly."
+    INTEGRATE AND VALIDATE THE EXISTING AEGIS CAPABILITIES.
 
----
+The project currently contains many implemented components, agents,
+tools, workflows, repository intelligence systems, RAG/memory systems,
+GitHub integration, and CLI functionality.
 
-# 3. LOCKED ARCHITECTURE
+However:
 
-DO NOT redesign this architecture unless there is a genuine technical reason
-and the change is explicitly approved.
+    IMPLEMENTED != INTEGRATED != VALIDATED
 
-aegis/
-│
-├── apps/
-│   ├── web/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── hooks/
-│   │   └── lib/
-│   │
-│   └── api/
-│       ├── routes/
-│       ├── controllers/
-│       ├── middleware/
-│       └── server.ts
-│
-├── agents/
-│   ├── planner/
-│   ├── researcher/
-│   ├── architect/
-│   ├── developer/
-│   ├── reviewer/
-│   ├── tester/
-│   └── security/
-│
-├── graph/
-│   ├── state.ts
-│   ├── nodes/
-│   ├── edges/
-│   └── workflow.ts
-│
-├── tools/
-│   ├── filesystem/
-│   ├── github/
-│   ├── search/
-│   ├── terminal/
-│   ├── database/
-│   └── browser/
-│
-├── rag/
-│   ├── loaders/
-│   ├── chunkers/
-│   ├── embeddings/
-│   ├── retriever/
-│   └── vector-store/
-│
-├── memory/
-│   ├── short-term/
-│   └── long-term/
-│
-├── models/
-│   ├── gemini/
-│   └── embeddings/
-│
-├── evaluation/
-│   ├── datasets/
-│   ├── evaluators/
-│   └── benchmarks/
-│
-├── observability/
-│
-├── database/
-│
-├── shared/
-│   ├── types/
-│   ├── utils/
-│   └── config/
-│
-├── docker/
-│
-└── package.json
+The existence of individual capabilities does not prove that AEGIS
+currently works as one complete engineering system.
 
-IMPORTANT:
-The existing frontend/backend/UI/API architecture is already working.
+The immediate engineering question is:
 
-Do not replace it simply to make the agentic architecture look cleaner.
+    "Can AEGIS take a real engineering task against a real repository
+     and carry it from request to verified result through the actual
+     AEGIS runtime?"
 
----
+Until that is demonstrated reliably:
 
-# 4. EXISTING APPLICATION
+    DO NOT MOVE TO NEW ROADMAP FEATURES.
 
-Aegis is NOT an empty project.
 
-The following application areas may already contain working code:
+============================================================
+3. MVP DEFINITION
+============================================================
 
-- Frontend
-- Backend
-- UI/UX
-- API routes
-- Database
-- Project management
-- Dashboard
-- Task management
-- Other previously implemented functionality
+The AEGIS MVP is:
 
-Never assume a file is empty.
+    Give AEGIS a real repository and a real engineering task.
 
-Always inspect the current implementation before changing it.
+    AEGIS should:
 
----
+    1. Understand the repository/context relevant to the task.
+    2. Investigate the task.
+    3. Produce an actionable engineering plan.
+    4. Ask for human approval when the planned action requires it.
+    5. Make the approved change to the real repository.
+    6. Run appropriate real tests/checks.
+    7. Review the resulting change.
+    8. Perform required security checks.
+    9. Verify the final state.
+    10. Return the result and supporting evidence to the user.
 
-# 5. NON-DESTRUCTIVE DEVELOPMENT RULE
+Target product workflow:
 
-Every feature must be additive and integrated into the existing system.
+    USER TASK
+        ↓
+    REPOSITORY UNDERSTANDING
+        ↓
+    INVESTIGATION
+        ↓
+    PLAN
+        ↓
+    HUMAN APPROVAL
+        ↓
+    IMPLEMENTATION
+        ↓
+    TESTING
+        ↓
+    REVIEW
+        ↓
+    SECURITY
+        ↓
+    FINAL VERIFICATION
+        ↓
+    RESULT + EVIDENCE
 
-NEVER:
-- Delete working functionality
-- Rewrite the application unnecessarily
-- Replace existing architecture
-- Rename existing files without a strong reason
-- Move folders just for preference
-- Replace working APIs
-- Duplicate existing services
-- Duplicate configuration systems
-- Replace existing UI
-- Break existing routes
-- Introduce a second implementation of an existing feature
-- Modify unrelated features
 
-ALWAYS:
-1. Inspect existing code first.
-2. Understand existing patterns.
-3. Reuse existing utilities/services/configuration.
-4. Make the smallest necessary changes.
-5. Preserve backward compatibility.
-6. Run the existing build.
-7. Run the application.
-8. Verify the new feature.
-9. Verify existing functionality was not broken.
+Important:
 
-If an existing implementation conflicts with the planned feature,
-adapt/integrate instead of replacing it.
+This is the PRODUCT-LEVEL workflow.
 
----
+Planner, Researcher, Architect, Developer, Tester, Reviewer and
+Security are implementation mechanisms used to achieve this workflow.
 
-# 6. CODING STYLE
+The user should care about the engineering result, not about the number
+of agents involved.
 
-Code must be:
-- TypeScript-first
-- Simple
-- Clean
-- Readable
-- Properly typed
-- Modular
-- Easy for a student developer to understand
-- Efficient without being over-engineered
+
+============================================================
+4. MVP SUCCESS CRITERIA
+============================================================
+
+The MVP is NOT complete because:
+
+- TypeScript compiles.
+- Unit tests pass.
+- Every agent has a test.
+- A showcase script works.
+- A demo workflow works.
+- A tool works when called directly.
+- A repository intelligence script works independently.
+- A CLI command works independently.
+
+The MVP requires a real end-to-end workflow.
+
+The following must eventually be demonstrated through the actual AEGIS
+runtime:
+
+[ ] A real user can submit an engineering task.
+
+[ ] A real repository can be connected/accessed.
+
+[ ] AEGIS can inspect relevant repository information.
+
+[ ] AEGIS can investigate the engineering task.
+
+[ ] AEGIS produces a meaningful plan.
+
+[ ] The system can pause for required human approval.
+
+[ ] Approved implementation changes the real repository.
+
+[ ] Relevant tests/checks actually execute.
+
+[ ] The resulting change can be reviewed.
+
+[ ] Security checks are performed where appropriate.
+
+[ ] The system verifies the final state.
+
+[ ] The system detects meaningful failures.
+
+[ ] Recovery occurs at the appropriate stage rather than blindly
+    restarting everything.
+
+[ ] The final result is returned to the user.
+
+[ ] The result contains useful evidence.
+
+[ ] At least one real engineering task succeeds end-to-end.
+
+[ ] At least one realistic failure/recovery scenario is validated.
+
+[ ] The workflow uses the real AEGIS runtime rather than a dedicated
+    showcase/demo path.
+
+Until these conditions are sufficiently demonstrated, AEGIS remains in:
+
+    MVP VALIDATION
+
+
+============================================================
+5. PRODUCT PRINCIPLE
+============================================================
+
+AEGIS optimizes for:
+
+    ENGINEERING USEFULNESS
+
+not:
+
+    FEATURE COUNT
+
+A capability is valuable only if it contributes to the engineering
+workflow or provides a clearly useful product capability.
+
+Do not implement capabilities merely because they are interesting,
+popular, technically impressive, or present in another agent system.
+
+
+============================================================
+6. CAPABILITY STATUS MODEL
+============================================================
+
+Every meaningful AEGIS capability has separate maturity states.
+
+IMPLEMENTED
+
+Means:
+
+- code exists
+- isolated behavior has been implemented
+- appropriate component-level verification exists
+
+IMPLEMENTED does NOT mean product integration.
+
+INTEGRATED
+
+Means:
+
+- the capability is connected to the real AEGIS runtime
+- the intended workflow actually invokes/consumes it
+- data flows correctly across the integration boundary
+
+VALIDATED
+
+Means:
+
+- the integrated capability has successfully performed its intended
+  responsibility during a realistic engineering workflow
+
+COMPLETE
+
+A product capability should only be considered COMPLETE when it is:
+
+    INTEGRATED + VALIDATED
+
+Other possible states:
+
+- NOT IMPLEMENTED
+- STUB
+- MOCK
+- BROKEN
+- PARTIAL
+- IMPLEMENTED
+- INTEGRATED
+- VALIDATED
+- DEFERRED
+- UNUSED
+
+Never use "implemented" as a synonym for "complete."
+
+
+============================================================
+7. COMPLETION EVIDENCE RULE
+============================================================
+
+Do NOT mark a capability complete merely because:
+
+- a unit test passes
+- a build passes
+- TypeScript compiles
+- an isolated script works
+- a demo works
+- a mock workflow works
+- a component can be called directly
+- an agent returns valid structured output
+
+These prove component behavior.
+
+For product-level completion, demonstrate:
+
+    REAL INPUT
+        ↓
+    REAL AEGIS RUNTIME
+        ↓
+    REAL INTEGRATION
+        ↓
+    REAL RESULT
+
+When practical, record evidence such as:
+
+- runtime entry point
+- relevant files/functions
+- actual execution performed
+- repository used
+- task performed
+- tool calls made
+- files changed
+- tests executed
+- final result
+
+
+============================================================
+8. CURRENT DEVELOPMENT RULE
+============================================================
+
+For the current MVP phase, work in this order:
+
+    INSPECT
+        ↓
+    IDENTIFY GAP
+        ↓
+    PLAN
+        ↓
+    IMPLEMENT MINIMUM REQUIRED CHANGE
+        ↓
+    INTEGRATE
+        ↓
+    VERIFY
+        ↓
+    UPDATE STATE
+
+Do not begin with:
+
+    "What feature should we build next?"
+
+Begin with:
+
+    "What prevents the current AEGIS product workflow from working?"
+
+
+============================================================
+9. MVP-FIRST DEVELOPMENT RULE
+============================================================
+
+During MVP validation:
+
+DO:
+
+- integrate existing capabilities
+- repair broken connections
+- remove accidental duplicate paths
+- fix incorrect state/data flow
+- connect agents to the actual workflow
+- connect repository intelligence to actual reasoning
+- connect tools to actual execution
+- connect testing to actual changes
+- connect review/security to actual diffs
+- improve the actual user-facing flow
+- fix failures discovered during real execution
+
+DO NOT:
+
+- add unrelated roadmap features
+- build infrastructure merely because it is planned
+- implement MCP because it is next
+- implement sessions because they are planned
+- implement observability merely because it is planned
+- implement evaluation merely because it is planned
+- perform the architecture simplification prematurely
+
+
+============================================================
+10. INTEGRATION-FIRST RULE
+============================================================
+
+Before implementing a new capability, answer:
+
+1. What user/product problem does this solve?
+2. Where does it enter the real AEGIS workflow?
+3. What component consumes it?
+4. What does it depend on?
+5. Why can existing functionality not satisfy the requirement?
+6. How will integration be verified?
+7. Is it actually required for the current milestone?
+
+If these questions cannot be answered clearly:
+
+    DO NOT IMPLEMENT THE CAPABILITY YET.
 
 Prefer:
-- Small functions
-- Clear names
-- Explicit data flow
-- Simple interfaces/types
-- Reusable code only where actually needed
+
+    EXISTING CAPABILITY
+        ↓
+    INTEGRATE
+        ↓
+    VALIDATE
+
+over:
+
+    EXISTING CAPABILITY
+        +
+    NEW DUPLICATE CAPABILITY
+
+
+============================================================
+11. REAL WORKFLOW RULE
+============================================================
+
+Production AEGIS workflows must operate on real inputs and real system
+state.
+
+Do not satisfy product integration requirements using:
+
+- hardcoded results
+- fake repository data
+- fake GitHub data
+- fake commits
+- fake PRs
+- fake issues
+- static repository lists
+- simulated successful tool responses
+- fake agent outputs
+- demo-only execution paths
+- placeholder production logic
+- silent fallbacks to fake data
+
+Mocks are allowed only where explicitly isolated for tests.
+
+A demo can prove an isolated capability.
+
+A demo does NOT prove production integration.
+
+
+============================================================
+12. NO SILENT FAILURE
+============================================================
+
+Failures must be explicit.
+
+Bad:
+
+    GitHub request fails
+        ↓
+    return fake repository
+
+Bad:
+
+    repository scan fails
+        ↓
+    continue as if repository was understood
+
+Bad:
+
+    test execution fails
+        ↓
+    report success
+
+Good:
+
+    operation fails
+        ↓
+    capture failure
+        ↓
+    preserve useful diagnostics
+        ↓
+    route to appropriate recovery/termination path
+        ↓
+    report actual state
+
+
+============================================================
+13. ONE SHARED AEGIS CORE
+============================================================
+
+Web, API and CLI should use the same underlying AEGIS core.
+
+Conceptually:
+
+    Web
+      \
+       API / CLI
+           ↓
+       AEGIS CORE
+           ↓
+       LangGraph
+           ↓
+       Agents / Tools / Repository Intelligence
+           ↓
+       Execution
+           ↓
+       Verification
+
+Do not create separate agent implementations for:
+
+- Web
+- API
+- CLI
+
+The interface may differ.
+
+The engineering runtime should remain shared.
+
+
+============================================================
+14. CURRENT ARCHITECTURE BASELINE
+============================================================
+
+The existing architecture is the CURRENT BASELINE.
+
+Do not redesign the architecture during MVP integration unless the
+current architecture itself prevents the required workflow.
+
+Current conceptual structure:
+
+    aegis/
+    ├── apps/
+    │   ├── web/
+    │   └── api/
+    │
+    ├── agents/
+    │   ├── planner/
+    │   ├── researcher/
+    │   ├── architect/
+    │   ├── developer/
+    │   ├── tester/
+    │   ├── reviewer/
+    │   └── security/
+    │
+    ├── graph/
+    ├── tools/
+    ├── rag/
+    ├── memory/
+    ├── models/
+    ├── evaluation/
+    ├── observability/
+    ├── database/
+    ├── shared/
+    └── docker/
+
+This is NOT a permanent promise that every directory must remain
+unchanged forever.
+
+Architecture simplification is planned later.
+
+During MVP work:
+
+    PRESERVE FIRST.
+    SIMPLIFY LATER.
+
+
+============================================================
+15. ARCHITECTURE PRINCIPLE
+============================================================
+
+The target architecture should be:
+
+    MODULAR
+    but not
+    FRAGMENTED
 
 Avoid:
-- Unnecessary classes
-- Factory patterns without a real need
-- Excessive abstraction
-- Deep inheritance
-- Premature optimization
-- Huge files
-- Clever code
-- Unnecessary dependencies
-- Over-engineering
 
-Rule:
-
-"Production-aware but understandable."
-
-Move quickly, but do not skip important engineering.
-
----
-
-# 7. AGENTIC CORE OWNERSHIP
-
-The agentic core is the most important part of Aegis.
-
-These areas must be implemented carefully and understood by the developer:
-
-agents/
-graph/
-tools/
-rag/
-memory/
-models/
-evaluation/
-observability/
-
-Do NOT hide important agentic logic behind excessive abstractions.
-
-The developer should clearly understand:
-- How the LLM is called
-- How structured output works
-- How tools work
-- How tool calling works
-- How agent state works
-- How LangGraph nodes work
-- How edges route execution
-- How agents communicate
-- How loops/retries work
-- How memory works
-- How RAG works
-- How human approval works
-- How evaluation works
-- How traces and observability work
-
----
-
-# 8. WHAT AEGIS SHOULD LEARN FROM CODING HARNESS
-
-We learn concepts, NOT implementation.
-
-## 8.1 Context Engineering
-
-Learn:
-- Context is a limited resource.
-- Tool results should not blindly accumulate forever.
-- Stale file reads should be invalidated after mutations.
-- Repeated/redundant context should be compacted.
-- Large histories should eventually be summarized.
-- Project instructions should be available as persistent context.
-
-Aegis equivalent:
-RAG + memory + context builder + state-aware context management.
-
-Do NOT blindly copy a context-manager implementation.
-
----
-
-## 8.2 Session Persistence
-
-Learn:
-- Agent runs should survive process restarts.
-- Sessions need stable IDs.
-- Execution history should be reconstructable.
-- Checkpoints are useful.
-- Branching/rewinding can be valuable later.
-
-Aegis equivalent:
-LangGraph state/checkpointing + database/session runtime.
-
-Do NOT copy JSONL tree storage just because Coding Harness uses it.
-
----
-
-## 8.3 Tool Registry
-
-Learn:
-- Tools need clear schemas.
-- Tools need metadata.
-- Read-only and mutating tools should be distinguishable.
-- Tool execution should be observable.
-- Tool permissions should be explicit.
-
-Aegis already has the foundation for this.
-
----
-
-## 8.4 Permission / Safety Engine
-
-Learn:
-LLM output should NOT directly control dangerous actions.
-
-Concept:
-
-LLM proposes
- ↓
-Policy / Permission Layer
- ↓
-Allow / Review / Deny
- ↓
-Execute
-
-Important for:
-- file deletion
-- terminal commands
-- database mutations
-- Git push
-- deployment
-- external side effects
-
-This is a core Aegis principle.
-
----
-
-## 8.5 Parallel Tool Execution
-
-Learn:
-Independent tool calls can sometimes execute concurrently.
-
-Use parallel execution only when:
-- operations are independent
-- ordering does not matter
-- safety rules allow it
-
-Do not parallelize everything blindly.
-
----
-
-## 8.6 User Steering
-
-Learn:
-A running agent should eventually be interruptible and steerable.
-
-Example:
-
-Agent running
- ↓
-User interrupts
- ↓
-Agent pauses safely
- ↓
-User gives instruction
- ↓
-Agent resumes with updated state
-
-This belongs in the runtime/CLI stage.
-
----
-
-## 8.7 Sub-Agent Isolation
-
-Learn:
-Sub-agents should have:
-- clear task scope
-- restricted tools
-- limited context
-- bounded depth
-- explicit results
-
-Avoid unlimited recursive delegation.
-
-Aegis should use the task graph rather than uncontrolled recursion.
-
----
-
-## 8.8 Headless Execution
-
-Learn:
-Agent systems should work without interactive UI.
-
-Aegis should eventually support:
-- CLI interactive mode
-- headless task mode
-- automation/CI usage
-
-The same core runtime should power all interfaces.
-
----
-
-## 8.9 Provider Abstraction
-
-Learn:
-Do not make the whole system depend on one provider.
-
-Aegis currently uses Gemini as the primary model layer.
-
-The architecture should still keep model access isolated enough that another provider can be introduced later without rewriting agents.
-
-Do not implement multiple providers prematurely.
-
----
-
-## 8.10 Observability
-
-Learn:
-An agent system must make its behavior inspectable.
-
-Track eventually:
-- agent runs
-- graph transitions
-- LLM calls
-- tool calls
-- latency
-- tokens
-- retries
-- errors
-- approvals
-- costs
-- final outcomes
-
-Observability is not just logging.
-It should explain WHY an agent run behaved the way it did.
-
----
-
-# 9. ADDITIONAL AGENT-SYSTEM CONCEPTS TO ADOPT
-
-These are important concepts seen across strong agent runtimes and should influence Aegis design.
-
-## 9.1 Memory ≠ Skill
-
-MEMORY:
-"What happened / what is known."
-
-SKILL:
-"How to perform a repeatable task."
-
-Aegis must keep this distinction.
-
-Memory:
-- project facts
-- previous decisions
-- execution history
-- useful learned information
-
-Skills:
-- reusable procedures
-- workflows
-- engineering practices
-- successful task recipes
-
-Do not mix both into one giant vector database.
-
----
-
-## 9.2 Procedural Skills
-
-Eventually Aegis should support:
-
-skills/
-  testing.md
-  react-feature.md
-  api-debugging.md
-  database-migration.md
-  security-review.md
-
-A skill describes:
-- when it applies
-- prerequisites
-- procedure
-- expected output
-- failure modes
-
-Skills should be reusable, not random prompt files.
-
----
-
-## 9.3 Specialized Coding Environment
-
-The Developer Agent should eventually have a controlled engineering environment:
-
-Developer
- ↓
-Inspect repository
- ↓
-Plan changes
- ↓
-Modify code
- ↓
-Run tests
- ↓
-Observe failures
- ↓
-Repair
- ↓
-Run tests again
- ↓
-Review diff
- ↓
-Approval
- ↓
-Commit/merge
-
-Do not treat "coding" as a single magical tool call.
-
----
-
-## 9.4 Task Graph / Delegation
-
-A complex mission should become a structured task graph.
-
-Example:
-
-MISSION
-├── Research
-│   ├── Inspect repository
-│   ├── Search documentation
-│   └── Identify constraints
-│
-├── Architecture
-│   ├── Design solution
-│   └── Identify risks
-│
-├── Implementation
-│   ├── Backend
-│   └── Frontend
-│
-└── Verification
-    ├── Tests
-    ├── Review
-    └── Security
-
-Each task should eventually have:
-- owner
-- status
-- dependencies
-- artifacts
-- retries
-- result
-- confidence
-
-LangGraph remains the orchestration layer.
-
----
-
-## 9.5 Reflection / Verification
-
-Aegis should not consider:
-
-"LLM said it worked"
-
-as verification.
-
-Instead:
-
-Action
- ↓
-Observation
- ↓
-Test / Evidence
- ↓
-Evaluate
- ↓
-Accept / Retry / Redirect
-
-Verification should be evidence-based.
-
----
-
-## 9.6 World / Project Model
-
-Eventually Aegis should understand relationships between:
-
-- projects
-- repositories
-- files
-- modules
-- APIs
-- databases
-- tasks
-- agents
-- decisions
-- dependencies
-- tests
-- failures
-
-This does NOT mean introducing a graph database immediately.
-
-Start with simple structured state and project knowledge.
-
----
-
-# 10. THINGS WE WILL NOT COPY FROM CODING HARNESS
-
-Do NOT make Aegis:
-- a Coding Harness clone
-- a Claude Code clone
-- a generic terminal wrapper
-- a giant context-management framework
-- a collection of unrelated tools
-- an unlimited recursive agent system
-- a giant "self-learning" system before the fundamentals work
-
-Do NOT copy:
-- its folder structure
-- its session storage implementation
-- its naming
-- its CLI UX
-- its provider implementation
-- its permission implementation
-
-We learn the underlying engineering ideas and build our own implementation around Aegis's architecture.
-
----
-
-# 11. LANGGRAPH PRINCIPLES
+- one tiny file for every trivial function
+- excessive barrel files
+- unnecessary nesting
+- duplicate wrappers
+- duplicate types
+- unnecessary interfaces
+- unnecessary factories
+- unnecessary service layers
+- abstractions with no meaningful consumer
+
+Prefer:
+
+- cohesive modules
+- explicit data flow
+- simple functions
+- clear responsibilities
+- readable TypeScript
+- understandable boundaries
+
+
+============================================================
+16. ARCHITECTURE REFACTOR POLICY
+============================================================
+
+Architecture simplification is intentionally DEFERRED until after MVP
+validation.
+
+The eventual refactor should:
+
+- audit the entire repository
+- map responsibilities
+- identify duplication
+- identify dead code
+- identify stubs/mocks
+- identify unnecessary abstractions
+- identify fragmented modules
+- simplify directory structure
+- consolidate cohesive modules where appropriate
+- preserve validated functionality
+- preserve required APIs
+- preserve tests
+- run regression verification
+
+Goal:
+
+    SAME OR BETTER CAPABILITY
+    +
+    FEWER UNNECESSARY MOVING PARTS
+    +
+    CLEARER ARCHITECTURE
+
+Do not refactor merely for aesthetics.
+
+Do not perform architecture simplification during MVP integration
+unless explicitly required.
+
+
+============================================================
+17. LANGGRAPH / ORCHESTRATION
+============================================================
 
 LangGraph is the orchestration layer.
 
-Use it for:
-- Shared state
-- Nodes
-- Edges
-- Conditional routing
-- Loops
-- Retries
-- Human approval
-- Multi-agent workflows
-- Checkpointing where appropriate
-
-Do not use LangGraph merely because it exists.
-
-Use normal functions when a graph is unnecessary.
-
-The graph should represent meaningful execution logic.
-
----
-
-# 12. TOOL PRINCIPLES
-
-Tools must have:
-- Clear purpose
-- Clear input schema
-- Clear output
-- Proper validation
-- Safe execution
-
-Dangerous tools require stronger controls.
-
-Examples:
-- filesystem
-- terminal
-- database
-- GitHub
-- browser
-
-Never allow an agent to blindly execute destructive actions.
-
----
-
-# 13. HUMAN APPROVAL
-
-Actions such as:
-- destructive file operations
-- production changes
-- database migrations
-- pushing code
-- deployment
-- potentially dangerous terminal commands
-
-should support human approval.
-
-The agent must be able to pause and resume.
-
-Approval must happen outside the LLM's own decision logic.
-
----
-
-# 14. RAG PRINCIPLES
-
-RAG should provide useful project context.
-
-Pipeline:
-
-Documents
-→ Load
-→ Chunk
-→ Embed
-→ Store
-→ Retrieve
-→ Agent Context
-
-Use retrieval where project/external knowledge is actually required.
-
-Do not add RAG everywhere blindly.
-
----
-
-# 15. MEMORY PRINCIPLES
-
-Short-term memory:
-Current execution/task context.
-
-Long-term memory:
-Useful persistent project knowledge, decisions and history.
-
-Procedural memory / skills:
-Reusable ways of performing tasks.
-
-These are related but must remain conceptually separate.
-
-Do not store everything.
-
----
-
-# 16. EVALUATION PRINCIPLES
-
-Aegis must eventually evaluate agents using evidence rather than subjective output alone.
-
-Evaluate:
-- task success
-- tool correctness
-- structured output validity
-- routing correctness
-- retry behavior
-- final result quality
-- regression rate
-- cost
-- latency
-- safety violations
-
-Do not build an elaborate evaluation platform before the core workflow works.
-
----
-
-# 17. OBSERVABILITY
-
-Eventually track:
-
-- Agent runs
-- LLM calls
-- Tool calls
-- Tokens
-- Latency
-- Errors
-- Retries
-- State transitions
-- Costs
-- Approvals
-- Outcomes
-
-The purpose is to understand and debug agent behavior.
-
----
-
-# 18. CLI / RUNTIME PRINCIPLES
-
-Aegis should eventually have a first-class CLI.
-
-The CLI is NOT a separate agent implementation.
-
-Architecture:
-
-CLI
- │
-Web
- │
-API
- ↓
-Aegis Core Runtime
- ↓
-LangGraph / Agents / Tools
-
-All interfaces must use the same core.
-
-The CLI should eventually support:
-- interactive sessions
-- task execution
-- session resume
-- agent progress
-- tool activity
-- approval prompts
-- headless mode
-- CI/automation usage
-
-Bun may be used where it genuinely improves the CLI/runtime experience, but do not introduce Bun unnecessarily into the existing application.
-
----
-
-# 19. AGENT BUILD ORDER
-
-Build ONE feature at a time.
-
-## FOUNDATION
-
-[x] Feature 01 — Gemini Model Layer
-[x] Feature 02 — Structured Output
-[x] Feature 03 — Tool System
-[x] Feature 04 — First Tool-Calling Agent
-
-## LANGGRAPH ENGINE
-
-[x] Feature 05 — LangGraph State
-[x] Feature 06 — Nodes + Edges + Routing
-[x] Feature 07 — Single-Agent Graph
-[x] Feature 08 — Loops + Retries + Error Handling
-
-## AEGIS AGENTS
-
-[x] Feature 09 — Planner Agent
-[x] Feature 10 — Researcher Agent
-[x] Feature 11 — Architect Agent
-[x] Feature 12 — Developer Agent
-[x] Feature 13 — Tester Agent
-[x] Feature 14 — Reviewer Agent
-[x] Feature 15 — Security Agent
-
-## MULTI-AGENT ORCHESTRATION
-
-[x] Feature 16 — Full Aegis Multi-Agent Workflow
-[x] Feature 17 — Agent Routing + Conditional Execution
-[x] Feature 18 — Failure Recovery + Iteration Loops
-[ ] Feature 19 — Task Dependencies + Delegation
-
-## KNOWLEDGE + MEMORY
-
-[x] Feature 19 — RAG Pipeline
-[x] Feature 20 — Project Knowledge Retrieval
-[x] Feature 21 — Short-Term Memory
-[x] Feature 22 — Long-Term Memory
-[ ] Feature 23 — Procedural Skills
-
-## SAFETY + EXTERNAL SYSTEMS
-
-[x] Feature 23 — Human-in-the-Loop
-[x] Feature 24 — Tool Permissions / Guardrails
-[x] Feature 25 — GitHub Integration
-[x] Feature 26 — Repository Intelligence Engine
-[x] Feature 27 — Aegis CLI Foundation
-[ ] Feature 28 — Terminal / Sandbox Execution
-[ ] Feature 29 — MCP Integration
-[ ] Feature 30 — Session Runtime / Resume & Branching
-
-## QUALITY & OBSERVABILITY
-
-[ ] Feature 31 — Observability & Token / Cost Tracking
-[ ] Feature 32 — Agent Evaluation & Benchmarking
-
-## SIMPLIFICATION
-
-[ ] Feature 33 — Architecture Simplification Refactor
-
-IMPORTANT:
-The exact implementation order may change only when a genuine dependency requires it.
-Do not add random features simply because they are interesting.
-
----
-
-# 20. CURRENT PROGRESS
-
-## Completed
-
-[x] Feature 01 — Gemini Model Layer
-[x] Feature 02 — Structured Output
-[x] Feature 03 — Tool System
-[x] Feature 04 — First Tool-Calling Agent
-[x] Feature 05 — LangGraph State
-[x] Feature 06 — Nodes + Edges + Routing
-[x] Feature 07 — Single-Agent Graph
-[x] Feature 08 — Loops + Retries + Error Handling
-[x] Feature 09 — Planner Agent
-[x] Feature 10 — Researcher Agent
-[x] Feature 11 — Architect Agent
-[x] Feature 12 — Developer Agent
-[x] Feature 13 — Tester Agent
-[x] Feature 14 — Reviewer Agent
-[x] Feature 15 — Security Agent
-[x] Feature 16 — Full Aegis Multi-Agent Workflow
-[x] Feature 17 — Agent Routing + Conditional Execution
-[x] Feature 18 — Failure Recovery + Iteration Loops
-[x] Feature 19 — RAG Pipeline
-[x] Feature 20 — Project Knowledge Retrieval
-[x] Feature 21 — Short-Term Memory
-[x] Feature 22 — Long-Term Memory
-[x] Feature 23 — Human-in-the-Loop
-[x] Feature 24 — Tool Permissions / Guardrails
-[x] Feature 25 — GitHub Integration
-[x] Feature 26 — Repository Intelligence Engine
-[x] Feature 27 — Aegis CLI Foundation
-
-## Currently Building
-
-Feature 28 — Terminal / Sandbox Execution
-
-## Next
-
-Feature 29 — MCP Integration
-
-
----
-
-# 21. FEATURE EXECUTION RULE
-
-Implement ONE feature at a time.
-
-For every feature:
-
-1. Read this file.
-2. Inspect existing implementation.
-3. Identify exactly what already exists.
-4. Implement only the requested feature.
-5. Integrate with existing code.
-6. Do not implement future features prematurely.
-7. Run TypeScript/build checks.
-8. Run the application.
-9. Test the feature.
-10. Check existing functionality still works.
-11. Update this file.
-12. Mark the completed feature [x].
-13. Update Currently Building.
-14. Update Next.
-15. Report files created/modified.
-
----
-
-# 22. FEATURE SCOPE RULE
-
-A feature should be complete, not half-built.
-
-Do not leave:
-- TODO implementations
-- fake implementations
-- placeholder logic
-- unnecessary mocks
-- incomplete functions
-- "implement later" sections
-
-unless the feature explicitly depends on a future external component.
-
-Do not prematurely implement future features.
-
----
-
-# 23. EXISTING CODE RULE
-
-Before modifying an existing file:
-- Read it.
-- Understand it.
-- Preserve current behavior.
-- Modify only what is necessary.
-
-If the required change is large or affects unrelated functionality,
-STOP and explain the conflict before making destructive changes.
-
-Do not silently rewrite working code.
-
----
-
-# 24. DEPENDENCY RULE
-
-Before installing a package:
-1. Check package.json.
-2. Check whether functionality already exists.
-3. Reuse existing dependencies where possible.
-
-Do not install duplicate libraries.
-
-Keep dependencies minimal.
-
----
-
-# 25. TESTING RULE
-
-Every completed feature must pass:
-- TypeScript/build check
-- Runtime check
-- Feature-specific test
-
-If tests already exist:
-- Run them.
-- Do not remove them.
-- Do not weaken them just to make the feature pass.
-
-Fix the implementation instead.
-
----
-
-# 26. GIT / PR RULE
-
-Each feature represents one clean logical change.
-
-Commit format:
-
-feat: <feature>
-
-PR should contain:
-
-## Summary
-What was added.
-
-## Changes
-Files/features changed.
-
-## Architecture
-Where the feature fits.
-
-## Existing Functionality
-What was preserved.
-
-## Verification
-Build/tests/runtime checks.
-
-## Out of Scope
-What was intentionally not changed.
-
----
-
-# 27. AGENTIC DESIGN PRINCIPLES
-
-Aegis should not be a collection of independent LLM calls.
-
-We want:
-
-LLM
-↓
-Decision
-↓
-Tool / Agent / Node
-↓
-Observation
-↓
-State Update
-↓
-Next Decision
-↓
-Completion
-
-Agents should have clear responsibilities.
+It should manage:
+
+- state
+- nodes
+- transitions
+- conditional routing
+- loops
+- retries
+- recovery
+- checkpoints where appropriate
+- human approval pauses where appropriate
+
+AEGIS should not be a collection of unrelated LLM calls.
+
+Core mental model:
+
+    LLM
+     ↓
+    Decision
+     ↓
+    Tool / Agent / Node
+     ↓
+    Observation
+     ↓
+    State Update
+     ↓
+    Next Decision
+     ↓
+    Completion / Recovery
+
+
+============================================================
+18. AGENT RESPONSIBILITIES
+============================================================
+
+Agents have engineering responsibilities.
 
 Planner:
-Plans.
+
+- understands the requested engineering outcome
+- creates a plan
+- identifies major work
 
 Researcher:
-Finds and validates information.
+
+- investigates the repository/task
+- retrieves relevant evidence
+- identifies existing behavior
 
 Architect:
-Designs the solution.
+
+- reasons about design and change impact
+- identifies affected components
+- considers tradeoffs
 
 Developer:
-Changes the code.
+
+- implements approved changes
+- uses controlled tools
+- works against the real repository
 
 Tester:
-Validates implementation.
+
+- identifies/runs appropriate tests
+- reports actual results
+- supports failure feedback
 
 Reviewer:
-Reviews quality/correctness.
+
+- reviews the actual change/diff
+- checks correctness and maintainability
+- identifies issues
 
 Security:
-Reviews security risks.
 
-Do not make every agent capable of doing everything.
+- checks relevant security risks
+- reviews dangerous or sensitive changes
+- identifies security concerns
 
----
+Agents should not perform responsibilities that belong to unrelated
+agents merely because it is convenient.
 
-# 28. RELIABILITY PRINCIPLES
+However, the workflow does not require every task to invoke every agent.
 
-The LLM must not control the entire system.
+Routing should depend on engineering intent and task requirements.
 
-Use deterministic infrastructure underneath it.
 
-LLM proposes action
- ↓
-Validation / Policy
- ↓
-Allow / Review / Deny
- ↓
-Execute
- ↓
-Observe
- ↓
-Verify
+============================================================
+19. ENGINEERING INTENT
+============================================================
 
-Bound all agent execution.
+The user should communicate engineering intent rather than low-level
+tool instructions.
 
-Every important loop should have:
-- retry limits
-- step limits
-- error handling
-- clear terminal states
+User:
 
-No infinite autonomous loops.
+    "Fix the authentication issue."
 
----
+AEGIS should determine:
 
-# 29. PROJECT INTELLIGENCE
+- what needs to be inspected
+- which repository areas matter
+- which agents are needed
+- which tools are needed
+- which tests matter
+- what risks exist
+- whether approval is required
 
-Aegis should eventually understand:
+The system should not require the user to manually orchestrate:
 
-Repository
-├── architecture
-├── dependencies
-├── APIs
-├── database
-├── components
-├── tests
-├── documentation
-├── git history
-└── engineering decisions
+    read file
+    search symbol
+    run test
+    inspect middleware
+    edit service
 
-Do not dump the whole repository into the model.
 
-Use:
-- targeted inspection
-- retrieval
-- structured project metadata
-- memory
-- relevant tool results
+============================================================
+20. REPOSITORY INTELLIGENCE
+============================================================
 
----
+Repository understanding is a core AEGIS capability.
 
-# 30. FEATURE COMPLETION UPDATE
+The long-term goal is not merely semantic file search.
 
-After successfully completing a feature, update this file.
+AEGIS should progressively understand:
+
+- files
+- directories
+- symbols
+- functions
+- classes
+- imports
+- exports
+- dependencies
+- APIs
+- database structures
+- configuration
+- tests
+- Git history
+- issues
+- pull requests
+- CI/workflows
+- relationships between these entities
 
 Example:
 
-BEFORE:
+    POST /login
+        ↓
+    authController
+        ↓
+    authService
+        ↓
+    userRepository
+        ↓
+    PostgreSQL
+
+And:
+
+    authService
+        ↓
+    JWT utility
+        ↓
+    auth middleware
+        ↓
+    protected routes
+
+
+============================================================
+21. REPOSITORY DIGITAL TWIN
+============================================================
+
+Long-term direction:
+
+AEGIS should maintain a useful engineering representation of a
+repository.
+
+Conceptually:
+
+    Repository
+    ├── Files
+    ├── Directories
+    ├── Symbols
+    ├── APIs
+    ├── Database
+    ├── Config
+    ├── Tests
+    ├── Dependencies
+    ├── Git history
+    ├── Issues
+    ├── PRs
+    └── Relationships
+
+The purpose is to answer:
+
+- What exists?
+- How does it work?
+- What depends on it?
+- Where is it used?
+- What will be affected by changing it?
+- Which tests cover it?
+- What changed historically?
+- Where should a new change be made?
+
+
+============================================================
+22. CODEBASE-AWARE RAG
+============================================================
+
+AEGIS RAG should evolve beyond:
+
+    query
+      ↓
+    similar chunks
+      ↓
+    answer
+
+Target:
+
+    engineering intent
+        ↓
+    relevant entities
+        ↓
+    relevant code
+        ↓
+    relationships
+        ↓
+    configuration
+        ↓
+    tests
+        ↓
+    history
+        ↓
+    reasoning
+        ↓
+    answer / action
+
+Do not blindly retrieve large amounts of code.
+
+Retrieve relevant context based on:
+
+- task
+- entities
+- relationships
+- dependencies
+- repository structure
+- change impact
+
 
-[x] Feature 08
-[ ] Feature 09
+============================================================
+23. CHANGE IMPACT
+============================================================
+
+Before meaningful changes, AEGIS should eventually reason about impact.
 
-CURRENTLY BUILDING:
-Feature 09
+Example:
 
-NEXT:
-Feature 10
+    Change User.email
+        ↓
+    database schema
+        ↓
+    migration
+        ↓
+    ORM
+        ↓
+    repository
+        ↓
+    service
+        ↓
+    controller
+        ↓
+    API
+        ↓
+    frontend
+        ↓
+    tests
 
-AFTER:
+Potential output:
 
-[x] Feature 08
-[x] Feature 09
+    affected components
+    compatibility concerns
+    migration requirements
+    relevant tests
+    risk areas
 
-CURRENTLY BUILDING:
-Feature 10
+Do not claim impact analysis is production-complete until it has been
+validated against real repositories.
 
-NEXT:
-Feature 11
 
-Also add a short entry:
+============================================================
+24. GITHUB
+============================================================
 
-## Completed Feature History
+GitHub is both:
 
-### Feature 01 — Gemini Model Layer
+1. a repository knowledge source
+2. a controlled engineering execution surface
 
-Files created:
-- models/gemini/config.ts
-- models/gemini/model.ts
-- models/gemini/index.ts
-- models/gemini/test.ts
-- tsconfig.agentic.json
+The existing GitHub integration is intended to use REAL GitHub data.
 
-Key decisions:
-- @google/genai is the current Gemini SDK.
-- Default model is gemini-3.5-flash based on the working API configuration.
-- Gemini access is isolated in the model layer.
+Never regress it into fake/demo production behavior.
 
-Verification:
-5/5 tests passed.
+Production must not use:
 
-### Feature 02 — Structured Output
+- fake repositories
+- fake commits
+- fake branches
+- fake PRs
+- fake issues
+- fake repository lists
+- placeholder responses
 
-Files created:
-- models/gemini/structured.ts
-- models/gemini/structured.test.ts
+Authentication/tokens must remain server-side.
 
-Key decisions:
-- Zod schemas are converted into Gemini-compatible schemas.
-- Structured output is validated before being returned to agents.
+Potential future capabilities:
 
-Verification:
-4/4 tests passed.
+- repository inspection
+- branch inspection
+- file retrieval
+- commits
+- PRs
+- issues
+- reviews
+- diffs
+- CI/workflow results
+- branch comparisons
+- branch creation
+- commits
+- PR creation
+- PR comments/reviews
 
-### Feature 03 — Tool System
+Meaningful write operations require appropriate safety controls.
 
-Files created:
-- tools/types.ts
-- tools/calculator/index.ts
-- tools/calculator/test.ts
-- tools/index.ts
 
-Key decisions:
-- Tools have explicit schemas and metadata.
-- LangChain tool interfaces are used without hiding execution logic.
+============================================================
+25. TOOLS
+============================================================
 
-Verification:
-6/6 tests passed.
+Tools are how AEGIS interacts with the engineering environment.
 
-### Feature 04 — First Tool-Calling Agent
+Conceptual tools:
 
-Files created/modified:
-- agents/agent.ts
-- agents/index.ts
-- agents/test.ts
-- models/gemini/structured.ts
-- models/gemini/index.ts
+- filesystem
+- terminal
+- GitHub
+- search
+- database
+- browser/web
+- test runner
+- Git
 
-Key decisions:
-- Gemini function declarations are generated from tool schemas.
-- Agent executes tool calls and feeds observations back to the model.
+Agents must not magically perform external actions outside the
+controlled tool system.
 
-Verification:
-2/2 tests passed.
+Before adding a new tool:
 
-### Feature 05 — LangGraph State
+1. Inspect existing tools.
+2. Check whether an existing tool can be extended.
+3. Avoid duplicate implementations.
+4. Define its responsibility clearly.
+5. Define safety requirements.
+6. Integrate it into an actual workflow.
 
-Files created:
-- graph/state.ts
-- graph/index.ts
-- graph/test.ts
-
-Key decisions:
-- Shared Aegis state is the source of truth for graph execution.
 
-Verification:
-2/2 tests passed.
-
-### Feature 06 — LangGraph Nodes + Edges + Routing
-
-Files created/modified:
-- graph/nodes/sampleNodes.ts
-- graph/edges/routing.ts
-- graph/workflow.ts
-- graph/index.ts
-- graph/workflow.test.ts
-
-Key decisions:
-- Nodes perform work.
-- Conditional edges determine execution paths.
-
-Verification:
-2/2 tests passed.
-
-### Feature 07 — Single-Agent Graph
-
-Files created/modified:
-- graph/nodes/agentNode.ts
-- graph/singleAgentWorkflow.ts
-- graph/index.ts
-- graph/singleAgentWorkflow.test.ts
-
-Key decisions:
-- The tool-calling agent is executed as a LangGraph node.
-
-Verification:
-2/2 tests passed.
-
-### Feature 08 — Loops, Retries & Error Handling
-
-Files created/modified:
-- graph/state.ts
-- graph/nodes/resilientNodes.ts
-- graph/edges/retryRouting.ts
-- graph/resilientWorkflow.ts
-- graph/index.ts
-- graph/resilientWorkflow.test.ts
-
-Key decisions:
-- Retry state is explicit.
-- Retry routing is deterministic.
-- Maximum retries terminate safely.
-
-Verification:
-3/3 tests passed.
-
-### Feature 09 — Planner Agent
-
-Files created/modified:
-- agents/planner/schema.ts
-- agents/planner/planner.ts
-- agents/planner/index.ts
-- agents/planner/test.ts
-- agents/index.ts
-- graph/nodes/plannerNode.ts
-- graph/plannerWorkflow.ts
-- graph/plannerWorkflow.test.ts
-- graph/index.ts
-- AGENT_BUILD_CONTEXT.md
-
-Key decisions:
-- Unified schema and types in `types.ts` as single-source-of-truth using `z.infer`, re-exported in `schema.ts` for clean resolution.
-- Created `GeminiPlannerModel` bridging `PlannerAgent` with `callStructured` from Gemini model layer (`models/gemini/index.ts`).
-- Configured `PlannerAgent` to default to `GeminiPlannerModel` while preserving mock model dependency injection for tests.
-- Integrated `PlannerAgent` into LangGraph via `plannerNode` in `graph/nodes/plannerNode.ts`, mapping `PlannerResult` to `PlanStep[]` and updating `AegisState`.
-
-Verification:
-- TypeScript compilation (`npx tsc --project tsconfig.agentic.json --noEmit`): Passed with 0 errors.
-- Unit tests (`npx tsx agents/planner/test.ts`): Passed.
-- Workflow tests (`npx tsx graph/plannerWorkflow.test.ts`): 2/2 passed.
-- Feature 01–08 regression tests: All passed.
-
-### Feature 10 — Researcher Agent
-
-Files created/modified:
-- agents/researcher/types.ts
-- agents/researcher/schema.ts
-- agents/researcher/prompt.ts
-- agents/researcher/researcher.ts
-- agents/researcher/index.ts
-- agents/researcher/test.ts
-- agents/index.ts
-- graph/nodes/researcherNode.ts
-- graph/researcherWorkflow.ts
-- graph/researcherWorkflow.test.ts
-- graph/index.ts
-- AGENT_BUILD_CONTEXT.md
-
-Key decisions:
-- Unified schema and types in `types.ts` defining `researchFindingSchema` and `researchResultSchema`, re-exported in `schema.ts`.
-- Created `GeminiResearcherModel` bridging `ResearcherAgent` with `callStructured` from Gemini model layer (`models/gemini/index.ts`).
-- Created `researcherNode` in `graph/nodes/researcherNode.ts` mapping `ResearchResult` into `AegisState` with status `"researching"`.
-
-Verification:
-- TypeScript compilation (`npx tsc --project tsconfig.agentic.json --noEmit`): Passed with 0 errors.
-- Unit tests (`npx tsx agents/researcher/test.ts`): Passed.
-- Workflow tests (`npx tsx graph/researcherWorkflow.test.ts`): 2/2 passed.
-- Feature 01–09 regression tests: All passed.
-
-### Feature 11 — Architect Agent
-
-Files created/modified:
-- agents/architect/types.ts
-- agents/architect/schema.ts
-- agents/architect/prompt.ts
-- agents/architect/architect.ts
-- agents/architect/index.ts
-- agents/architect/test.ts
-- agents/index.ts
-- graph/nodes/architectNode.ts
-- graph/architectWorkflow.ts
-- graph/architectWorkflow.test.ts
-- graph/index.ts
-- AGENT_BUILD_CONTEXT.md
-
-Key decisions:
-- Unified schema and types in `types.ts` defining `componentDesignSchema` and `architectureResultSchema`, re-exported in `schema.ts`.
-- Created `GeminiArchitectModel` bridging `ArchitectAgent` with `callStructured` from Gemini model layer (`models/gemini/index.ts`).
-- Created `architectNode` in `graph/nodes/architectNode.ts` mapping `ArchitectureResult` into `AegisState` with status `"architecting"`.
-
-Verification:
-- TypeScript compilation (`npx tsc --project tsconfig.agentic.json --noEmit`): Passed with 0 errors.
-- Unit tests (`npx tsx agents/architect/test.ts`): Passed.
-- Workflow tests (`npx tsx graph/architectWorkflow.test.ts`): 2/2 passed.
-- Feature 01–10 regression tests: All passed.
-
-### Feature 12 — Developer Agent
-
-Files created/modified:
-- agents/developer/types.ts
-- agents/developer/schema.ts
-- agents/developer/prompt.ts
-- agents/developer/developer.ts
-- agents/developer/index.ts
-- agents/developer/test.ts
-- agents/index.ts
-- graph/nodes/developerNode.ts
-- graph/developerWorkflow.ts
-- graph/developerWorkflow.test.ts
-- graph/index.ts
-- AGENT_BUILD_CONTEXT.md
-
-Key decisions:
-- Unified schema and types in `types.ts` defining `fileChangeSchema` and `developerResultSchema`, re-exported in `schema.ts`.
-- Created `GeminiDeveloperModel` bridging `DeveloperAgent` with `callStructured` from Gemini model layer (`models/gemini/index.ts`).
-- Created `developerNode` in `graph/nodes/developerNode.ts` mapping `DeveloperResult.fileChanges` to `CodeChange[]` on `AegisState` with status `"developing"`.
-
-Verification:
-- TypeScript compilation (`npx tsc --project tsconfig.agentic.json --noEmit`): Passed with 0 errors.
-- Unit tests (`npx tsx agents/developer/test.ts`): Passed.
-- Workflow tests (`npx tsx graph/developerWorkflow.test.ts`): 2/2 passed.
-- Feature 01–11 regression tests: All passed.
-
-### Feature 13 — Tester Agent
-
-Files created/modified:
-- agents/tester/types.ts
-- agents/tester/schema.ts
-- agents/tester/prompt.ts
-- agents/tester/tester.ts
-- agents/tester/index.ts
-- agents/tester/test.ts
-- agents/index.ts
-- graph/nodes/testerNode.ts
-- graph/testerWorkflow.ts
-- graph/testerWorkflow.test.ts
-- graph/index.ts
-- AGENT_BUILD_CONTEXT.md
-
-Key decisions:
-- Unified schema and types in `types.ts` defining `singleTestRunSchema` and `testerResultSchema`, re-exported in `schema.ts`.
-- Created `GeminiTesterModel` bridging `TesterAgent` with `callStructured` from Gemini model layer (`models/gemini/index.ts`).
-- Created `testerNode` in `graph/nodes/testerNode.ts` mapping `TesterResult` to `TestResult` on `AegisState.testResults` with status `"testing"`.
-
-Verification:
-- TypeScript compilation (`npx tsc --project tsconfig.agentic.json --noEmit`): Passed with 0 errors.
-- Unit tests (`npx tsx agents/tester/test.ts`): Passed.
-- Workflow tests (`npx tsx graph/testerWorkflow.test.ts`): 2/2 passed.
-- Feature 01–12 regression tests: All passed.
-
-### Feature 14 — Reviewer Agent
-
-Files created/modified:
-- agents/reviewer/types.ts
-- agents/reviewer/schema.ts
-- agents/reviewer/prompt.ts
-- agents/reviewer/reviewer.ts
-- agents/reviewer/index.ts
-- agents/reviewer/test.ts
-- agents/index.ts
-- graph/nodes/reviewerNode.ts
-- graph/reviewerWorkflow.ts
-- graph/reviewerWorkflow.test.ts
-- graph/index.ts
-- AGENT_BUILD_CONTEXT.md
-
-Key decisions:
-- Unified schema and types in `types.ts` defining `reviewFindingSchema` and `reviewerResultSchema`, re-exported in `schema.ts`.
-- Created `GeminiReviewerModel` bridging `ReviewerAgent` with `callStructured` from Gemini model layer (`models/gemini/index.ts`).
-- Created `reviewerNode` in `graph/nodes/reviewerNode.ts` mapping `ReviewerResult` to `ReviewResult` on `AegisState.reviewResults` with status `"reviewing"`.
-
-Verification:
-- TypeScript compilation (`npx tsc --project tsconfig.agentic.json --noEmit`): Passed with 0 errors.
-- Unit tests (`npx tsx agents/reviewer/test.ts`): Passed.
-- Workflow tests (`npx tsx graph/reviewerWorkflow.test.ts`): 2/2 passed.
-- Feature 01–13 regression tests: All passed.
-
-### Feature 15 — Security Agent
-
-Files created/modified:
-- agents/security/types.ts
-- agents/security/schema.ts
-- agents/security/prompt.ts
-- agents/security/security.ts
-- agents/security/index.ts
-- agents/security/test.ts
-- agents/index.ts
-- graph/nodes/securityNode.ts
-- graph/securityWorkflow.ts
-- graph/securityWorkflow.test.ts
-- graph/index.ts
-- AGENT_BUILD_CONTEXT.md
-
-Key decisions:
-- Unified schema and types in `types.ts` defining `securityVulnerabilitySchema` and `securityResultSchema`, re-exported in `schema.ts`.
-- Created `GeminiSecurityModel` bridging `SecurityAgent` with `callStructured` from Gemini model layer (`models/gemini/index.ts`).
-- Created `securityNode` in `graph/nodes/securityNode.ts` auditing security risks and updating `AegisState`.
-
-Verification:
-- TypeScript compilation (`npx tsc --project tsconfig.agentic.json --noEmit`): Passed with 0 errors.
-- Unit tests (`npx tsx agents/security/test.ts`): Passed.
-- Workflow tests (`npx tsx graph/securityWorkflow.test.ts`): 2/2 passed.
-- Feature 01–14 regression tests: All passed.
-
-### Feature 16 — Full Aegis Multi-Agent Workflow
-
-Files created/modified:
-- graph/nodes/multiAgentNodes.ts
-- graph/edges/multiAgentRouting.ts
-- graph/multiAgentWorkflow.ts
-- graph/multiAgentWorkflow.test.ts
-- graph/index.ts
-- tsconfig.json
-- AGENT_BUILD_CONTEXT.md
-
-Key decisions:
-- Connected all 7 specialized engineering agents (Planner, Researcher, Architect, Developer, Tester, Reviewer, Security) into a single LangGraph StateGraph orchestration workflow.
-- Created `retryLoopNode` to increment `retryCount` and record repair context before returning execution to `developer`.
-- Created conditional routing functions (`routeAfterPlanner`, `routeAfterResearcher`, `routeAfterArchitect`, `routeAfterDeveloper`, `routeAfterTester`, `routeAfterReviewer`, `routeAfterSecurity`) enabling feedback loop recovery when Tester, Reviewer, or Security finds issues, while respecting `maxRetries` limits.
-
-Verification:
-- TypeScript compilation (`npx tsc --project tsconfig.agentic.json --noEmit` & `npx tsc --noEmit`): Passed with 0 errors.
-- Multi-agent workflow tests (`npx tsx graph/multiAgentWorkflow.test.ts`): 3/3 passed (End-to-end execution, conditional feedback loop repair, max retries terminal failure).
-### Feature 17 — Agent Routing + Conditional Execution
-
-Files created/modified:
-- graph/edges/agentRouter.ts
-- graph/edges/agentRouter.test.ts
-- graph/dynamicRoutingWorkflow.ts
-- graph/dynamicRoutingWorkflow.test.ts
-- graph/index.ts
-- testAll.ts
-- AGENT_BUILD_CONTEXT.md
-
-Key decisions:
-- Created deterministic state routing function `determineNextAgent(state: AegisState)` that evaluates state status, validation failure state, and pre-existing artifacts.
-- Supports conditional execution and artifact skipping: if state is pre-populated with artifacts (e.g. plan/architecture), prior agent nodes are skipped and execution starts dynamically at the next required agent node.
-- Created `buildDynamicRoutingWorkflow()` compiling dynamic conditional edges from START and after every agent node.
-- Preserved 100% backward compatibility with all 16 existing features and existing test suites.
-
-Verification:
-- TypeScript compilation (`npx tsc --project tsconfig.agentic.json --noEmit` & `npx tsc --noEmit`): Passed with 0 errors.
-- Unit tests (`npx tsx graph/edges/agentRouter.test.ts`): 12/12 passed.
-- Dynamic workflow tests (`npx tsx graph/dynamicRoutingWorkflow.test.ts`): 3/3 passed.
-- Master test runner (`npm run test`): 17/17 test suites passed (0 failures).
-
-### Feature 18 — Failure Recovery + Iteration Loops
-
-Files created/modified:
-- `graph/state.ts` (added `RecoveryContext` interface with expanded `failingAgent` union + `recoveryContext` annotation field)
-- `graph/nodes/recoveryNode.ts` [NEW] (smart recovery node building structured failure context across all agents)
-- `agents/developer/developer.ts` (added optional `recoveryContext` param to `develop()`)
-- `graph/nodes/developerNode.ts` (extract & format latest `RecoveryContext` to pass to developer agent)
-- `graph/edges/agentRouter.ts` (added `routeFromRecovery` conditional routing helper, routed failures to "recovery")
-- `graph/edges/agentRouter.test.ts` (updated Test 11 assertion to expect "recovery")
-- `graph/dynamicRoutingWorkflow.ts` (wired `recoveryNode` with `addConditionalEdges("recovery", routeFromRecovery)`)
-- `graph/multiAgentWorkflow.ts` (added `recovery?: typeof retryLoopNode` to `CustomMultiAgentNodes`)
-- `graph/index.ts` (exported `recoveryNode`)
-- `graph/failureRecovery.test.ts` [NEW] (7 comprehensive recovery and iteration loop tests)
-- `testAll.ts` (registered `graph/failureRecovery.test.ts`)
-- `AGENT_BUILD_CONTEXT.md`
-
-Recovery Strategy:
-- **Failure Detection**: Captures testing failures (`testResults.passed === false`), reviewer rejections (`reviewResults.approved === false`), security vulnerabilities, and agent errors across planning, research, architecture, and development.
-- **Recovery Routing**: Uses `routeFromRecovery` conditional edge based on `failingAgent`:
-  - Research failure -> Researcher iteration
-  - Architecture failure/rejection -> Architect iteration
-  - Implementation / Test / Review / Security failure -> Developer repair iteration
-- **Iteration Limits**: `retryCount` incremented by `recoveryNode`. Evaluated against `maxRetries` (default 3) in `determineNextAgent`. Exceeding `maxRetries` routes to `multiAgentErrorHandlerNode` for clean terminal failure (`status: "failed"`) while preserving full `recoveryContext` and error history in state.
-- **State Preservation**: Reused `AegisStateAnnotation` without duplicating state management. Appended structured `RecoveryContext` containing `failingAgent`, `reason`, `details`, and `attemptNumber`.
-
-Verification:
-- TypeScript compilation (`npx tsc --project tsconfig.agentic.json --noEmit` & `npx tsc --noEmit`): Passed with 0 errors.
-- Feature 18 tests (`npx tsx graph/failureRecovery.test.ts`): 7/7 passed.
-- Master test runner (`npm run test`): 18/18 test suites passed (0 failures).
-
----
-
-### Feature 19 — RAG Pipeline
-
-Files created:
-- `rag/types.ts` [NEW] — Core shared types: `Document`, `Chunk`, `EmbeddedChunk`, `RetrievalResult`
-- `rag/loaders/fileLoader.ts` [NEW] — Filesystem document loader: `loadFile`, `loadFiles`, `loadDirectory`
-- `rag/chunkers/textChunker.ts` [NEW] — Deterministic sliding-window text chunker: `chunkDocument`, `chunkDocuments`
-- `rag/embeddings/geminiEmbedder.ts` [NEW] — Gemini embedding adapter: `GeminiEmbedder`, `EmbedderInterface`
-- `rag/vector-store/inMemoryStore.ts` [NEW] — In-memory cosine similarity vector store: `InMemoryVectorStore`, `VectorStoreInterface`
-- `rag/retriever/retriever.ts` [NEW] — Query-to-embedding-to-search retriever: `Retriever`
-- `rag/pipeline.ts` [NEW] — Public pipeline API: `RagPipeline`, `createRagPipeline`
-- `rag/index.ts` [NEW] — Barrel export for entire rag/ module
-- `rag/rag.test.ts` [NEW] — 9-test suite covering all pipeline stages
-- `testAll.ts` [MODIFIED] — Added `rag/rag.test.ts` to master runner
-- `AGENT_BUILD_CONTEXT.md` [MODIFIED]
-
-Data Flow:
-```
-Documents                            (files, text)
- → loadFile / loadDirectory          (rag/loaders/fileLoader.ts)
- → chunkDocument / chunkDocuments    (rag/chunkers/textChunker.ts)
- → GeminiEmbedder.embedBatch         (rag/embeddings/geminiEmbedder.ts)
- → InMemoryVectorStore.add           (rag/vector-store/inMemoryStore.ts)
-
-Query
- → GeminiEmbedder.embed              (rag/embeddings/geminiEmbedder.ts)
- → InMemoryVectorStore.search        (cosine similarity)
- → Retriever.retrieveContext         (rag/retriever/retriever.ts)
- → Agent Prompt Context              (ready for Feature 20)
-```
-
-Key decisions:
-- Reused existing `getClient()` from `models/gemini/model.ts` for embedding. No new dependency added.
-- Embedding model: `gemini-embedding-001` (confirmed available for this API key; produces 3072-dim vectors).
-- Interface-based design (`EmbedderInterface`, `VectorStoreInterface`) allows backend swap without touching pipeline or retriever.
-- All RAG pipeline components are injectable — tests run entirely without live API calls using mock embedder.
-- In-memory vector store uses linear cosine similarity scan. Simple, correct, and maintainable for Feature 19. Persistent store deferred to when genuinely needed.
-- Chunking is deterministic (character-based sliding window, optional sentence-boundary split). No LLM calls in chunker.
-- No agents were modified. RAG is standalone infrastructure; Feature 20 will connect it to agents.
-- No new npm packages installed — `@google/genai` already had `embedContent` capability.
-
-Verification:
-- TypeScript compilation (`npx tsc --project tsconfig.agentic.json --noEmit`): Passed with 0 errors.
-- TypeScript compilation (`npx tsc --noEmit`): Passed with 0 errors.
-- Feature 19 tests (`npx tsx rag/rag.test.ts`): 9/9 passed (including live Gemini embedding test).
-- Master test runner (`npm run test`): 19/19 test suites passed (0 failures).
-
----
-
-### Feature 20 — Project Knowledge Retrieval
-
-Files created/modified:
-- `rag/projectKnowledge.ts` [NEW] — `ProjectKnowledge` service providing `ingestProject`, `ingestFiles`, `ingestDocument`, `queryKnowledge`, `getFormattedContext`, and `enhanceContext`.
-- `rag/index.ts` [MODIFIED] — Re-exported `ProjectKnowledge`, `createProjectKnowledge`, `ProjectKnowledgeOptions`, and `QueryKnowledgeOptions`.
-- `rag/projectKnowledge.test.ts` [NEW] — 5-test suite covering project knowledge ingestion, metadata preservation, empty/irrelevant query safety, top-K limits, context formatting/enhancement, and agent integration.
-- `testAll.ts` [MODIFIED] — Added `rag/projectKnowledge.test.ts` to master runner
-- `AGENT_BUILD_CONTEXT.md` [MODIFIED] — Updated Feature 20 progress.
-
-Data Flow:
-```
-Project Files / Codebase
- → ProjectKnowledge.ingestProject(...) / ingestFiles(...)
- → RagPipeline (Feature 19)
- → Chunks + Vector Store Embeddings
-
-Agent Query / Request
- → ProjectKnowledge.getFormattedContext(query, topK)
- → Formatted Markdown Context Block with Source Metadata & Scores
- → Agent Prompt (e.g. ResearcherAgent / PlannerAgent)
-```
-
-Key Decisions:
-- Reused Feature 19 `RagPipeline` directly. No second RAG pipeline, extra database, or duplicate vector store was created.
-- Project Knowledge Retrieval is exposed as an explicit service (`ProjectKnowledge`) that agents or nodes can call on demand. Retrieval is NOT automatically injected into every agent call.
-- Context formatting preserves clear source headers (`[PROJECT KNOWLEDGE Chunk N]`, `Source: <path>`, `Relevance Score: <score>`).
-- Provided `enhanceContext()` helper for cleanly combining base agent notes with retrieved project knowledge context.
-- Zero existing agent interfaces or graph structures were modified, maintaining 100% backward compatibility.
-
-Verification:
-- TypeScript build check (`npx tsc --project tsconfig.agentic.json --noEmit`): Passed with 0 errors.
-- TypeScript build check (`npx tsc --noEmit`): Passed with 0 errors.
-- Feature 20 unit tests (`npx tsx rag/projectKnowledge.test.ts`): 5/5 passed.
-- Aegis Master Test Runner (`npx tsx testAll.ts`): 20/20 test suites passed (0 failures).
-
----
-
-### Feature 21 — Short-Term Memory & Feature 22 — Long-Term Memory
-
-Files created/modified:
-- `memory/types.ts` [NEW] — Short-term entry & category schemas, long-term record & category schemas, memory query options, formatted context options.
-- `memory/short-term/shortTermMemory.ts` [NEW] — `ShortTermMemory` service providing run-isolated execution scratchpad and temporary key-value state (`set`, `get`, `getCategory`, `getAll`, `search`, `delete`, `clear`).
-- `memory/long-term/longTermMemory.ts` [NEW] — `LongTermMemory` service providing persistent storage of architectural decisions, preferences, and project patterns with JSON file backup (`memory/long-term/storage.json`), automatic disk rehydration, and CRUD query operations.
-- `memory/memoryManager.ts` [NEW] — Unified `MemoryManager` API exposing `shortTerm` and `longTerm` memory sub-systems plus `getFormattedMemoryContext()` builder.
-- `memory/index.ts` [NEW] — Public barrel export for Aegis memory module.
-- `graph/state.ts` [MODIFIED] — Added `runId` and `memoryContext` fields to `AegisStateAnnotation`.
-- `memory/memory.test.ts` [NEW] — 7-block test suite verifying short-term memory CRUD, run isolation, long-term CRUD, disk persistence across process restarts, memory manager formatting, RAG vs Memory distinction, and agent access integration.
-- `testAll.ts` [MODIFIED] — Registered `memory/memory.test.ts` in master runner.
-- `graph/test.ts` & `graph/edges/agentRouter.test.ts` [MODIFIED] — Added `runId` and `memoryContext` to test state builders.
-- `AGENT_BUILD_CONTEXT.md` [MODIFIED] — Updated progress and documented completed features.
-
-Key Decisions:
-- **Strict Layer Separation**: Short-term memory is strictly execution-scoped and isolated per `runId`. Long-term memory is persistent across runs and process restarts via file-backed JSON store with DB compatibility.
-- **RAG vs Memory Distinction**:
-  - RAG: Codebase documents / file vector embeddings ("What information exists in project knowledge?").
-  - Short-Term Memory: Active run scratchpad & execution status ("What is happening in this execution?").
-  - Long-Term Memory: Persistent architectural decisions & project rules ("What useful information/decisions should Aegis remember?").
-- **Non-Intrusive Agent Access**: Memory is exposed via unified `MemoryManager` and formatted context helper `getFormattedMemoryContext()`. Memory is not blindly dumped into every prompt; agents/nodes retrieve memory context as required.
-- **Zero Breaking Changes**: Preserved 100% backward compatibility with all Features 01–20.
-
-Verification:
-- TypeScript compilation (`npx tsc --project tsconfig.agentic.json --noEmit`): Passed with 0 errors.
-- TypeScript compilation (`npx tsc --noEmit`): Passed with 0 errors.
-- Memory unit tests (`npx tsx memory/memory.test.ts`): 7/7 passed.
-- Master test runner (`npx tsx testAll.ts`): 21/21 test suites passed (0 failures).
-
----
-
-### Feature 23 — Human-in-the-Loop
-
-Files created/modified:
-- `graph/approvalTypes.ts` [NEW] — `ApprovalType`, `ApprovalRiskLevel`, `ApprovalRequest`, `ApprovalDecision`, `CreateApprovalRequestOptions`.
-- `graph/state.ts` [MODIFIED] — Added `"paused"` to `ExecutionStatus`, added `pendingApproval` & `approvalDecision` annotations to `AegisStateAnnotation`.
-- `graph/edges/approvalGate.ts` [NEW] — Policy engine helper `requiresApproval(action, options)` and factory `createApprovalRequest(options)`.
-- `graph/approvalWorkflow.ts` [NEW] — Approval-aware LangGraph workflow compiled with `MemorySaver` checkpointer, approval check gate node, graph interruption, and decision resolution helpers (`executeApprovalWorkflow`, `resolveApprovalAndResume`).
-- `graph/index.ts` [MODIFIED] — Re-exported approval types, approval gate, and approval workflow runtime.
-- `apps/api/services/agentService.ts` [MODIFIED] — Connected `startTask` and `resumeRun` to real approval workflow runtime engine.
-- `apps/api/controllers/approvals.ts` [MODIFIED] — Updated `resolveApproval` controller to pass human decisions (`action` & `reason`) to `agentService.resumeRun`.
-- `graph/approvalWorkflow.test.ts` [NEW] — 5-block test suite verifying safe action detection, protected action approval request creation, graph interruption/pausing (`status: "paused"`), human APPROVE resume execution, human REJECT action prevention, and state preservation.
-- `testAll.ts` [MODIFIED] — Registered `graph/approvalWorkflow.test.ts` in master test runner.
-- `graph/test.ts` & `graph/edges/agentRouter.test.ts` [MODIFIED] — Added `pendingApproval` & `approvalDecision` fields to test state builders.
-- `AGENT_BUILD_CONTEXT.md` [MODIFIED] — Updated Feature 23 progress.
-
-Key Decisions:
-- **Genuine Graph Interruption**: Uses LangGraph's `MemorySaver` checkpointer and `status: "paused"` state annotation. Execution genuinely halts rather than simulating approval.
-- **Human Decision Handling**:
-  - `APPROVE`: Resumes graph execution from checkpoint with `approvalDecision` attached and executes protected file/command changes.
-  - `REJECT`: Resumes graph execution, **skips/prevents** execution of protected changes, logs human refusal context in state, and terminates cleanly (`status: "completed"` with refusal error log).
-- **Backend API Cohesion**: Integrated directly with existing backend controllers (`apps/api/controllers/approvals.ts`) and API service boundaries (`apps/api/services/agentService.ts`) with zero duplicate approval endpoints created.
-
-Verification:
-- TypeScript compilation (`npx tsc --project tsconfig.agentic.json --noEmit`): Passed with 0 errors.
-- TypeScript compilation (`npx tsc --noEmit`): Passed with 0 errors.
-- Feature 23 unit tests (`npx tsx graph/approvalWorkflow.test.ts`): 5/5 passed.
-- Aegis Master Test Runner (`npx tsx testAll.ts`): 22/22 test suites passed (0 failures).
-
----
-
-### Feature 24 — Tool Permissions / Guardrails
-
-Files created/modified:
-- `tools/guardrails/types.ts` [NEW] — `ToolCategory`, `PermissionDecision`, `PermissionEvaluationInput`, `PermissionEvaluationResult`, `GuardrailOptions`.
-- `tools/guardrails/policyEngine.ts` [NEW] — `classifyToolAction`, `isDangerousAction`, `evaluatePermission` policy rules.
-- `tools/guardrails/enforcer.ts` [NEW] — `enforceToolGuardrail(input)` enforcement entry point.
-- `tools/guardrails/index.ts` [NEW] — Module barrel export.
-- `tools/filesystem/index.ts` [MODIFIED] — Enforced `enforceToolGuardrail` directly inside `writeFile`, `deleteFile`, `createDir`, and `safePath` file I/O operations.
-- `tools/terminal/index.ts` [MODIFIED] — Enforced `enforceToolGuardrail` directly inside `runCommand` before child process execution.
-- `tools/index.ts` [MODIFIED] — Re-exported guardrails module.
-- `tools/guardrails/guardrails.test.ts` [NEW] — 8-block test suite verifying read-only allow, safe mutation allow, sensitive require-approval, approved execution, rejected non-execution, dangerous command block (`rm -rf /`, `format C:`), path escape block (`../../etc/passwd`), and direct tool invocation interception.
-- `testAll.ts` [MODIFIED] — Registered `tools/guardrails/guardrails.test.ts` in master test runner.
-- `AGENT_BUILD_CONTEXT.md` [MODIFIED] — Updated Feature 24 progress.
-
-Key Decisions:
-- **Direct Tool Enforcement**: Guardrails are wired directly into low-level tools (`writeFile`, `deleteFile`, `runCommand`) so agents cannot bypass safety checks by invoking tools directly.
-- **Explicit Safety Policy**:
-  - `ALLOW`: Read-only and safe mutations execute immediately.
-  - `REQUIRE_APPROVAL`: Sensitive operations invoke Feature 23 Human-in-the-Loop approval gate.
-  - `BLOCK`: Dangerous system commands and path escape attempts are denied immediately with `ERR_DANGEROUS_ACTION_BLOCKED`.
-- **Zero Duplication**: Reuses Feature 23 approval infrastructure without creating duplicate approval mechanisms.
-
-Verification:
-- TypeScript compilation (`npx tsc --project tsconfig.agentic.json --noEmit`): Passed with 0 errors.
-- TypeScript compilation (`npx tsc --noEmit`): Passed with 0 errors.
-- Feature 24 unit tests (`npx tsx tools/guardrails/guardrails.test.ts`): 8/8 passed.
-- Aegis Master Test Runner (`npx tsx testAll.ts`): 23/23 test suites passed (0 failures).
-
----
-
-### Feature 25 — GitHub Integration
-
-Files created/modified:
-- `tools/github/client.ts` [NEW] — `GitHubClient` REST client using Node native `fetch` with error normalization & credential masking. Supports live unauthenticated reads to public repos and authenticated reads/writes.
-- `tools/github/index.ts` [NEW] — `GithubInputSchema`, `githubTool`, and `executeGithubOperation` with Feature 24 guardrail enforcement.
-- `apps/api/controllers/projects.ts` [MODIFIED] — Added `getProjectGithubData` controller to fetch live real-time GitHub repository status (`stars`, `forks`, `openIssues`, `defaultBranch`, `url`) from `api.github.com`.
-- `apps/api/routes/projects.ts` [MODIFIED] — Registered route `GET /api/projects/:id/github`.
-- `demoGithub.ts` [REFACTORED] — Completely eliminated all hardcoded mock/fake fallback data (`ghp_mock_demo_token`, fake static JSON objects); all executions hit live `https://api.github.com` REST endpoints.
-- `tools/guardrails/policyEngine.ts` [MODIFIED] — Registered 10 GitHub read actions in `READ_ONLY_ACTIONS`, 3 GitHub write actions in `SENSITIVE_MUTATION_ACTIONS`, and administrative actions in `isDangerousAction`.
-- `tools/index.ts` [MODIFIED] — Re-exported GitHub tool module.
-- `tools/github/github.test.ts` [NEW] — 7-level comprehensive test suite (Unit & Validation, Client & Error Normalization, Permission & Zero-Bypass Test, Agent Integration, Graph Workflow Integration, Multi-Agent System Integration, Security Audit & E2E Verification).
-- `testAll.ts` [MODIFIED] — Registered `tools/github/github.test.ts` in master test runner.
-- `AGENT_BUILD_CONTEXT.md` [MODIFIED] — Updated Feature 25 progress.
-
-Key Decisions:
-- **Zero Hardcoded/Fake Data**: All production tool executions and scripts make real live HTTP calls to `api.github.com`. No mock/demo static JSON fallbacks exist.
-- **Backend API Integration**: Exposed `GET /api/projects/:id/github` to serve live GitHub metadata to Aegis backend and frontend interfaces without leaking credentials.
-- **Strict Guardrail & Zero-Bypass Protection**: All GitHub mutations pass through Feature 24 `enforceToolGuardrail()`. When unapproved or denied, the GitHub HTTP client is **never** invoked.
-- **Strict Credential Protection**: `GITHUB_TOKEN` is loaded securely from environment (`process.env.GITHUB_TOKEN`) and stripped/masked from all error strings, tool outputs, logs, WebSocket payloads, and thrown exceptions.
-
-Verification:
-- TypeScript compilation (`npx tsc --project tsconfig.agentic.json --noEmit`): Passed with 0 errors.
-- TypeScript compilation (`npx tsc --noEmit`): Passed with 0 errors.
-- Real Live Script (`npx tsx demoGithub.ts`): Connected live to `api.github.com` (fetched live stars, commits, branches).
-- Feature 25 test suite (`npx tsx tools/github/github.test.ts`): 7/7 test levels passed.
-- Aegis Master Test Runner (`npx tsx testAll.ts`): 24/24 test suites passed (0 failures).
-
----
-
-### Feature 26 — Repository Intelligence Engine
-
-Files created/modified:
-- `repo-intelligence/types.ts` [NEW] — Core domain models (`Repository`, `FileRecord`, `SymbolRecord`, `DependencyRecord`, `ApiRecord`, `DatabaseRecord`, `TestRecord`, `GitCommitRecord`, `RelationshipRecord`, `EvidenceRecord`, `RepositorySnapshot`).
-- `repo-intelligence/connection/connectionManager.ts` [NEW] — Connection validator, URL parser, credential masking, read-only guardrails.
-- `repo-intelligence/storage/jsonStore.ts` [NEW] — Primary file-backed JSON store implementation of `RepositoryIntelligenceStore`.
-- `repo-intelligence/storage/pgStore.ts` [NEW] — Pluggable PostgreSQL adapter implementation of `RepositoryIntelligenceStore`.
-- `repo-intelligence/scanner/classifier.ts` [NEW] — Categorizes files into `SOURCE`, `TEST`, `CONFIG`, `DOCS`, `SCHEMA`, `MIGRATION`, `GENERATED`, `ASSET`, `LOCKFILE`, `BINARY`, `UNKNOWN` & identifies primary language.
-- `repo-intelligence/scanner/security.ts` [NEW] — Untrusted static input isolation and secret value redacting (`SECRET_REDACTED`).
-- `repo-intelligence/scanner/fileScanner.ts` [NEW] — Tree walker with `.gitignore` and default ignore rules (`node_modules`, `.git`, `dist`, `.env*`), file hash & size calculator.
-- `repo-intelligence/parsers/tsCompilerLoader.ts` [NEW] — Resilient TypeScript compiler loader helper resolving AST API across workspace packages.
-- `repo-intelligence/parsers/tsParser.ts` [NEW] — AST symbol parser extracting Classes, Functions, Methods, Interfaces, Types, Enums, Vars, Components, line ranges, and visibility.
-- `repo-intelligence/extractors/importExportExtractor.ts` [NEW] — IMPORTS/EXPORTS extractor and relative path specifier resolver.
-- `repo-intelligence/extractors/dependencyExtractor.ts` [NEW] — Manifest & lockfile dependency extractor with monorepo workspace support.
-- `repo-intelligence/extractors/apiExtractor.ts` [NEW] — Express & Next.js API route extractor (methods, paths, handlers, confidence).
-- `repo-intelligence/extractors/databaseExtractor.ts` [NEW] — Database schema, model, ORM, and SQL query extractor.
-- `repo-intelligence/extractors/testExtractor.ts` [NEW] — Test suite extractor mapping test blocks to target source files and symbols.
-- `repo-intelligence/git/gitAnalyzer.ts` [NEW] — Git history analyzer for commits, authors, timestamps, and file co-change coupling.
-- `repo-intelligence/relationships/graphEngine.ts` [NEW] — Synthesizes provenanced graph edges (`CONTAINS`, `IMPORTS`, `HANDLES`, `QUERIES`, `TESTED_BY`, `USES`) with line-level evidence and confidence ratings (`exact`, `inferred`, `unresolved`).
-- `repo-intelligence/incremental/reanalyzer.ts` [NEW] — Git diff delta parser, incremental re-indexing, deletion invalidation, and rename tracking.
-- `repo-intelligence/retrieval/hybridRetriever.ts` [NEW] — Hybrid retrieval engine combining structural graph search with semantic RAG embeddings into evidence-traceable Markdown context.
-- `tools/repoIntelligence/repoExplorerTool.ts` [NEW] — Aegis tool for Planner, Researcher, Architect, Developer, Tester, Security agents.
-- `tools/index.ts` [MODIFIED] — Re-exported `repoExplorerTool`.
-- `apps/api/controllers/repoIntelligence.ts` [NEW] — Backend REST controllers for repository connection, snapshot retrieval, search, and 3 showcase query engines.
-- `apps/api/routes/repoIntelligence.ts` [NEW] — Express routes for repository intelligence API.
-- `apps/api/routes/index.ts` [MODIFIED] — Registered `/api/repo-intelligence` router.
-- `apps/web/components/repo-explorer/RepoExplorer.tsx` [NEW] — Web UI Repository Explorer component with overview metrics, file trees, symbol tables, API route matrices, DB models, Git timeline, and interactive showcase query flows.
-- `repo-intelligence/repoIntelligence.test.ts` [NEW] — Master E2E integration test suite.
-- `testAll.ts` [MODIFIED] — Registered `repo-intelligence/repoIntelligence.test.ts` in master test runner.
-
-Key Decisions:
-- **Interface-Based JSON-Primary Persistence**: `RepositoryIntelligenceStore` is defined as a clean interface with `JsonRepositoryStore` as the primary production storage for isolation and testability, with `PgRepositoryStore` as an optional pluggable backend.
-- **Line-Level Provenance & Typed Graph**: Edges record exact line ranges, file paths, evidence snippets, and confidence ratings (`exact`, `inferred`, `unresolved`).
-- **Showcase Query Verification**: Verified all 3 showcase flows with traceable evidence:
-  1. Showcase 1: Authentication Tracing
-  2. Showcase 2: Project Creation Flow
-  3. Showcase 3: UserService Impact Analysis
-
-### Feature 27 — Aegis CLI Foundation
-
-Files created:
-- `cli.ts` [NEW] — Interactive command-line tool allowing users to connect, check status, query codebase knowledge, and run impact analysis directly in the terminal.
-
-Key decisions:
-- Direct access to Aegis core services (`JsonRepositoryStore`, `queryRepositoryIntelligence`, `validateRepositoryAccess`).
-- Automatic fallback to `process.env.GITHUB_TOKEN` from `.env` file when token is not explicitly supplied as a command line argument.
-- Supports 4 primary commands: `connect <url_or_path>`, `status <repoId>`, `search <repoId> "<query>" [targetEntity]`, and `impact <repoId> <targetEntity>`.
-
-Verification:
-- TypeScript compilation (`npx tsc --noEmit`): Passed with 0 errors.
-- CLI connection test (`npx tsx cli.ts connect .`): Successfully indexed Aegis workspace (331 files, 895 symbols, 20,419 graph edges).
-- CLI remote test (`npx tsx cli.ts connect https://github.com/expressjs/express`): Successfully indexed GitHub express repo.
-- CLI status test (`npx tsx cli.ts status repo_local_local_aegis`): Generated complete status summary.
-- CLI impact test (`npx tsx cli.ts impact repo_local_local_aegis PlannerAgent`): Resolved exact target and direct dependents.
-
----
-
-# 31. LOCKED AEGIS DIFFERENTIATORS
-
-Aegis should eventually stand out through:
-
-1. Specialized engineering agents rather than one general coding agent.
-2. LangGraph-based orchestration and explicit state.
-3. Project intelligence rather than raw file dumping.
-4. Evidence-based verification.
-5. Human approval for consequential actions.
-6. Memory + procedural skills as separate concepts.
-7. Task dependency graph and controlled delegation.
-8. Strong observability of agent behavior.
-9. Same core runtime exposed through Web, API and CLI.
-10. Safe recovery and iteration instead of blind autonomy.
-
-These are product-level goals, not excuses to over-engineer the current feature.
-
----
-
-# 32. FINAL RULE
-
-Aegis is being built quickly, but NOT carelessly.
-
-Priorities:
-
-1. Do not break existing work.
-2. Build the requested feature completely.
-3. Keep code understandable.
-4. Keep architecture clean.
-5. Understand the agentic core.
-6. Use proven agent-system concepts where they add real value.
-7. Keep Aegis distinct from Coding Harness and other runtimes.
-8. Move quickly to the next feature.
-9. Do not over-engineer.
-10. Do not skip important functionality just to move faster.
-
-When in doubt:
-
-BUILD THE SIMPLEST CORRECT VERSION THAT PRESERVES THE ARCHITECTURE.
-
-Do not build a feature merely because another agent framework has it.
-
-Build it when it makes Aegis better.
+============================================================
+26. FILESYSTEM
+============================================================
+
+Filesystem capabilities include:
+
+- read
+- write
+- edit
+- directory inspection
+- repository search
+
+Future destructive operations should have stricter safety controls.
+
+Never silently modify unrelated files.
+
+Never silently delete important project data.
+
+
+============================================================
+27. TERMINAL / COMMAND EXECUTION
+============================================================
+
+Terminal execution is currently PAUSED as a roadmap feature unless
+MVP validation proves it is required.
+
+When implemented, terminal execution must:
+
+- use explicit command execution
+- enforce workspace boundaries where appropriate
+- enforce policy
+- support approval for dangerous operations
+- enforce timeouts
+- protect secrets
+- report actual command results
+
+Dangerous operations must not be blindly executed.
+
+Examples:
+
+- destructive filesystem commands
+- database destruction
+- force pushes
+- production deployment
+- destructive migrations
+
+
+============================================================
+28. HUMAN APPROVAL
+============================================================
+
+AEGIS must distinguish:
+
+    UNDERSTAND
+    ANALYZE
+    PROPOSE
+    APPROVE
+    EXECUTE
+
+Human approval is required for meaningful risky/destructive actions.
+
+Examples may include:
+
+- destructive file operations
+- production changes
+- dangerous database changes
+- force push
+- branch deletion
+- deployment
+- protected branch operations
+
+Approval should be part of the actual runtime workflow, not merely a
+UI placeholder.
+
+
+============================================================
+29. SAFETY MODEL
+============================================================
+
+Conceptually:
+
+    READ
+      ↓
+    ANALYZE
+      ↓
+    PROPOSE
+      ↓
+    APPROVAL
+      ↓
+    WRITE / EXECUTE
+      ↓
+    VERIFY
+
+Do not bypass approval simply to make the system appear autonomous.
+
+
+============================================================
+30. FAILURE AND RECOVERY
+============================================================
+
+Failures should be handled contextually.
+
+Do not restart the entire workflow for every failure.
+
+Example:
+
+    TypeScript compile failure
+        ↓
+    return to Developer
+
+rather than:
+
+    Planner
+      ↓
+    Researcher
+      ↓
+    Architect
+      ↓
+    Developer
+
+Recovery should preserve useful state where possible.
+
+A successful tool call does not automatically mean the engineering
+task succeeded.
+
+The final result must be verified independently.
+
+
+============================================================
+31. VERIFICATION
+============================================================
+
+Verification has multiple levels.
+
+STRUCTURAL:
+
+- expected files exist
+- imports are correct
+- no duplicate implementation
+- architecture relationship is correct
+
+BUILD:
+
+- TypeScript
+- build
+- lint where applicable
+
+UNIT / FEATURE:
+
+- relevant feature-specific tests
+
+RUNTIME:
+
+- execute actual functionality
+
+INTEGRATION:
+
+    interface
+      ↓
+    API
+      ↓
+    AEGIS core
+      ↓
+    graph
+      ↓
+    agent
+      ↓
+    tool
+      ↓
+    external system
+
+END-TO-END:
+
+- real repository
+- real task
+- real AEGIS runtime
+- real changes
+- real tests
+- real result
+
+For important product capabilities, end-to-end evidence is required.
+
+
+============================================================
+32. INTENDED WORKFLOW VS VERIFIED WORKFLOW
+============================================================
+
+Architecture diagrams and workflow documents describe INTENDED
+behavior.
+
+They do not prove that the current runtime follows the workflow.
+
+The source of truth for runtime integration is:
+
+    ACTUAL SOURCE CODE
+    +
+    ACTUAL EXECUTION
+    +
+    ACTUAL OBSERVED RESULT
+
+Never claim:
+
+    "The architecture shows it, therefore it works."
+
+Instead:
+
+    "The architecture intends this flow; runtime validation proves
+     whether the implementation currently follows it."
+
+
+============================================================
+33. WEB UI
+============================================================
+
+The Web UI is a user-facing interface to AEGIS.
+
+Potential areas:
+
+- dashboard
+- projects
+- tasks
+- execution
+- repository
+- GitHub
+- approvals
+- activity
+- results
+- sessions
+
+The UI should not contain the core agentic engineering logic.
+
+Existing working UI functionality must be preserved unless a requested
+change explicitly requires modification.
+
+
+============================================================
+34. API
+============================================================
+
+The API acts as a gateway between interfaces and the AEGIS core.
+
+Conceptually:
+
+    Web / CLI
+        ↓
+    API
+        ↓
+    AEGIS Core
+        ↓
+    Graph / Agents / Tools / Intelligence
+
+Do not duplicate agent logic inside API controllers.
+
+
+============================================================
+35. CLI
+============================================================
+
+The CLI is intended to be a first-class AEGIS interface.
+
+The existing CLI foundation exists, but its product-level quality and
+integration must be validated.
+
+The CLI must eventually use the shared AEGIS core.
+
+Potential experience:
+
+    $ aegis
+
+    > Fix authentication bug
+
+    AEGIS:
+    Investigating repository...
+
+    Plan ready.
+
+    Proceed? y
+
+    Implementing...
+
+    Running tests...
+
+    Verified.
+
+
+Potential future CLI capabilities:
+
+- interactive sessions
+- streaming
+- tool activity
+- agent progress
+- approvals
+- headless execution
+- session resume
+- CI/automation
+
+Do not implement advanced CLI features merely because they are planned.
+
+
+============================================================
+36. MEMORY
+============================================================
+
+Short-term memory:
+
+- current task context
+- current execution state
+- intermediate reasoning/results
+- recovery context
+
+Long-term memory:
+
+- stable project decisions
+- important engineering conventions
+- useful historical knowledge
+- durable project facts
+
+Do not store everything.
+
+Memory should be:
+
+- useful
+- selective
+- retrievable
+- maintainable
+
+Memory integration must be validated through actual workflows before
+being considered product-complete.
+
+
+============================================================
+37. SESSIONS
+============================================================
+
+Persistent sessions are a future capability.
+
+Potential concepts:
+
+- session
+- checkpoint
+- resume
+- branch
+- rewind
+- history
+- parent/child execution
+
+Do not implement session trees merely because another agent runtime has
+them.
+
+Implement only when justified by AEGIS product requirements.
+
+
+============================================================
+38. CONTEXT MANAGEMENT
+============================================================
+
+Long engineering tasks require context management.
+
+Future capabilities may include:
+
+- relevant-context retrieval
+- context compaction
+- stale file detection
+- session rebuilding
+- context prioritization
+- summarization
+
+Important principle:
+
+    Do not dump the entire repository into every prompt.
+
+Retrieve what matters when it matters.
+
+
+============================================================
+39. OBSERVABILITY
+============================================================
+
+Observability is a future capability unless required for MVP debugging.
+
+Potential telemetry:
+
+- agent runs
+- LLM calls
+- tool calls
+- tokens
+- latency
+- errors
+- retries
+- state transitions
+- costs
+- approvals
+- outcomes
+
+Potential technologies may include:
+
+- OpenTelemetry
+- Langfuse
+
+Do not add infrastructure merely because it is planned.
+
+
+============================================================
+40. EVALUATION
+============================================================
+
+Evaluation is a future capability.
+
+AEGIS should eventually evaluate:
+
+- engineering correctness
+- task completion
+- tool use
+- trajectory
+- tests
+- review quality
+- security
+- final outcome
+
+Potential evaluation model:
+
+    LLM evaluation
+        +
+    deterministic tests
+        +
+    trajectory evaluation
+        +
+    tool-use evaluation
+
+Evaluation should measure actual engineering quality, not merely
+whether an LLM generated text.
+
+
+============================================================
+41. MCP
+============================================================
+
+MCP is a future integration/protocol capability.
+
+Potential uses:
+
+- external tools
+- external services
+- developer environments
+
+Do not implement MCP merely because it is popular or because it is
+next in the old roadmap.
+
+MCP becomes a priority only when it provides clear value to the
+current AEGIS product.
+
+
+============================================================
+42. SKILLS
+============================================================
+
+Reusable engineering skills are a future capability.
+
+Examples:
+
+- debug-api
+- add-api-endpoint
+- database-migration
+- authentication-fix
+- refactor-service
+- review-pr
+- security-audit
+
+Skills should encode reusable engineering workflows.
+
+They must not become duplicate agent logic.
+
+
+============================================================
+43. LESSONS FROM OTHER AGENT SYSTEMS
+============================================================
+
+AEGIS may learn concepts from:
+
+- Coding Harness
+- Athena
+- Hermes
+- Claude Code
+- OpenCode
+- Kilo
+- OpenHands
+
+Do NOT copy their:
+
+- architecture
+- code
+- naming
+- product identity
+
+Useful concepts may include:
+
+- interactive CLI
+- headless execution
+- context compaction
+- session persistence
+- branching/rewind
+- permission systems
+- user steering
+- subagents
+- skills
+- streaming
+- memory
+- procedural knowledge
+- evaluation
+- instrumentation
+- MCP
+
+These are ideas to evaluate, not requirements.
+
+
+============================================================
+44. AEGIS DIFFERENTIATION
+============================================================
+
+The core AEGIS identity is:
+
+    Repository Understanding
+            +
+    Engineering Intent
+            +
+    Multi-Agent Reasoning
+            +
+    Controlled Execution
+            +
+    Verification
+
+AEGIS should become an engineering intelligence and execution system,
+not merely an execution harness.
+
+
+============================================================
+45. DEVELOPMENT STYLE
+============================================================
+
+AEGIS is both:
+
+1. a serious engineering project
+2. a learning project for its owner
+
+Code must therefore remain understandable.
+
+Prefer:
+
+- TypeScript
+- small functions
+- clear names
+- explicit data flow
+- simple types
+- cohesive modules
+- straightforward control flow
+
+Avoid:
+
+- unnecessary abstractions
+- factories everywhere
+- excessive dependency injection
+- giant interfaces
+- unnecessary classes
+- deep inheritance
+- clever generics
+- magic behavior
+- premature microservices
+- unnecessary distributed systems
+- unnecessary wrappers
+- duplicate utilities
+- duplicate types
+
+
+============================================================
+46. DO NOT OVERENGINEER
+============================================================
+
+This is a hard rule.
+
+Before adding:
+
+- abstraction
+- dependency
+- service
+- interface
+- factory
+- wrapper
+- directory
+- agent
+- workflow
+- database table
+
+ask:
+
+    Is this actually necessary?
+
+Prefer the simplest solution that satisfies the real requirement.
+
+
+============================================================
+47. NON-DESTRUCTIVE DEVELOPMENT
+============================================================
+
+Before modifying:
+
+    INSPECT
+       ↓
+    UNDERSTAND
+       ↓
+    MODIFY
+
+Never assume:
+
+    "rewrite everything"
+
+is the correct solution.
+
+Existing working code is valuable.
+
+Do not replace functioning systems merely because a different
+implementation appears cleaner.
+
+Do not silently change unrelated code.
+
+
+============================================================
+48. NO DUPLICATE SYSTEMS
+============================================================
+
+Before adding a:
+
+- GitHub service
+- repository service
+- tool
+- memory layer
+- model wrapper
+- RAG pipeline
+- execution system
+- approval system
+
+inspect whether an existing implementation already serves the purpose.
+
+Prefer extending existing infrastructure.
+
+If two implementations exist:
+
+    identify which is actually used
+    ↓
+    preserve behavior
+    ↓
+    consolidate only when justified
+
+
+============================================================
+49. DEPENDENCY RULE
+============================================================
+
+Before installing a package:
+
+1. Inspect package.json.
+2. Check whether the capability already exists.
+3. Reuse existing dependencies where possible.
+4. Avoid duplicate libraries.
+
+Do not introduce a dependency merely for convenience when a simple
+existing implementation is sufficient.
+
+
+============================================================
+50. AI CODING RULE
+============================================================
+
+AI coding agents are allowed to implement AEGIS.
+
+However, AEGIS is also a learning project.
+
+For important changes, the owner should be able to understand:
+
+- what happens
+- why it happens
+- where it happens
+- how data flows
+- what calls what
+- what happens on failure
+- how the result is verified
+
+Agents should therefore avoid hiding important engineering logic behind
+unnecessary abstractions.
+
+
+============================================================
+51. CODING AGENT WORKFLOW
+============================================================
+
+Every coding agent MUST:
+
+1. Read this file first.
+2. Inspect the existing implementation.
+3. Identify the actual current state.
+4. Identify the product/workflow requirement.
+5. Identify the smallest required change.
+6. Reuse existing infrastructure where appropriate.
+7. Implement only the required change.
+8. Integrate it into the real workflow.
+9. Run appropriate verification.
+10. Check existing functionality.
+11. Update project state when necessary.
+12. Report what changed and what was verified.
+
+
+============================================================
+52. BEFORE IMPLEMENTING ANY CHANGE
+============================================================
+
+The coding agent should determine:
+
+    What problem are we solving?
+
+    What user/product capability requires this?
+
+    Does the capability already exist?
+
+    Where is the existing implementation?
+
+    Where should it be consumed?
+
+    What is currently disconnected/broken?
+
+    What files actually need modification?
+
+    What is the smallest reasonable change?
+
+    How will we prove it works?
+
+
+============================================================
+53. SCOPE CONTROL
+============================================================
+
+One logical engineering change at a time.
+
+Do not silently combine:
+
+- feature implementation
+- architecture refactoring
+- unrelated bug fixes
+- UI redesign
+- dependency migration
+- file organization cleanup
+
+unless explicitly required.
+
+If a requested change exposes an unrelated architectural problem:
+
+    document it
+    ↓
+    do not automatically fix it
+
+
+============================================================
+54. FEATURE DEVELOPMENT RULE
+============================================================
+
+Historical feature numbers are useful for tracking work.
+
+They are NOT the primary development driver.
+
+During normal feature development after MVP:
+
+    Read context
+    ↓
+    Inspect existing implementation
+    ↓
+    Identify gap
+    ↓
+    Implement feature
+    ↓
+    Integrate feature
+    ↓
+    Verify feature
+    ↓
+    Validate realistic usage
+    ↓
+    Update status
+
+A feature must have a clear purpose and consumer.
+
+
+============================================================
+55. TESTING RULE
+============================================================
+
+For implementation work, use appropriate levels of verification.
+
+Minimum:
+
+- TypeScript/build
+- runtime check where applicable
+- feature-specific tests
+
+For complex capabilities additionally use:
+
+- structural verification
+- integration verification
+- end-to-end verification
+
+Do not remove or weaken tests merely to make them pass.
+
+Fix the implementation.
+
+
+============================================================
+56. TEST QUALITY RULE
+============================================================
+
+A test is evidence only for what it actually exercises.
+
+Examples:
+
+A unit test proves:
+
+    isolated behavior
+
+An integration test proves:
+
+    connected components
+
+An end-to-end test proves:
+
+    a real workflow path
+
+Do not describe an isolated unit test as proof of end-to-end product
+behavior.
+
+
+============================================================
+57. CURRENT MVP VALIDATION METHOD
+============================================================
+
+After documentation reset, the next engineering phase is READ-ONLY
+SYSTEM AUDIT.
+
+The audit must trace:
+
+    REAL USER ENTRY POINT
+        ↓
+    TASK CREATION
+        ↓
+    AEGIS STATE
+        ↓
+    WORKFLOW
+        ↓
+    REPOSITORY UNDERSTANDING
+        ↓
+    AGENTS
+        ↓
+    TOOLS
+        ↓
+    APPROVAL
+        ↓
+    REAL FILE CHANGES
+        ↓
+    REAL TEST EXECUTION
+        ↓
+    REVIEW / SECURITY
+        ↓
+    VERIFICATION
+        ↓
+    USER RESULT
+
+Do not modify the system during the initial audit.
+
+The audit must identify:
+
+- connected components
+- disconnected components
+- duplicate paths
+- mock/demo paths
+- dead paths
+- unused implementations
+- incorrect routing
+- missing state transitions
+- missing data flow
+- missing verification
+- broken user-facing flow
+
+
+============================================================
+58. INTEGRATION GAP PRIORITY
+============================================================
+
+When the audit identifies a gap, prioritize:
+
+1. Existing capability that can simply be connected.
+2. Existing capability that needs a small correction.
+3. Small missing implementation required for integration.
+4. Larger architectural change only if unavoidable.
+
+Do not jump directly to rewriting the system.
+
+
+============================================================
+59. MVP REAL-TASK VALIDATION
+============================================================
+
+The first real validation must use:
+
+- a real repository
+- a real engineering task
+- the real AEGIS entry point
+- the real workflow
+- real tools
+- real changes where required
+- real tests
+- real final verification
+
+Example task:
+
+    "Add a GET /users/:id endpoint and appropriate tests."
+
+Other suitable tasks:
+
+    "Find and fix this failing API test."
+
+    "Trace why authentication is failing and propose a fix."
+
+    "Add validation to this existing endpoint."
+
+The task should be small enough to debug but complex enough to require
+real repository understanding and multiple engineering steps.
+
+
+============================================================
+60. FAILURE DURING MVP
+============================================================
+
+If the real task fails:
+
+DO NOT immediately add another feature.
+
+Instead:
+
+1. Identify the exact failing stage.
+2. Trace the actual runtime path.
+3. Determine whether the problem is:
+   - missing integration
+   - incorrect state
+   - incorrect routing
+   - broken tool
+   - broken agent
+   - missing repository context
+   - approval problem
+   - execution problem
+   - testing problem
+   - verification problem
+4. Fix the smallest responsible component.
+5. Re-run the same real task.
+6. Record the result.
+
+The real task becomes the integration test for AEGIS.
+
+
+============================================================
+61. PRODUCT VS COMPONENT THINKING
+============================================================
+
+Always distinguish:
+
+COMPONENT:
+
+    "The planner can generate a plan."
+
+PRODUCT:
+
+    "When a user gives AEGIS an engineering task, the planning stage
+     actually receives the user's task plus relevant repository
+     evidence and produces a plan used by the next stage."
+
+COMPONENT:
+
+    "Repository intelligence can find symbols."
+
+PRODUCT:
+
+    "AEGIS uses repository intelligence to investigate the user's
+     engineering task."
+
+COMPONENT:
+
+    "Developer can write a file."
+
+PRODUCT:
+
+    "After approval, the real workflow invokes Developer and the
+     intended repository change actually occurs."
+
+This distinction is mandatory when evaluating progress.
+
+
+============================================================
+62. HISTORICAL FEATURE LEDGER
+============================================================
+
+The following records historical implementation work.
+
+IMPORTANT:
+
+A checked [x] means the feature was implemented and had feature-level
+verification at the time.
+
+It does NOT automatically mean the capability is currently:
+
+- integrated
+- product-complete
+- validated end-to-end
+
+The historical ledger must be preserved.
+
+FOUNDATION
+
+[x] Feature 01 — Gemini Model Layer
+[x] Feature 02 — Structured Output
+[x] Feature 03 — Tool System
+[x] Feature 04 — First Tool-Calling Agent
+
+LANGGRAPH ENGINE
+
+[x] Feature 05 — LangGraph State
+[x] Feature 06 — Nodes + Edges + Routing
+[x] Feature 07 — Single-Agent Graph
+[x] Feature 08 — Loops + Retries + Error Handling
+
+SPECIALIZED AGENTS
+
+[x] Feature 09 — Planner Agent
+[x] Feature 10 — Researcher Agent
+[x] Feature 11 — Architect Agent
+[x] Feature 12 — Developer Agent
+[x] Feature 13 — Tester Agent
+[x] Feature 14 — Reviewer Agent
+[x] Feature 15 — Security Agent
+
+MULTI-AGENT ORCHESTRATION
+
+[x] Feature 16 — Full Aegis Multi-Agent Workflow
+[x] Feature 17 — Agent Routing + Conditional Execution
+[x] Feature 18 — Failure Recovery + Iteration Loops
+
+KNOWLEDGE + MEMORY
+
+[x] Feature 19 — RAG Pipeline
+[x] Feature 20 — Project Knowledge Retrieval
+[x] Feature 21 — Short-Term Memory
+[x] Feature 22 — Long-Term Memory
+
+SAFETY + EXTERNAL SYSTEMS
+
+[x] Feature 23 — Human-in-the-Loop
+[x] Feature 24 — Tool Permissions / Guardrails
+[x] Feature 25 — GitHub Integration
+[x] Feature 26 — Repository Intelligence Engine
+[x] Feature 27 — Aegis CLI Foundation
+
+NOTE:
+
+Older planning documents contained a conflicting/unused Feature 19
+(Task Dependencies + Delegation) and Feature 23 (Procedural Skills)
+entry.
+
+The current historical implementation ledger above reflects the
+feature sequence actually used by the project context.
+
+Do not invent completion for skipped/unimplemented entries.
+
+
+============================================================
+63. CURRENT FEATURE STATUS
+============================================================
+
+Feature development is PAUSED.
+
+The following are NOT currently "next features":
+
+Feature 28 — Terminal / Sandbox Execution
+Feature 29 — MCP Integration
+Feature 30 — Session Runtime / Resume & Branching
+Feature 31 — Observability & Token / Cost Tracking
+Feature 32 — Agent Evaluation & Benchmarking
+Feature 33 — Architecture Simplification Refactor
+
+These are PAUSED / FUTURE WORK.
+
+Resume them only when:
+
+1. MVP validation demonstrates that they are required, OR
+2. the project owner explicitly authorizes them.
+
+
+============================================================
+64. CURRENT MVP INTEGRATION STATUS
+============================================================
+
+The following status must be determined through the actual repository
+audit.
+
+Do NOT invent values.
+
+| Capability | Implemented | Integrated | Validated |
+|------------|-------------|------------|-----------|
+| User task entry | UNKNOWN | UNKNOWN | UNKNOWN |
+| Repository connection | UNKNOWN | UNKNOWN | UNKNOWN |
+| Repository understanding | UNKNOWN | UNKNOWN | UNKNOWN |
+| Repository intelligence | YES* | UNKNOWN | UNKNOWN |
+| RAG pipeline | YES* | UNKNOWN | UNKNOWN |
+| Project knowledge retrieval | YES* | UNKNOWN | UNKNOWN |
+| Short-term memory | YES* | UNKNOWN | UNKNOWN |
+| Long-term memory | YES* | UNKNOWN | UNKNOWN |
+| Planner | YES* | UNKNOWN | UNKNOWN |
+| Researcher | YES* | UNKNOWN | UNKNOWN |
+| Architect | YES* | UNKNOWN | UNKNOWN |
+| Developer | YES* | UNKNOWN | UNKNOWN |
+| Tester | YES* | UNKNOWN | UNKNOWN |
+| Reviewer | YES* | UNKNOWN | UNKNOWN |
+| Security | YES* | UNKNOWN | UNKNOWN |
+| Human approval | YES* | UNKNOWN | UNKNOWN |
+| Tool permissions | YES* | UNKNOWN | UNKNOWN |
+| GitHub integration | YES* | UNKNOWN | UNKNOWN |
+| CLI foundation | YES* | UNKNOWN | UNKNOWN |
+| Real file modification | UNKNOWN | UNKNOWN | UNKNOWN |
+| Real test execution | UNKNOWN | UNKNOWN | UNKNOWN |
+| Final verification | UNKNOWN | UNKNOWN | UNKNOWN |
+| User-facing result | UNKNOWN | UNKNOWN | UNKNOWN |
+
+*YES means historical implementation exists according to project
+context. It does not mean current product-level integration is proven.
+
+The repository audit must replace UNKNOWN with evidence-based status.
+
+
+============================================================
+65. REAL VS MOCK POLICY
+============================================================
+
+Production:
+
+    REAL DATA
+    REAL INTEGRATIONS
+    REAL EXECUTION
+
+Tests:
+
+    CONTROLLED MOCKS ALLOWED
+
+Demos:
+
+    CLEARLY ISOLATED
+
+Never:
+
+    REAL INTEGRATION FAILS
+        ↓
+    FAKE SUCCESS
+
+Never hide integration failures with silent fallbacks.
+
+
+============================================================
+66. GITHUB SAFETY MODEL
+============================================================
+
+Conceptually:
+
+    READ
+      ↓
+    ANALYZE
+      ↓
+    PROPOSE
+      ↓
+    APPROVAL
+      ↓
+    WRITE
+      ↓
+    VERIFY
+
+Read operations may generally be lower risk.
+
+Write operations may require approval depending on policy.
+
+High-risk operations should require explicit approval.
+
+Examples:
+
+- force push
+- branch deletion
+- protected branch merge
+- workflow modification
+- destructive repository operations
+
+
+============================================================
+67. SECRETS
+============================================================
+
+Secrets and tokens must remain server-side.
+
+Never:
+
+- expose GitHub tokens to frontend
+- commit secrets
+- print secrets into logs
+- include secrets in agent context unnecessarily
+- return secrets in tool output
+
+Sensitive values must be scrubbed from diagnostics where appropriate.
+
+
+============================================================
+68. GIT / PR
+============================================================
+
+Use conventional commits where appropriate:
+
+    feat:
+    fix:
+    refactor:
+    test:
+    docs:
+    chore:
+
+Feature-level commits should generally be:
+
+    feat: <feature>
+
+PR structure:
+
+    ## Summary
+
+    ## Changes
+
+    ## Architecture
+
+    ## Existing Functionality Preserved
+
+    ## Verification
+
+    ## Out of Scope
+
+For capability-level changes also include:
+
+    ## Integration
+
+    - runtime consumer
+    - integration boundary
+    - evidence of actual usage
+
+
+============================================================
+69. DOCUMENTATION RULE
+============================================================
+
+Do not create documentation merely to create documentation.
+
+Before creating a new document:
+
+1. Check whether an existing document already owns that responsibility.
+2. Prefer updating the existing document.
+3. Avoid duplicate sources of truth.
+4. Keep project documentation understandable.
+
+Important project documents should have clearly separated roles.
+
+This file:
+
+    engineering context + development rules + current milestone
+
+Architecture.md:
+
+    technical architecture
+
+Agent_Flow.md:
+
+    intended workflow/agent flow
+
+Build_plan.md:
+
+    milestone/build planning
+
+Must_build.md:
+
+    priorities and acceptance requirements
+
+Next_builds.md:
+
+    paused/future work
+
+Directory-architecture.md:
+
+    workspace structure
+
+PR.md:
+
+    PR/verification template
+
+README.md:
+
+    user-facing project description
+
+
+============================================================
+70. INTENDED ARCHITECTURE VS ACTUAL STATE
+============================================================
+
+Architecture documentation describes intended organization.
+
+Actual source code determines what currently exists.
+
+When they disagree:
+
+    DO NOT silently assume the documentation is correct.
+
+Instead:
+
+    inspect source
+    ↓
+    identify discrepancy
+    ↓
+    report
+    ↓
+    correct documentation or implementation intentionally
+
+
+============================================================
+71. ARCHITECTURE SIMPLIFICATION
+============================================================
+
+Architecture simplification is a separate engineering phase.
+
+It begins only after the MVP workflow has been successfully validated.
+
+The refactor should audit:
+
+- file count
+- directory depth
+- module responsibilities
+- duplicated logic
+- duplicate types
+- dead code
+- stub code
+- demo code
+- unnecessary wrappers
+- barrel files
+- excessive agent fragmentation
+- graph fragmentation
+- service fragmentation
+
+Target:
+
+    simpler
+    clearer
+    fewer unnecessary moving parts
+
+Not:
+
+    rewrite everything
+
+
+============================================================
+72. FUTURE PRODUCT DIRECTION
+============================================================
+
+After MVP, AEGIS may evolve toward:
+
+LEVEL 1 — CORE MVP
+
+    Understand
+    Investigate
+    Plan
+    Approve
+    Implement
+    Test
+    Review
+    Security
+    Verify
+
+LEVEL 2 — ENGINEERING INTELLIGENCE
+
+    Repository indexing
+    Symbol intelligence
+    Relationship graph
+    Dependency graph
+    API graph
+    Database relationships
+    Git history
+    Impact analysis
+    Codebase-aware RAG
+
+LEVEL 3 — ENGINEERING EXECUTION
+
+    Branches
+    Commits
+    Pull requests
+    CI diagnosis
+    PR review
+    Controlled GitHub actions
+
+LEVEL 4 — DEVELOPER EXPERIENCE
+
+    Strong CLI
+    Web workspace
+    Streaming
+    Sessions
+    Resume
+    Context management
+    User steering
+
+LEVEL 5 — INTELLIGENCE / QUALITY
+
+    Persistent memory
+    Skills
+    Evaluation
+    Observability
+    Architecture drift detection
+
+LEVEL 6 — AUTOMATION
+
+    Issue
+      ↓
+    Understand
+      ↓
+    Investigate
+      ↓
+    Plan
+      ↓
+    Implement
+      ↓
+    Test
+      ↓
+    Review
+      ↓
+    PR
+      ↓
+    CI
+      ↓
+    Fix
+      ↓
+    Verify
+
+This roadmap is directional.
+
+It must not override the current MVP milestone.
+
+
+============================================================
+73. USER STEERING
+============================================================
+
+Long-running AEGIS execution should eventually allow users to modify
+constraints while work is in progress.
+
+Example:
+
+    AEGIS:
+    Investigating database changes...
+
+    USER:
+    "Don't modify the database. Use an application-level solution."
+
+AEGIS should adapt its plan where technically possible.
+
+This is future capability unless required by MVP.
+
+
+============================================================
+74. PARALLEL AGENTS
+============================================================
+
+Parallel execution may be used when it genuinely improves performance
+or reasoning.
+
+Example:
+
+    Research
+       ├── API investigation
+       ├── database investigation
+       └── test investigation
+
+Then:
+
+    merge findings
+        ↓
+    continue workflow
+
+Do not parallelize merely to make the system appear more agentic.
+
+
+============================================================
+75. MULTI-PROVIDER SUPPORT
+============================================================
+
+Multiple LLM providers may eventually be supported.
+
+Do not create a large provider abstraction prematurely.
+
+Current model priority:
+
+    Gemini
+
+Correctness and understandable architecture are more important than
+premature provider flexibility.
+
+
+============================================================
+76. PROJECT OWNER LEARNING GOAL
+============================================================
+
+AEGIS is being built to help its owner understand:
+
+- LLMs
+- tool calling
+- agents
+- LangChain
+- LangGraph
+- RAG
+- memory
+- state machines
+- orchestration
+- human-in-the-loop
+- repository intelligence
+- GitHub APIs
+- backend systems
+- execution systems
+- evaluation
+- observability
+
+Important engineering logic should remain understandable.
+
+When explaining significant changes, prefer:
+
+    mental model
+        ↓
+    data flow
+        ↓
+    implementation
+        ↓
+    verification
+
+
+============================================================
+77. CODING-AGENT PROMPT RULES
+============================================================
+
+Prompts should be:
+
+- precise
+- scoped
+- actionable
+- architecture-aware
+- non-destructive
+- verification-oriented
+
+Every implementation prompt should generally contain:
+
+    Read AGENT_BUILD_CONTEXT.md first.
+
+    Inspect existing implementation before modifying.
+
+    Identify the current state.
+
+    Implement only the requested change.
+
+    Preserve existing functionality.
+
+    Reuse existing infrastructure.
+
+    Do not overengineer.
+
+    Do not implement future features prematurely.
+
+    Verify the change.
+
+    Report files modified and evidence.
+
+Do not repeat the entire architecture in every prompt when this file
+already contains it.
+
+
+============================================================
+78. WHEN A TASK IS LARGE
+============================================================
+
+Do not automatically use one giant implementation prompt.
+
+For significant work, prefer:
+
+    INSPECT
+      ↓
+    PLAN
+      ↓
+    IMPLEMENT
+      ↓
+    VERIFY
+
+Use checkpoints between stages.
+
+This is especially important for:
+
+- architecture changes
+- integration work
+- workflow changes
+- repository intelligence
+- execution systems
+- refactors
+
+
+============================================================
+79. WHAT AI MUST NOT DO
+============================================================
+
+AI coding agents must not:
+
+- invent current implementation state
+- claim integration without evidence
+- claim runtime verification without actually running it
+- fabricate GitHub data
+- fabricate test results
+- silently create duplicate systems
+- rewrite unrelated working code
+- implement future features without authorization
+- mark isolated demos as product integration
+- hide failures
+- simplify architecture prematurely
+- delete functionality merely because it is inconvenient
+- create unnecessary documentation
+- create unnecessary abstractions
+
+
+============================================================
+80. ABSOLUTE DEVELOPMENT RULES
+============================================================
+
+These rules are locked unless the project owner explicitly changes them.
+
+1. AEGIS is an AI Engineering Operating System.
+
+2. AEGIS is not a generic coding harness.
+
+3. Do not clone Coding Harness/Athena/Hermes/Claude Code/OpenHands.
+
+4. Learn concepts from other systems without copying their architecture.
+
+5. Real integrations must use real data.
+
+6. Never fake production GitHub data.
+
+7. Never silently fall back to fake data.
+
+8. Keep secrets server-side.
+
+9. Web/API/CLI should share the AEGIS core.
+
+10. LangGraph is the orchestration layer.
+
+11. Agents have clear engineering responsibilities.
+
+12. Engineering intent drives workflow/tool/agent selection.
+
+13. Repository understanding is a core capability.
+
+14. RAG should become codebase-aware and relationship-aware.
+
+15. Repository relationships are more important than simple file retrieval.
+
+16. Explain meaningful changes before execution.
+
+17. Risky/destructive actions require appropriate human approval.
+
+18. Execution must be verifiable.
+
+19. Detect unintended changes.
+
+20. Preserve working functionality.
+
+21. Inspect before modifying.
+
+22. Do not duplicate existing infrastructure.
+
+23. Do not overengineer.
+
+24. TypeScript-first.
+
+25. Prefer simple, explicit, understandable architecture.
+
+26. Do not implement future features prematurely.
+
+27. Do not confuse implementation with integration.
+
+28. Do not confuse integration with validation.
+
+29. Unit tests do not automatically prove end-to-end behavior.
+
+30. Real workflow evidence is required for product-level completion.
+
+31. Feature development is frozen during MVP validation.
+
+32. Existing capabilities must be integrated before unrelated new
+    capabilities are added.
+
+33. Architecture simplification happens after MVP validation.
+
+34. Production uses real integrations; mocks are isolated to tests.
+
+35. Failures must be explicit.
+
+36. A successful tool call does not automatically mean task success.
+
+37. The repository/source code is the implementation source of truth.
+
+38. The project owner must understand important system behavior.
+
+39. AEGIS should optimize for engineering usefulness, not feature count.
+
+40. Do not declare MVP complete until a real engineering task has been
+    successfully completed and verified through the real AEGIS runtime.
+
+
+============================================================
+81. CURRENT OPERATING MODE
+============================================================
+
+CURRENT MODE:
+
+    MVP INTEGRATION + VALIDATION
+
+CURRENT PRIORITY:
+
+    Make the existing AEGIS pieces work together.
+
+NOT CURRENT PRIORITY:
+
+    Add more features.
+
+Immediate sequence:
+
+    1. Documentation/control reset
+    2. Read-only repository/runtime audit
+    3. Integration-gap map
+    4. Integrate existing capabilities
+    5. Real end-to-end engineering task
+    6. Fix failures
+    7. Repeat until MVP is genuinely usable
+    8. Architecture simplification
+    9. Resume roadmap
+
+Until then:
+
+    NO FEATURE 28
+    NO FEATURE 29
+    NO FEATURE 30
+    NO FEATURE 31
+    NO FEATURE 32
+    NO FEATURE 33
+
+unless explicitly required for MVP or explicitly authorized.
+
+
+============================================================
+82. FINAL PRODUCT IDENTITY
+============================================================
+
+Remember AEGIS as:
+
+    AI ENGINEERING OPERATING SYSTEM
+
+The user says:
+
+    "I need this engineering change."
+
+AEGIS should eventually:
+
+    Understand the repository
+        ↓
+    Understand the engineering intent
+        ↓
+    Investigate
+        ↓
+    Build an engineering model
+        ↓
+    Plan
+        ↓
+    Explain
+        ↓
+    Obtain approval
+        ↓
+    Execute
+        ↓
+    Test
+        ↓
+    Review
+        ↓
+    Security-check
+        ↓
+    Verify
+        ↓
+    Report evidence
+
+The core identity is:
+
+    Repository Understanding
+            +
+    Engineering Intent
+            +
+    Multi-Agent Reasoning
+            +
+    Controlled Execution
+            +
+    Verification
+
+AEGIS is not merely an AI that writes code.
+
+AEGIS is an engineering system that understands software, reasons about
+changes, orchestrates engineering work, executes approved actions, and
+verifies the result.
+
+
+============================================================
+83. CURRENT NEXT ACTION
+============================================================
+
+DO NOT IMPLEMENT ANOTHER FEATURE.
+
+The next action is:
+
+    READ-ONLY AUDIT OF THE CURRENT AEGIS RUNTIME.
+
+The audit must determine:
+
+    What actually happens when a user submits an engineering task?
+
+Trace:
+
+    USER
+      ↓
+    ENTRY POINT
+      ↓
+    TASK
+      ↓
+    STATE
+      ↓
+    WORKFLOW
+      ↓
+    REPOSITORY UNDERSTANDING
+      ↓
+    AGENTS
+      ↓
+    TOOLS
+      ↓
+    APPROVAL
+      ↓
+    FILE CHANGES
+      ↓
+    TESTS
+      ↓
+    REVIEW
+      ↓
+    SECURITY
+      ↓
+    VERIFICATION
+      ↓
+    RESULT
+
+The audit must be read-only.
+
+Do not refactor.
+
+Do not simplify.
+
+Do not add features.
+
+Do not delete files.
+
+Do not "fix" anything during the initial audit.
+
+Produce an evidence-based integration-gap map.
+
+After the audit, implementation will proceed one integration gap at a
+time.
+
+
+============================================================
+END OF AEGIS AGENT BUILD CONTEXT
+============================================================

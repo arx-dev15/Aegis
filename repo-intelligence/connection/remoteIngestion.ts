@@ -8,6 +8,7 @@
 import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
+import { maskCredentials } from './connectionManager';
 
 export interface RemoteIngestionInput {
   url: string;
@@ -114,7 +115,8 @@ export async function ingestRemoteRepository(input: RemoteIngestionInput): Promi
           fs.rmSync(targetDir, { recursive: true, force: true });
         } catch {}
       }
-      throw new Error(`Remote repository ingestion failed for "${owner}/${name}": Unable to clone or download repository archive. Verify repository URL and authentication token.`);
+      const rawMsg = tarErr?.message || String(tarErr);
+      throw new Error(`Remote repository ingestion failed for "${owner}/${name}": ${maskCredentials(rawMsg)}`);
     }
   }
 }

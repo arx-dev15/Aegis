@@ -48,7 +48,7 @@ export async function runToolAgent(
   config: GeminiConfig = {}
 ): Promise<AgentResult> {
   const client = getClient();
-  const modelName = config.model ?? "gemini-3.5-flash";
+  const modelName = config.model ?? process.env.GEMINI_MODEL ?? "gemini-3.6-flash";
 
   // Build function declarations for Gemini
   const functionDeclarations = tools.map(toolToFunctionDeclaration);

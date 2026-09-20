@@ -32,7 +32,14 @@ export function extractTests(input: ExtractTestsInput): TestRecord[] {
 
     // Target source file resolution
     const targetSourcePath = inferTargetSourceFilePath(testFile.path, files.map((f) => f.path));
-    const targetSymbolIds: string[] = [];
+    // Scope target symbols strictly to target source file or symbols imported into test file
+    const candidateSymbols = symbols.filter((sym) => {
+      if (targetSourcePath && sym.filePath === targetSourcePath) return true;
+      if (content.includes(`import`) && content.includes(sym.name) && sym.exported) {
+        return true;
+      }
+      return false;
+    });
 
     // Extract test block names: describe("...", ...) or test("...", ...) or it("...", ...)
     const testBlockRegex = /(?:describe|test|it)\s*\(\s*["']([^"']+)["']/g;
@@ -40,10 +47,10 @@ export function extractTests(input: ExtractTestsInput): TestRecord[] {
 
     while ((match = testBlockRegex.exec(content)) !== null) {
       const testName = match[1];
+      const targetSymbolIds: string[] = [];
 
-      // Match symbol names referenced in test name or content
-      for (const sym of symbols) {
-        if (sym.name.length > 2 && (testName.includes(sym.name) || content.includes(sym.name))) {
+      for (const sym of candidateSymbols) {
+        if (sym.name.length > 2 && (testName.includes(sym.name) || new RegExp(`\\b${sym.name}\\b`).test(content))) {
           if (!targetSymbolIds.includes(sym.id)) {
             targetSymbolIds.push(sym.id);
           }

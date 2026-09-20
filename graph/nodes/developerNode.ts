@@ -25,9 +25,14 @@ import type { AegisState, AegisStateUpdate, CodeChange, RecoveryContext } from "
 import { DeveloperAgent } from "../../agents/developer/developer.js";
 import { memoryManager } from "../../memory/memoryManager.js";
 import {
+  readFile,
   writeFile,
   deleteFile,
 } from "../../tools/filesystem/index.js";
+import {
+  findMatchingRepoSnapshot,
+  queryRepositoryIntelligence,
+} from "../../repo-intelligence/retrieval/hybridRetriever.js";
 
 /**
  * Format the latest RecoveryContext into a human-readable string for the Developer.
@@ -53,6 +58,127 @@ function formatRecoveryContext(recoveryContext: RecoveryContext[]): string | und
 }
 
 /**
+ * Discover relevant target file paths using Repository Intelligence or task path hints,
+ * read their current source contents from workspace using safe readFile(),
+ * and format a bounded context block (max 5 files, 30KB total budget).
+ */
+export async function discoverAndReadExistingCode(
+  workspace: string,
+  task: string,
+  architecture: string,
+  executionLog: string[]
+): Promise<string | undefined> {
+  if (!workspace || workspace.trim() === "") {
+    return undefined;
+  }
+
+  const normalizedWs = workspace.trim();
+  const candidates: string[] = [];
+
+  try {
+    const snapshot = await findMatchingRepoSnapshot(normalizedWs);
+    if (snapshot) {
+      executionLog.push(`[DEV-INSPECT] Resolved Repository Snapshot: "${snapshot.repository.name}" (${snapshot.repository.id})`);
+      const searchRes = await queryRepositoryIntelligence({
+        snapshot,
+        query: `${task} ${architecture}`,
+        mode: "structural",
+      });
+
+      if (searchRes.symbols.length > 0) {
+        searchRes.symbols.forEach((s) => candidates.push(s.filePath));
+      }
+      if (searchRes.apis.length > 0) {
+        searchRes.apis.forEach((a) => candidates.push(a.filePath));
+      }
+      if (searchRes.evidence.length > 0) {
+        searchRes.evidence.forEach((e) => candidates.push(e.filePath));
+      }
+      if (searchRes.impactReport?.resolvedSymbol?.file) {
+        candidates.push(searchRes.impactReport.resolvedSymbol.file);
+      }
+      if (searchRes.impactReport?.directDependents) {
+        searchRes.impactReport.directDependents.forEach((d) => candidates.push(d.file));
+      }
+    } else {
+      executionLog.push(`[DEV-INSPECT] No pre-indexed Repository Snapshot found for workspace.`);
+    }
+  } catch (err) {
+    executionLog.push(`[DEV-INSPECT] Repository Intelligence query warning: ${(err as Error).message}`);
+  }
+
+  // Fallback path discovery via regex over task and architecture text if no snapshot candidates
+  if (candidates.length === 0) {
+    const textToScan = `${task}\n${architecture}`;
+    const pathMatches = textToScan.match(/\b([a-zA-Z0-9_-]+(?:\/[a-zA-Z0-9_-]+)*\.(?:ts|tsx|js|jsx|json|py|md|sql|txt))\b/gi);
+    if (pathMatches) {
+      pathMatches.forEach((p) => candidates.push(p));
+    }
+  }
+
+  // Deduplicate and filter out lockfiles, node_modules, and git internals
+  const uniqueCandidates = Array.from(new Set(candidates)).filter((p) => {
+    const lower = p.toLowerCase();
+    return (
+      !lower.includes("node_modules") &&
+      !lower.includes(".git") &&
+      !lower.includes("package-lock.json") &&
+      !lower.includes("pnpm-lock") &&
+      !lower.includes("yarn.lock") &&
+      !lower.endsWith(".snapshot.json")
+    );
+  }).slice(0, 5); // Bounded limit: max 5 files
+
+  if (uniqueCandidates.length === 0) {
+    executionLog.push(`[DEV-INSPECT] No candidate relevant existing files identified.`);
+    return undefined;
+  }
+
+  executionLog.push(`[DEV-INSPECT] Discovered ${uniqueCandidates.length} candidate relevant file(s): ${uniqueCandidates.join(", ")}`);
+
+  const fileBlocks: string[] = [];
+  let totalBytes = 0;
+  const MAX_TOTAL_BYTES = 30_720; // Bounded budget: 30 KB max
+
+  for (const relPath of uniqueCandidates) {
+    if (totalBytes >= MAX_TOTAL_BYTES) {
+      executionLog.push(`[DEV-INSPECT] Source context budget limit (30KB) reached. Skipping remaining candidate files.`);
+      break;
+    }
+
+    try {
+      const readRes = await readFile(normalizedWs, relPath);
+      if (readRes.exists && readRes.content.trim().length > 0) {
+        let content = readRes.content;
+        const fileByteLen = Buffer.byteLength(content, "utf-8");
+
+        if (totalBytes + fileByteLen > MAX_TOTAL_BYTES) {
+          const allowedBytes = MAX_TOTAL_BYTES - totalBytes;
+          content = content.slice(0, allowedBytes) + "\n\n[... TRUNCATED TO FIT 30KB BUDGET ...]";
+          totalBytes = MAX_TOTAL_BYTES;
+          executionLog.push(`[DEV-INSPECT] Read ${relPath} (partially truncated to fit 30KB budget)`);
+        } else {
+          totalBytes += fileByteLen;
+          executionLog.push(`[DEV-INSPECT] Read ${relPath} (${fileByteLen} bytes)`);
+        }
+
+        fileBlocks.push(`--- File: ${relPath} ---\n${content}`);
+      } else if (!readRes.exists) {
+        executionLog.push(`[DEV-INSPECT] Skipped missing/stale candidate file: ${relPath}`);
+      }
+    } catch (readErr) {
+      executionLog.push(`[DEV-INSPECT] Error reading candidate ${relPath}: ${(readErr as Error).message}`);
+    }
+  }
+
+  if (fileBlocks.length === 0) {
+    return undefined;
+  }
+
+  return fileBlocks.join("\n\n");
+}
+
+/**
  * Creates a developer node using a provided DeveloperAgent instance or defaults to standard DeveloperAgent.
  */
 export function createDeveloperNode(agent?: DeveloperAgent) {
@@ -67,13 +193,22 @@ export function createDeveloperNode(agent?: DeveloperAgent) {
     }
 
     try {
-      // ── Phase 1: LLM generates the implementation plan ───────────────────
-      // Feature 18: extract recovery context so Developer knows what to fix on retry
+      const executionLog: string[] = [];
+
+      // ── Phase 1: Grounding & LLM implementation plan generation ──────────
       const recoveryCtx = formatRecoveryContext(state.recoveryContext ?? []);
       const memoryContext = state.memoryContext || (state.runId ? memoryManager.getFormattedMemoryContext({ runId: state.runId }) : "");
       const baseArch = memoryContext ? `${state.architecture}\n\n${memoryContext}`.trim() : state.architecture;
 
-      const result = await developer.develop(state.task, baseArch, recoveryCtx);
+      // Inspect & read existing workspace source files before LLM generation
+      const existingCodeContext = await discoverAndReadExistingCode(
+        state.workspace ?? "",
+        state.task,
+        baseArch,
+        executionLog
+      );
+
+      const result = await developer.develop(state.task, baseArch, recoveryCtx, existingCodeContext);
 
       if (state.runId) {
         memoryManager.shortTerm.set(
@@ -91,23 +226,22 @@ export function createDeveloperNode(agent?: DeveloperAgent) {
         content: fc.content,
       }));
 
-      const executionLog: string[] = [];
-
       // ── Phase 2: Real file execution (only when workspace is configured) ──
       if (state.workspace && state.workspace.trim() !== "") {
         const workspace = state.workspace.trim();
+        const toolOptions = state.approvalDecision?.action === "approve" ? { executionMode: "automatic" as const } : undefined;
 
         for (const change of result.fileChanges) {
           try {
             if (change.action === "delete") {
-              const del = await deleteFile(workspace, change.path);
+              const del = await deleteFile(workspace, change.path, toolOptions);
               executionLog.push(
                 `[DEV-TOOL] DELETE ${change.path} → ${del.deleted ? "deleted" : "not found (ok)"}`
               );
             } else {
               // "add" or "modify" — write the file
               const content = change.content ?? "";
-              const write = await writeFile(workspace, change.path, content);
+              const write = await writeFile(workspace, change.path, content, toolOptions);
               executionLog.push(
                 `[DEV-TOOL] WRITE ${change.path} → ${write.bytesWritten} bytes written`
               );

@@ -67,6 +67,34 @@ export function setCachedProjectKnowledge(repoId: string, pk: ProjectKnowledge):
   knowledgeCache.set(repoId, pk);
 }
 
+export async function findMatchingRepoSnapshot(
+  workspace: string,
+  store: InstanceType<typeof import('../storage/jsonStore').JsonRepositoryStore> = new (require('../storage/jsonStore').JsonRepositoryStore)()
+): Promise<RepositorySnapshot | null> {
+  try {
+    const repos = await store.listRepositories();
+    if (!repos || repos.length === 0) return null;
+
+    const pathModule = require('path');
+    const normalizedWs = pathModule.resolve(workspace).toLowerCase();
+    const wsBasename = pathModule.basename(normalizedWs).toLowerCase();
+
+    for (const repo of repos) {
+      if (repo.url) {
+        const repoPath = pathModule.resolve(repo.url.replace(/^file:\/\//, '')).toLowerCase();
+        if (repoPath === normalizedWs) {
+          return await store.getSnapshot(repo.id);
+        }
+      }
+      const nameLower = (repo.name || '').toLowerCase();
+      if (wsBasename === nameLower || nameLower === wsBasename) {
+        return await store.getSnapshot(repo.id);
+      }
+    }
+  } catch {}
+  return null;
+}
+
 export function getRepositoryStatus(snapshot: RepositorySnapshot): string {
   const repo = snapshot.repository;
   const isGithub = repo.provider === 'github';
@@ -109,29 +137,32 @@ export async function queryRepositoryIntelligence(input: HybridQueryInput): Prom
 
   const lowerQuery = query.toLowerCase();
   const searchTarget = targetEntity ? targetEntity.toLowerCase() : lowerQuery;
-  const queryTerms = lowerQuery.split(/\s+/).filter((t) => t.length > 3 && !['find', 'where', 'show', 'what', 'handled', 'service'].includes(t));
+  const queryTerms = lowerQuery
+    .split(/\s+/)
+    .map((t) => t.replace(/[^a-z0-9]/gi, ''))
+    .filter((t) => t.length > 3 && !['find', 'where', 'show', 'what', 'handled', 'service', 'does', 'when'].includes(t));
+
+  const stems = Array.from(
+    new Set([
+      searchTarget.length >= 4 ? searchTarget.substring(0, 4) : searchTarget,
+      ...queryTerms.map((t) => (t.length >= 4 ? t.substring(0, 4) : t)),
+    ])
+  ).filter((s) => s.length >= 3);
 
   // Check for subjective / unanswerable intent questions (e.g. "Why did the developer choose PostgreSQL?")
   const isSubjectiveQuestion =
     /^(why|how come)\s+(did|was|is|does)\b/i.test(query.trim()) &&
-    !lowerQuery.includes('auth') &&
-    !lowerQuery.includes('project') &&
-    !lowerQuery.includes('create');
+    !stems.some((s) => ['auth', 'proj', 'user', 'create', 'login'].includes(s));
 
   // 1. STRUCTURAL SEARCH & SYMBOL MATCHING
   if (mode === 'structural' || mode === 'hybrid') {
     for (const sym of snapshot.symbols) {
       const symNameLower = sym.name.toLowerCase();
-      const matchesTarget = targetEntity ? symNameLower.includes(searchTarget) : false;
+      const matchesTarget = targetEntity ? symNameLower.includes(searchTarget) || searchTarget.includes(symNameLower) : false;
       const matchesTerms = queryTerms.length > 0 && queryTerms.some((term) => symNameLower.includes(term));
+      const matchesStems = stems.length > 0 && stems.some((stem) => symNameLower.includes(stem));
 
-      if (
-        matchesTarget ||
-        matchesTerms ||
-        (lowerQuery.includes('auth') && symNameLower.includes('auth')) ||
-        (lowerQuery.includes('project') && symNameLower.includes('project')) ||
-        (lowerQuery.includes('user') && symNameLower.includes('user'))
-      ) {
+      if (matchesTarget || matchesTerms || matchesStems) {
         matchedSymbols.push(sym);
         evidenceList.push({
           filePath: sym.filePath,
@@ -142,19 +173,23 @@ export async function queryRepositoryIntelligence(input: HybridQueryInput): Prom
       }
     }
 
-    // Find APIs by route path, handler name, or query terms
+    const matchedSymIds = new Set(matchedSymbols.map((s) => s.id));
+
+    // Find APIs by route path, handler name, query terms, stems, or connected HANDLES edges
     for (const api of snapshot.apis) {
       const handlerLower = api.handlerName.toLowerCase();
       const pathLower = api.path.toLowerCase();
-      const matchesTerms = queryTerms.length > 0 && queryTerms.some((term) => handlerLower.includes(term) || pathLower.includes(term));
+      const fileLower = api.filePath.toLowerCase();
 
-      if (
-        pathLower.includes(searchTarget) ||
-        handlerLower.includes(searchTarget) ||
-        matchesTerms ||
-        (lowerQuery.includes('auth') && (api.path.includes('login') || api.filePath.includes('auth'))) ||
-        (lowerQuery.includes('project') && api.path.includes('project'))
-      ) {
+      const matchesTarget = targetEntity ? pathLower.includes(searchTarget) || handlerLower.includes(searchTarget) : false;
+      const matchesTerms = queryTerms.length > 0 && queryTerms.some((term) => handlerLower.includes(term) || pathLower.includes(term));
+      const matchesStems = stems.length > 0 && stems.some((stem) => handlerLower.includes(stem) || pathLower.includes(stem) || fileLower.includes(stem));
+      const matchesSymbolLink = api.handlerSymbolId ? matchedSymIds.has(api.handlerSymbolId) : false;
+      const matchesGraphLink = snapshot.relationships.some(
+        (r) => r.type === 'HANDLES' && r.sourceId === api.id && matchedSymIds.has(r.targetId)
+      );
+
+      if (matchesTarget || matchesTerms || matchesStems || matchesSymbolLink || matchesGraphLink) {
         matchedApis.push(api);
         evidenceList.push({
           filePath: api.filePath,
@@ -166,14 +201,11 @@ export async function queryRepositoryIntelligence(input: HybridQueryInput): Prom
     // Find DB models
     for (const db of snapshot.databases) {
       const dbNameLower = db.name.toLowerCase();
+      const fileLower = db.filePath.toLowerCase();
       const matchesTerms = queryTerms.length > 0 && queryTerms.some((term) => dbNameLower.includes(term));
+      const matchesStems = stems.length > 0 && stems.some((stem) => dbNameLower.includes(stem) || fileLower.includes(stem));
 
-      if (
-        dbNameLower.includes(searchTarget) ||
-        matchesTerms ||
-        (lowerQuery.includes('auth') && dbNameLower === 'user') ||
-        (lowerQuery.includes('project') && dbNameLower === 'project')
-      ) {
+      if (dbNameLower.includes(searchTarget) || matchesTerms || matchesStems) {
         matchedDatabases.push(db);
         evidenceList.push({
           filePath: db.filePath,
@@ -185,14 +217,11 @@ export async function queryRepositoryIntelligence(input: HybridQueryInput): Prom
     // Find Tests
     for (const test of snapshot.tests) {
       const testNameLower = test.testName.toLowerCase();
+      const fileLower = test.filePath.toLowerCase();
       const matchesTerms = queryTerms.length > 0 && queryTerms.some((term) => testNameLower.includes(term));
+      const matchesStems = stems.length > 0 && stems.some((stem) => testNameLower.includes(stem) || fileLower.includes(stem));
 
-      if (
-        testNameLower.includes(searchTarget) ||
-        matchesTerms ||
-        (lowerQuery.includes('auth') && test.filePath.includes('auth')) ||
-        (lowerQuery.includes('project') && test.filePath.includes('project'))
-      ) {
+      if (testNameLower.includes(searchTarget) || matchesTerms || matchesStems) {
         matchedTests.push(test);
         evidenceList.push({
           filePath: test.filePath,
@@ -246,13 +275,15 @@ export async function queryRepositoryIntelligence(input: HybridQueryInput): Prom
   let answerStatus: AnswerStatus = 'ANSWERED';
   if (isSubjectiveQuestion) {
     answerStatus = 'INSUFFICIENT_EVIDENCE';
+  } else if (targetEntity && impactReport.targetResolutionStatus === 'unresolved') {
+    answerStatus = 'TARGET_NOT_FOUND';
   } else if (impactReport.targetResolutionStatus === 'unresolved' && matchedSymbols.length === 0 && matchedApis.length === 0) {
     answerStatus = 'TARGET_NOT_FOUND';
-  } else if (lowerQuery.includes('auth') || lowerQuery.includes('authentication')) {
-    const hasAuthCode = snapshot.symbols.some((s) =>
-      /login|jwt|password|token/i.test(s.name) || /auth\.service|auth\.controller/i.test(s.filePath)
+  } else if (/auth|authentication|login|credential/i.test(query)) {
+    const hasStrictAuthCode = snapshot.symbols.some((s) =>
+      /login|jwt|password|token|credential/i.test(s.name) || /auth\.service|auth\.controller/i.test(s.filePath)
     );
-    if (!hasAuthCode) {
+    if (!hasStrictAuthCode) {
       answerStatus = 'PARTIALLY_ANSWERED';
     }
   }
@@ -445,7 +476,7 @@ export function computeDynamicImpactReport(snapshot: RepositorySnapshot, targetN
   });
 
   for (const db of snapshot.databases) {
-    if (db.name.toLowerCase().includes(targetLower) || targetLower.includes('user') || targetLower.includes('project')) {
+    if (db.name.toLowerCase().includes(targetLower) || targetLower.includes(db.name.toLowerCase())) {
       flowSteps.push({
         step: step++,
         entity: `${db.technology.toUpperCase()} Model: ${db.name}`,

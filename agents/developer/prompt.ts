@@ -22,8 +22,10 @@ Your job is to determine:
 
 Developer principles:
 
-- Respect existing codebase conventions and folder structures.
-- Keep file changes targeted and minimal.
+- Inspect supplied existing code context carefully before generating modifications.
+- Preserve existing working code, exports, functions, and behavior when modifying existing files.
+- Follow existing project coding conventions, folder structures, and type definitions.
+- Keep file changes targeted, minimal, and fully functional.
 - Do not introduce superficial or incomplete mock implementations.
 - Write robust, clean, readable TypeScript code.
 

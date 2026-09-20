@@ -13,7 +13,7 @@
 
 import { promises as fs } from "fs";
 import path from "path";
-import { enforceToolGuardrail } from "../guardrails/index.js";
+import { enforceToolGuardrail, GuardrailOptions } from "../guardrails/index.js";
 
 // ── Path Safety ───────────────────────────────────────────────────────────────
 
@@ -59,13 +59,17 @@ export interface WriteResult {
 export async function writeFile(
   rootDir: string,
   relativePath: string,
-  content: string
+  content: string,
+  options?: GuardrailOptions
 ): Promise<WriteResult> {
-  const guard = enforceToolGuardrail({
-    toolName: "filesystem",
-    action: "write_file",
-    target: relativePath,
-  });
+  const guard = enforceToolGuardrail(
+    {
+      toolName: "filesystem",
+      action: "write_file",
+      target: relativePath,
+    },
+    options
+  );
 
   if (!guard.allowed) {
     throw new Error(`[GUARDRAIL-BLOCKED] ${guard.reason}`);
@@ -132,13 +136,17 @@ export interface DeleteResult {
  */
 export async function deleteFile(
   rootDir: string,
-  relativePath: string
+  relativePath: string,
+  options?: GuardrailOptions
 ): Promise<DeleteResult> {
-  const guard = enforceToolGuardrail({
-    toolName: "filesystem",
-    action: "delete_file",
-    target: relativePath,
-  });
+  const guard = enforceToolGuardrail(
+    {
+      toolName: "filesystem",
+      action: "delete_file",
+      target: relativePath,
+    },
+    options
+  );
 
   if (!guard.allowed) {
     throw new Error(`[GUARDRAIL-BLOCKED] ${guard.reason}`);

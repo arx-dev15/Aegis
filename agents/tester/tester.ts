@@ -40,9 +40,14 @@ export interface TerminalRunner {
   run(command: string, cwd: string): Promise<{
     stdout: string;
     stderr: string;
-    exitCode: number;
+    exitCode: number | null;
     durationMs: number;
     success: boolean;
+    timedOut?: boolean;
+    blocked?: boolean;
+    approvalRequired?: boolean;
+    truncated?: boolean;
+    reason?: string;
   }>;
 }
 
@@ -105,6 +110,11 @@ export class TesterAgent {
         `$ ${options.testCommand}`,
         `Exit Code: ${result.exitCode}`,
         `Duration: ${result.durationMs}ms`,
+        `Success: ${result.success}`,
+        result.timedOut ? `[TIMED OUT]` : "",
+        result.blocked ? `[GUARDRAIL BLOCKED: ${result.reason || ""}]` : "",
+        result.approvalRequired ? `[APPROVAL REQUIRED: ${result.reason || ""}]` : "",
+        result.truncated ? `[OUTPUT TRUNCATED]` : "",
         result.stdout ? `STDOUT:\n${result.stdout}` : "",
         result.stderr ? `STDERR:\n${result.stderr}` : "",
       ]

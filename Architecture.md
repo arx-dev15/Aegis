@@ -1,133 +1,685 @@
-# Aegis System Architecture
+# AEGIS Architecture
 
-> **Job**: *How AEGIS is architected*
+## 1. Purpose
 
-This document describes the technical architecture, component design, state routing model, and subsystem relationships of **AEGIS**.
+This document defines the intended architecture of AEGIS and provides a place to record the verified runtime architecture.
 
----
+The architecture must support the core AEGIS workflow:
 
-## 1. System Architecture Overview
+> Understand → Plan → Research → Architect → Implement → Test → Review → Secure → Approve → Verify → Learn
 
-AEGIS is architected around a central **StateGraph Orchestrator** powered by LangGraph, binding specialized agents, project knowledge RAG, dual memory stores, repository intelligence, and security policy guardrails into a single runtime.
+This document describes architecture. It is **not proof that a component is currently integrated or working**.
 
-```mermaid
-graph TD
-    UI[Web Dashboard - apps/web] -->|HTTP / WebSocket| API[Express API Server - apps/api]
-    CLI[Interactive CLI - cli.ts] -->|Direct Core Invocation| CORE[Aegis Core Runtime]
-    API --> CORE
-
-    subgraph Aegis Core Runtime
-        STATE[Aegis State - graph/state.ts]
-        GRAPH[LangGraph Orchestrator - graph/]
-        
-        GRAPH --> PLAN[Planner Agent]
-        GRAPH --> RES[Researcher Agent]
-        GRAPH --> ARCH[Architect Agent]
-        GRAPH --> DEV[Developer Agent]
-        GRAPH --> TEST[Tester Agent]
-        GRAPH --> REV[Reviewer Agent]
-        GRAPH --> SEC[Security Agent]
-        
-        GRAPH --> REPO[Repository Intelligence Engine - repo-intelligence/]
-        GRAPH --> RAG[Codebase RAG Pipeline - rag/]
-        GRAPH --> MEM[Dual Memory System - memory/]
-        GRAPH --> SAFETY[Policy Guardrails & Approvals - tools/guardrails/]
-    end
-
-    SAFETY -->|Approved Tool Call| EXEC[Execution Tools: Filesystem, Terminal, GitHub REST]
-    REPO -->|JSON / Postgres Storage| STORE[(Repository Snapshots)]
-    RAG -->|Vector Store| VEC[(InMemory / Persistent Vectors)]
-    MEM -->|Disk Storage| MEM_DISK[(memory/long-term/storage.json)]
-```
+Actual repository code and runtime behavior remain the source of truth.
 
 ---
 
-## 2. Component Design & Subsystem Breakdown
+# 2. Core Product Architecture
 
-### 2.1 Agent Layer (`agents/`)
-Aegis deploys 7 specialized agents operating under a standardized `BaseAgent` abstraction:
-- **Planner Agent (`agents/planner/`)**: Decomposes high-level engineering intent into structured plan steps.
-- **Researcher Agent (`agents/researcher/`)**: Investigates codebase patterns, file structures, and documentation.
-- **Architect Agent (`agents/architect/`)**: Designs component boundaries, API schemas, and database changes.
-- **Developer Agent (`agents/developer/`)**: Generates production-ready file edits and code implementations.
-- **Tester Agent (`agents/tester/`)**: Constructs and executes automated test suites.
-- **Reviewer Agent (`agents/reviewer/`)**: Performs code review for maintainability, diff correctness, and regressions.
-- **Security Agent (`agents/security/`)**: Audits code changes for vulnerabilities, injection risks, and secret exposure.
-
-### 2.2 LangGraph Orchestration & State Layer (`graph/`)
-- **State Management (`graph/state.ts`)**: Central state annotation (`AegisStateAnnotation`) tracking user intent, plan steps, research findings, architecture designs, code changes, test results, review findings, security audits, recovery state, and approval status.
-- **Dynamic Router (`graph/edges/agentRouter.ts`)**: Evaluates `AegisState` to dynamically route to the appropriate next agent, skipping redundant steps when artifacts are pre-populated.
-- **Failure Recovery (`graph/nodes/recoveryNode.ts`)**: Captures test failures or review rejections and routes execution back to the Developer or Architect with structured `RecoveryContext` without restarting the workflow.
-
-### 2.3 Repository Intelligence Engine (`repo-intelligence/`)
-Constructs a revision-aware, evidence-backed model of connected codebases:
-- **Scanner & Security**: Walks file trees, respects `.gitignore`, redacts secret tokens (`[REDACTED_SECRET]`), and isolates untrusted static content.
-- **AST Parser (`repo-intelligence/parsers/tsParser.ts`)**: Uses `ts-morph` to extract exported/internal classes, methods, functions, interfaces, types, and line ranges.
-- **Domain Extractors**: Extracts Express/Next.js API routes, SQL/Prisma database models, manifest dependencies, and test block targets.
-- **Relationship Graph Engine**: Synthesizes provenanced code edges (`CALLS`, `IMPORTS`, `HANDLES`, `QUERIES`, `TESTED_BY`, `USES`) with line-level evidence and confidence ratings (`exact`, `inferred`).
-- **Hybrid Retrieval & Impact Analysis**: Combines graph traversal with semantic RAG embeddings to compute change impact reports (`computeDynamicImpactReport`).
-
-### 2.4 Codebase-Aware RAG Pipeline (`rag/`)
-- **Pipeline (`rag/pipeline.ts`)**: Coordinates document loading, sliding-window text chunking, Gemini embeddings (`gemini-embedding-001`), and cosine similarity vector search.
-- **Project Knowledge (`rag/projectKnowledge.ts`)**: High-level interface providing `ingestProject`, `ingestFiles`, `queryKnowledge`, `getFormattedContext`, and `enhanceContext`.
-
-### 2.5 Dual Memory System (`memory/`)
-- **Short-Term Memory (`memory/short-term/`)**: Execution-scoped, run-isolated working scratchpad (`runId`).
-- **Long-Term Memory (`memory/long-term/`)**: Persistent epistemic knowledge store (`storage.json`) retaining project facts, architectural decisions, and coding guidelines across process restarts.
-
-### 2.6 Safety & Human-in-the-Loop (`tools/guardrails/` & `graph/approvalWorkflow.ts`)
-- **Policy Engine**: Categorizes actions into `ALLOW` (read-only), `REQUIRE_APPROVAL` (file mutations, terminal commands, database migrations), or `BLOCK` (dangerous system commands like `rm -rf /` or path escape `../../etc/passwd`).
-- **Approval Gate**: Uses LangGraph `MemorySaver` checkpointer to pause execution (`status: "paused"`) when sensitive mutations are requested. Execution resumes only when a human explicitly approves the action.
-
-### 2.7 Real GitHub Integration (`tools/github/`)
-- **Real REST Data**: All production GitHub operations call `api.github.com` live using native fetch and authentication via `GITHUB_TOKEN` from `.env`. Zero fake/mock responses in production code.
-- **Guardrail Enforced**: Branch creation, file commits, and PR creation pass through permission guardrails before network invocation. Secrets are strictly masked.
-
----
-
-## 3. Data Flow & Communication Lifecycle
+The intended AEGIS product flow is:
 
 ```text
-User Request / Intent
-       │
-       ▼
-CLI / API Gateway
-       │
-       ▼
-Aegis Core Runtime (Initializes AegisState)
-       │
-       ▼
-LangGraph StateGraph Orchestration
-       ├── 1. Targeted Knowledge & Intelligence Retrieval (repo-intelligence + RAG)
-       ├── 2. Specialized Multi-Agent Reasoning (Planner → Researcher → Architect)
-       ├── 3. Safety & Policy Gate Evaluation (tools/guardrails/)
-       ├── 4. Human Approval Interruption (if sensitive action requested)
-       ├── 5. Controlled Execution (Developer Agent + Tools)
-       ├── 6. Multi-Agent Verification (Tester → Reviewer → Security)
-       └── 7. Failure Recovery Loop (if tests/reviews fail)
-       │
-       ▼
-Evidence-Backed Result / Verified Code Diff
-```
+                    User
+                     │
+                     ▼
+             Web / API / CLI
+                     │
+                     ▼
+              AEGIS Core
+              Task Entry
+                     │
+                     ▼
+             Workflow / Graph
+                     │
+                     ▼
+       Repository Context / Intelligence
+                     │
+                     ▼
+      ┌──────────────────────────────┐
+      │      Engineering Agents      │
+      │                              │
+      │ Planner                      │
+      │ Researcher                   │
+      │ Architect                    │
+      │ Developer                    │
+      │ Tester                       │
+      │ Reviewer                     │
+      │ Security                     │
+      └──────────────────────────────┘
+                     │
+                     ▼
+              Human Approval
+                     │
+                     ▼
+             Controlled Tools
+                     │
+                     ▼
+        Real Repository Changes
+                     │
+                     ▼
+              Test / Review
+                     │
+                     ▼
+               Security
+                     │
+                     ▼
+              Verification
+                     │
+                     ▼
+           Result + Evidence
 
----
+This is the target architecture, not a claim that the complete flow is currently operational.
 
-## 4. Current vs. Planned Architectural Components
+3. Architectural Principles
 
-| Component | Architecture Role | Status |
-| :--- | :--- | :--- |
-| Gemini Model Layer | LLM Integration & Structured Output | `[IMPLEMENTED]` |
-| 7 Specialized Agents | Reasoning & Artifact Creation | `[IMPLEMENTED]` |
-| LangGraph StateGraph | Stateful Workflow Orchestration | `[IMPLEMENTED]` |
-| Failure Recovery Node | Contextual Failure Routing & Repair | `[IMPLEMENTED]` |
-| Repository Intelligence | AST Graph & Impact Analysis | `[IMPLEMENTED]` |
-| Codebase RAG & Memory | Context Retrieval & Fact Storage | `[IMPLEMENTED]` |
-| Guardrails & Approval | Safety & Risk Policy Enforcement | `[IMPLEMENTED]` |
-| Real GitHub Integration | Production REST Code Operations | `[IMPLEMENTED]` |
-| CLI, API, & Dashboard | User & Developer Interfaces | `[IMPLEMENTED]` |
-| Terminal Sandbox | Isolated Command Runner | `[IN PROGRESS]` |
-| MCP Integration | Standardized Model Context Protocol | `[PLANNED]` |
-| Session Resume/Rewind | Persistent State Checkpointing | `[PLANNED]` |
-| Observability & Tracing | Run Telemetry & Cost Tracking | `[PLANNED]` |
-| Evaluation Suite | Deterministic Quality Benchmarking | `[PLANNED]` |
-| Architecture Simplification | Post-stability Non-breaking Consolidation | `[PLANNED]` |
+AEGIS should follow these principles:
+
+Repository-first
+
+The repository is the primary engineering context.
+
+Agents should work from actual:
+
+files
+symbols
+imports
+APIs
+database structures
+dependencies
+tests
+Git history
+relationships
+runtime evidence
+
+Generic knowledge should supplement repository evidence, not replace it.
+
+Explicit data flow
+
+Important information should move through explicit state and structured outputs.
+
+Avoid hidden communication between components.
+
+Controlled execution
+
+Agents should not freely perform arbitrary destructive operations.
+
+Execution should pass through controlled tools and approval gates where required.
+
+Real integrations
+
+GitHub, filesystem, terminal, database, browser, and other integrations must represent real capabilities.
+
+No fake production integrations or hardcoded success responses.
+
+Shared core
+
+Web, API, and CLI should ultimately invoke the same AEGIS core rather than implementing separate versions of the workflow.
+
+Verification
+
+A successful agent response or tool call does not mean an engineering task succeeded.
+
+AEGIS must verify the resulting repository state.
+
+Simplicity
+
+Do not introduce abstractions merely because they are architecturally possible.
+
+The architecture should remain understandable to a developer working directly in the repository.
+
+4. Major Architectural Domains
+
+The current repository contains the following major domains:
+
+apps/
+agents/
+graph/
+tools/
+repo-intelligence/
+rag/
+memory/
+models/
+evaluation/
+observability/
+database/
+shared/
+docker/
+
+These domains are retained during the MVP integration phase.
+
+Do not redesign the directory structure during MVP integration.
+
+Architecture simplification is a later phase.
+
+5. Application Layer
+apps/web/
+apps/api/
+Web
+
+Responsible for the user-facing AEGIS interface.
+
+Potential responsibilities:
+
+task submission
+repository selection
+workflow visibility
+approval interaction
+execution status
+results
+evidence
+diffs
+API
+
+Responsible for exposing AEGIS capabilities to clients.
+
+Potential responsibilities:
+
+task/session creation
+workflow execution
+repository operations
+approval operations
+status/result retrieval
+integration endpoints
+
+The exact runtime responsibilities must be verified against the repository.
+
+Current verification status: PENDING PHASE 1 AUDIT
+
+6. AEGIS Core / Workflow Layer
+
+The workflow is orchestrated through LangGraph.
+
+Conceptually:
+
+Task
+  │
+  ▼
+Context
+  │
+  ▼
+Investigation
+  │
+  ▼
+Planning
+  │
+  ▼
+Approval
+  │
+  ▼
+Implementation
+  │
+  ▼
+Testing
+  │
+  ▼
+Review
+  │
+  ▼
+Security
+  │
+  ▼
+Verification
+
+The graph is responsible for:
+
+state
+routing
+agent execution
+transitions
+retries/recovery
+workflow progression
+
+The exact production entry point and runtime path must be established during the system audit.
+
+Current verification status: PENDING PHASE 1 AUDIT
+
+7. Agent Layer
+
+Primary engineering agents:
+
+Planner
+Researcher
+Architect
+Developer
+Tester
+Reviewer
+Security
+
+Each agent should have a clearly defined responsibility.
+
+Agents should not duplicate capabilities unnecessarily.
+
+Conceptually:
+
+Agent	Responsibility
+Planner	Convert engineering intent into an actionable plan
+Researcher	Investigate repository and external context
+Architect	Determine appropriate technical approach
+Developer	Implement approved changes
+Tester	Execute and analyze tests
+Reviewer	Inspect implementation and changes
+Security	Identify security issues and risks
+
+The existence of an agent does not prove that the agent participates in the real MVP workflow.
+
+Integration must be verified.
+
+8. Repository Intelligence
+
+Repository Intelligence is a core AEGIS capability.
+
+The intended system progressively understands:
+
+Files
+ ↓
+Symbols
+ ↓
+Imports / Exports
+ ↓
+APIs
+ ↓
+Database
+ ↓
+Dependencies
+ ↓
+Tests
+ ↓
+Git History
+ ↓
+Relationships
+ ↓
+Impact
+
+The long-term objective is a useful representation of the repository rather than simple document retrieval.
+
+Repository Intelligence should eventually answer questions such as:
+
+Where is this behavior implemented?
+What depends on this file?
+Which APIs are affected?
+Which tests cover this behavior?
+What database structures are involved?
+What could this change break?
+What code is relevant to this task?
+
+Current maturity must be established by the Phase 1 audit.
+
+9. RAG
+
+RAG is a supporting capability rather than the product itself.
+
+The intended direction is:
+
+Repository
+     │
+     ▼
+Parsing / Indexing
+     │
+     ▼
+Structured Repository Knowledge
+     │
+     ▼
+Retrieval
+     │
+     ▼
+Task-Relevant Context
+     │
+     ▼
+Agents
+
+RAG should become increasingly:
+
+repository-aware
+relationship-aware
+metadata-aware
+task-aware
+
+AEGIS should avoid retrieving large amounts of irrelevant code.
+
+Current integration status: TO BE VERIFIED
+
+10. Tools
+
+Tools provide controlled capabilities to agents.
+
+Major tool categories include:
+
+Filesystem
+GitHub
+Search
+Terminal
+Database
+Browser
+
+Tools should:
+
+perform real operations
+validate inputs
+expose clear outputs
+enforce relevant safety policies
+report failures explicitly
+
+Tools are capabilities.
+
+They are not the workflow themselves.
+
+The graph and agents must actually invoke the appropriate tools for a real engineering task.
+
+11. Approval and Safety
+
+Meaningful risky or destructive operations require human approval.
+
+Conceptually:
+
+Agent requests action
+        │
+        ▼
+   Risk assessment
+        │
+        ▼
+ ┌───────────────┐
+ │ Approval needed│
+ └───────┬───────┘
+         │
+         ▼
+       Human
+         │
+    ┌────┴────┐
+    │         │
+  Approve    Reject
+    │         │
+    ▼         ▼
+ Execute     Stop
+
+AEGIS must not bypass approval simply to make the workflow appear autonomous.
+
+Execution must remain observable and verifiable.
+
+12. Execution Model
+
+The intended execution model is:
+
+Engineering Task
+      │
+      ▼
+Understand Repository
+      │
+      ▼
+Investigate
+      │
+      ▼
+Plan
+      │
+      ▼
+Human Approval
+      │
+      ▼
+Implement
+      │
+      ▼
+Run Tests
+      │
+      ├── Failure ──► Analyze Failure
+      │                    │
+      │                    ▼
+      │                 Recover
+      │                    │
+      │                    ▼
+      │                 Re-test
+      │
+      ▼
+Review
+      │
+      ▼
+Security
+      │
+      ▼
+Verify
+      │
+      ▼
+Evidence / Result
+
+Failure recovery should preserve useful context.
+
+A failure should not automatically restart the entire workflow from the beginning.
+
+13. Shared Core
+
+The intended relationship between clients is:
+
+              ┌───────────┐
+              │  Web      │
+              └─────┬─────┘
+                    │
+              ┌─────▼─────┐
+              │    API    │
+              └─────┬─────┘
+                    │
+              ┌─────▼─────┐
+              │    CLI    │
+              └─────┬─────┘
+                    │
+                    ▼
+             ┌──────────────┐
+             │ AEGIS Core   │
+             └──────┬───────┘
+                    │
+                    ▼
+              Workflow/Graph
+
+Web, API, and CLI should not develop independent workflow implementations.
+
+They should use the same underlying AEGIS execution model.
+
+Current CLI/core integration status: PENDING VERIFICATION
+
+14. External Integrations
+
+GitHub and other external systems are controlled knowledge/execution surfaces.
+
+GitHub integration must operate against real repositories and real GitHub data.
+
+Credentials and tokens must remain server-side.
+
+External results must not be fabricated.
+
+The exact current integration boundaries must be verified during the runtime audit.
+
+15. Data and Persistence
+
+AEGIS contains persistence-related infrastructure under:
+
+database/
+memory/
+
+Conceptually:
+
+Short-term execution state
+
+Contains information required for the current task/workflow.
+
+Examples:
+
+current task
+repository context
+agent outputs
+tool results
+approvals
+failures
+execution status
+Long-term memory
+
+Should contain selective, reusable engineering knowledge.
+
+It should not become an indiscriminate dump of every interaction.
+
+Exact persistence boundaries require repository verification.
+
+16. Models
+
+The model layer provides access to the underlying AI models and related capabilities.
+
+Conceptually:
+
+Agents
+  │
+  ▼
+Model Layer
+  │
+  ├── LLM
+  ├── Structured Output
+  └── Embeddings
+
+Agents should depend on the model abstraction rather than duplicating model configuration.
+
+The current implementation must be verified against the repository.
+
+17. Evaluation and Observability
+
+These systems support product verification.
+
+Evaluation
+
+Should eventually measure things such as:
+
+task success
+workflow correctness
+agent behavior
+retrieval quality
+failure recovery
+regression behavior
+Observability
+
+Should make it possible to understand:
+
+what AEGIS did
+which agent acted
+which tools were called
+what failed
+what changed
+how the final result was verified
+
+These capabilities should support engineering debugging rather than exist only as isolated infrastructure.
+
+18. Current Architecture vs Intended Architecture
+
+This distinction is mandatory.
+
+Intended
+
+The architecture described above represents the target AEGIS product.
+
+Current Verified
+
+The actual runtime architecture must be determined from:
+
+repository source code
+actual entry points
+graph execution
+agent invocation
+tool invocation
+repository operations
+test execution
+approval behavior
+verification behavior
+
+Until the Phase 1 audit is complete:
+
+Do not mark the intended architecture as fully integrated.
+
+A component can be:
+
+NOT IMPLEMENTED
+STUB
+IMPLEMENTED
+INTEGRATED
+VALIDATED
+BROKEN
+UNKNOWN
+
+These states must be based on evidence.
+
+19. MVP Architecture
+
+The minimum architecture that must actually work is:
+
+User
+ │
+ ▼
+Real Entry Point
+ │
+ ▼
+Task
+ │
+ ▼
+Real Repository
+ │
+ ▼
+Repository Context
+ │
+ ▼
+Investigation / Planning
+ │
+ ▼
+Approval
+ │
+ ▼
+Implementation
+ │
+ ▼
+Real File Changes
+ │
+ ▼
+Real Tests
+ │
+ ▼
+Review / Security
+ │
+ ▼
+Verification
+ │
+ ▼
+Result + Evidence
+
+The MVP is successful only when this path works against a real engineering task.
+
+Individual unit tests for agents, tools, or graph nodes are not sufficient evidence.
+
+20. Architecture Simplification
+
+Architecture simplification is intentionally deferred.
+
+After MVP validation, AEGIS will undergo a dedicated audit to identify:
+
+unnecessary files
+excessive directory fragmentation
+duplicate modules
+unnecessary abstractions
+dead code
+stub code
+duplicated configuration
+unnecessary wrappers
+confusing workflow structure
+
+The goal is:
+
+Same or better capability + fewer unnecessary moving parts + clearer architecture.
+
+No large architectural refactor should be introduced merely because the current structure looks imperfect.
+
+21. Architecture Rule
+
+The repository is the implementation source of truth.
+
+This document describes architectural intent and verified findings.
+
+It must never be used as evidence that a feature works.
+
+Before marking an architectural component as:
+
+INTEGRATED / VALIDATED / COMPLETE
+
+there must be concrete repository or runtime evidence supporting that status.
+
+
+This is the **Architecture.md reset**. The important part is that it no longer lies about the current state—we'll fill the **verified architecture** from the actual repo audit next.

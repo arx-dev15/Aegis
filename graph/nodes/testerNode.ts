@@ -6,8 +6,10 @@
  * Two-phase execution:
  *
  *   Phase 1 — Real terminal execution (when workspace is set):
- *     Runs the configured testCommand inside state.workspace using the
- *     terminal tool. Captures real stdout/stderr/exit code.
+ *     Detects the project's actual test command from package.json "test" script,
+ *     pyproject.toml, pytest.ini, etc. Falls back to AEGIS_TEST_COMMAND env var.
+ *     Runs the detected command inside state.workspace using the terminal tool.
+ *     Captures real stdout/stderr/exit code.
  *
  *   Phase 2 — LLM interpretation:
  *     Feeds real output (or code change context in simulation mode)
@@ -16,6 +18,8 @@
  * When workspace is empty, behaves exactly as before — all existing tests pass.
  */
 
+import fs from "fs";
+import path from "path";
 import type { AegisState, AegisStateUpdate, TestResult } from "../state.js";
 import { TesterAgent, TerminalRunner } from "../../agents/tester/tester.js";
 import { runCommand } from "../../tools/terminal/index.js";
@@ -24,31 +28,77 @@ import { runCommand } from "../../tools/terminal/index.js";
 
 const realTerminalRunner: TerminalRunner = {
   async run(command: string, cwd: string) {
-    return runCommand(command, { cwd, timeoutMs: 120_000 });
+    return runCommand(command, { cwd, timeoutMs: 120_000, executionMode: "automatic" });
   },
 };
 
-// ── Default test command ──────────────────────────────────────────────────────
+// ── Test Command Detection ────────────────────────────────────────────────────
 
 /**
- * The command the Tester runs in the workspace.
- * Can be overridden by setting AEGIS_TEST_COMMAND in environment.
+ * Detect the real test command for a given workspace directory.
+ *
+ * Detection priority:
+ *   1. AEGIS_TEST_COMMAND env var (explicit override)
+ *   2. package.json "scripts.test" (Node.js projects)
+ *   3. pyproject.toml / setup.cfg / pytest.ini (Python projects)
+ *   4. Makefile with a "test" target
+ *   5. Fallback: "npm test"
  */
-const DEFAULT_TEST_COMMAND =
-  process.env["AEGIS_TEST_COMMAND"] ?? "npx tsx --version";
+export function detectTestCommand(workspace: string): string {
+  if (process.env["AEGIS_TEST_COMMAND"]) {
+    return process.env["AEGIS_TEST_COMMAND"];
+  }
+
+  // 1. Node.js — package.json test script
+  const pkgPath = path.join(workspace, "package.json");
+  if (fs.existsSync(pkgPath)) {
+    try {
+      const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
+      const testScript: string | undefined = pkg?.scripts?.test;
+      if (testScript && testScript !== "echo \"Error: no test specified\" && exit 1") {
+        // Use npm test to run it via npm script runner
+        return "npm test";
+      }
+    } catch {}
+    // package.json exists but no test script — still prefer npm test (will report no tests)
+    return "npm test";
+  }
+
+  // 2. Python — pyproject.toml / pytest.ini / setup.cfg
+  if (
+    fs.existsSync(path.join(workspace, "pyproject.toml")) ||
+    fs.existsSync(path.join(workspace, "pytest.ini")) ||
+    fs.existsSync(path.join(workspace, "setup.cfg"))
+  ) {
+    return "python -m pytest --tb=short -q";
+  }
+
+  // 3. Makefile with test target
+  const makefilePath = path.join(workspace, "Makefile");
+  if (fs.existsSync(makefilePath)) {
+    try {
+      const makefile = fs.readFileSync(makefilePath, "utf-8");
+      if (/^test:/m.test(makefile)) {
+        return "make test";
+      }
+    } catch {}
+  }
+
+  // Default fallback
+  return "npm test";
+}
 
 /**
  * Creates a tester node using a provided TesterAgent instance or defaults to standard TesterAgent.
  *
  * @param agent          - Optional TesterAgent to inject (used in tests for mock models).
- * @param testCommand    - Command to run in the workspace. Defaults to AEGIS_TEST_COMMAND env var.
+ * @param testCommand    - Command override. When not provided, auto-detects from workspace.
  */
 export function createTesterNode(
   agent?: TesterAgent,
-  testCommand: string = DEFAULT_TEST_COMMAND
+  testCommand?: string
 ) {
   // Only inject the real terminal runner for the default (non-test) agent.
-  // When an agent is explicitly injected (tests), the caller controls the model.
   const tester = agent ?? new TesterAgent(undefined, realTerminalRunner);
 
   return async function testerNode(state: AegisState): Promise<AegisStateUpdate> {
@@ -76,13 +126,17 @@ export function createTesterNode(
           ? state.workspace.trim()
           : undefined;
 
+      // Bridge 2: auto-detect test command from workspace project type
+      const resolvedTestCommand = testCommand ?? (workspace ? detectTestCommand(workspace) : "npm test");
+
       if (workspace) {
-        executionLog.push(`[TEST-TOOL] Running: ${testCommand} in ${workspace}`);
+        executionLog.push(`[TEST-TOOL] Detected test command: ${resolvedTestCommand}`);
+        executionLog.push(`[TEST-TOOL] Running: ${resolvedTestCommand} in ${workspace}`);
       }
 
       const result = await tester.test(state.task, codeChangesContext, {
         workspace,
-        testCommand: workspace ? testCommand : undefined,
+        testCommand: workspace ? resolvedTestCommand : undefined,
       });
 
       if (workspace) {
@@ -117,3 +171,4 @@ export function createTesterNode(
  * Default Tester Agent node function for standard graph workflows.
  */
 export const testerNode = createTesterNode();
+

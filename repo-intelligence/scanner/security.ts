@@ -31,8 +31,8 @@ export function sanitizeRepositoryContent(content: string): SecuritySanitizeResu
   const redactedKeys: string[] = [];
 
   for (const pattern of SECRET_PATTERNS) {
-    const rxTest = new RegExp(pattern.regex.source, pattern.regex.flags);
-    const rxReplace = new RegExp(pattern.regex.source, pattern.regex.flags);
+    const rxTest = new RegExp(pattern.regex.source, 'i');
+    const rxReplace = new RegExp(pattern.regex.source, 'gi');
 
     if (rxTest.test(sanitized)) {
       hasRedactions = true;

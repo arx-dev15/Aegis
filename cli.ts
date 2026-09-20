@@ -25,8 +25,67 @@ import { buildRelationshipGraph } from './repo-intelligence/relationships/graphE
 import { JsonRepositoryStore } from './repo-intelligence/storage/jsonStore';
 import { RepositorySnapshot } from './repo-intelligence/types';
 import { queryRepositoryIntelligence, getRepositoryStatus } from './repo-intelligence/retrieval/hybridRetriever';
+import { executeApprovalWorkflow, resolveApprovalAndResume } from './graph/approvalWorkflow.js';
 
 const store = new JsonRepositoryStore();
+
+export function resolveTargetWorkspace(taskInput: string, defaultCwd: string): string {
+  const normalizedTask = taskInput.toLowerCase();
+
+  // 1. Explicit path in taskInput (e.g. "in d:\foo\bar" or "in ./bar")
+  const pathMatch = taskInput.match(/(?:in|at|workspace|folder|dir|directory)\s+["']?([a-zA-Z]:\\[^"'\s]+|\/[^"'\s]+|\.[/\\][^"'\s]+)["']?/i);
+  if (pathMatch && fs.existsSync(pathMatch[1])) {
+    try {
+      const stat = fs.statSync(pathMatch[1]);
+      if (stat.isDirectory()) {
+        return path.resolve(pathMatch[1]);
+      }
+    } catch {}
+  }
+
+  // 2. Search bases (defaultCwd, parent directory, grandparent directory)
+  const searchBases = [
+    defaultCwd,
+    path.dirname(defaultCwd),
+    path.dirname(path.dirname(defaultCwd)),
+  ];
+
+  const normTaskAlphaOnly = normalizedTask.replace(/[^a-z0-9]/g, '');
+
+  for (const baseDir of searchBases) {
+    if (!fs.existsSync(baseDir)) continue;
+    try {
+      const entries = fs.readdirSync(baseDir, { withFileTypes: true });
+      for (const entry of entries) {
+        if (!entry.isDirectory()) continue;
+        const folderName = entry.name;
+        if (folderName === 'node_modules' || folderName.startsWith('.')) continue;
+
+        const normFolder = folderName.toLowerCase().replace(/[^a-z0-9]/g, '');
+        if (normFolder.length < 3) continue;
+
+        // If folder name matches task input text directly
+        if (normTaskAlphaOnly.includes(normFolder)) {
+          return path.join(baseDir, folderName);
+        }
+
+        // Alias match for "blog app" / "blog website" -> "Blog_Website" / "Blog Website"
+        if (
+          (normalizedTask.includes('blog app') ||
+            normalizedTask.includes('blog-app') ||
+            normalizedTask.includes('blog_app') ||
+            normalizedTask.includes('blog website') ||
+            normalizedTask.includes('blog_website')) &&
+          normFolder.includes('blog')
+        ) {
+          return path.join(baseDir, folderName);
+        }
+      }
+    } catch {}
+  }
+
+  return defaultCwd;
+}
 
 async function main() {
   const args = process.argv.slice(2);
@@ -243,30 +302,120 @@ COMMANDS:
     return;
   }
 
-  if (command === 'impact') {
-    const repoId = args[1];
-    const targetEntity = args[2];
+    if (command === 'impact') {
+      const repoId = args[1];
+      const targetEntity = args[2];
 
-    if (!repoId || !targetEntity) {
-      console.log('Error: Usage: npx tsx cli.ts impact <repoId> <targetEntity>');
+      if (!repoId || !targetEntity) {
+        console.log('Error: Usage: npx tsx cli.ts impact <repoId> <targetEntity>');
+        return;
+      }
+
+      const snapshot = await store.getSnapshot(repoId);
+      if (!snapshot) {
+        console.log(`Error: Snapshot for repoId="${repoId}" not found. Run "npx tsx cli.ts connect <url>" first.`);
+        return;
+      }
+
+      const res = await queryRepositoryIntelligence({
+        snapshot,
+        query: `If I change ${targetEntity}, what could be affected?`,
+        targetEntity,
+      });
+
+      console.log(`\n${res.formattedContext}\n`);
       return;
     }
 
-    const snapshot = await store.getSnapshot(repoId);
-    if (!snapshot) {
-      console.log(`Error: Snapshot for repoId="${repoId}" not found. Run "npx tsx cli.ts connect <url>" first.`);
+    if (command === 'run') {
+      const runArgs = args.slice(1);
+      const wsFlagIdx = runArgs.indexOf('--workspace');
+      let workspaceOverride: string | undefined;
+      let filteredTaskArgs = runArgs;
+
+      if (wsFlagIdx !== -1 && runArgs[wsFlagIdx + 1]) {
+        workspaceOverride = runArgs[wsFlagIdx + 1];
+        filteredTaskArgs = runArgs.slice(0, wsFlagIdx).concat(runArgs.slice(wsFlagIdx + 2));
+      }
+
+      const taskInput = filteredTaskArgs.join(' ');
+      if (!taskInput) {
+        console.log('Error: Usage: npx tsx cli.ts run "<task_description>" [--workspace <path>]');
+        return;
+      }
+
+      const runId = `run_${Date.now()}`;
+      const defaultCwd = process.cwd();
+      const workspace = workspaceOverride
+        ? path.resolve(workspaceOverride)
+        : resolveTargetWorkspace(taskInput, defaultCwd);
+
+      console.log(`\n🚀 Starting Aegis Engineering Task Workflow...`);
+      console.log(`  Task      : "${taskInput}"`);
+      console.log(`  Workspace : ${workspace}`);
+      console.log(`  Run ID    : ${runId}\n`);
+
+      const initialState = {
+        task: taskInput,
+        workspace: workspace,
+      };
+
+      const finalState = await executeApprovalWorkflow(runId, initialState);
+
+      if (finalState.status === 'paused' && finalState.pendingApproval) {
+        console.log(`\n================================================================`);
+        console.log(` ⏸️  WORKFLOW PAUSED — HUMAN APPROVAL REQUIRED`);
+        console.log(`================================================================`);
+        console.log(`  Run ID      : ${runId}`);
+        console.log(`  Approval ID : ${finalState.pendingApproval.id}`);
+        console.log(`  Action      : ${finalState.pendingApproval.action}`);
+        console.log(`  Target      : ${finalState.pendingApproval.target}`);
+        console.log(`  Reason      : ${finalState.pendingApproval.description}`);
+        console.log(`================================================================`);
+        console.log(`💡 To approve and execute, run:`);
+        console.log(`   npx tsx cli.ts approve ${runId} ${finalState.pendingApproval.id} approve\n`);
+        return;
+      }
+
+      console.log(`\n================================================================`);
+      console.log(` ✅ WORKFLOW COMPLETED SUCCESSFULLY!`);
+      console.log(`================================================================`);
+      console.log(`  Status       : ${finalState.status}`);
+      console.log(`  Code Changes : ${finalState.codeChanges?.length || 0} file(s)`);
+      if (finalState.testResults) {
+        console.log(`  Test Status  : ${finalState.testResults.passed ? 'PASSED ✅' : 'FAILED ❌'}`);
+        console.log(`  Test Summary : ${finalState.testResults.output}`);
+      }
+      if (finalState.executionLog?.length) {
+        console.log(`  Execution Log:`);
+        finalState.executionLog.forEach((l) => console.log(`    - ${l}`));
+      }
+      console.log(`================================================================\n`);
       return;
     }
 
-    const res = await queryRepositoryIntelligence({
-      snapshot,
-      query: `If I change ${targetEntity}, what could be affected?`,
-      targetEntity,
-    });
+    if (command === 'approve') {
+      const runId = args[1];
+      const approvalId = args[2];
+      const decisionArg = (args[3] || 'approve') as 'approve' | 'reject';
 
-    console.log(`\n${res.formattedContext}\n`);
-    return;
-  }
+      if (!runId || !approvalId) {
+        console.log('Error: Usage: npx tsx cli.ts approve <runId> <approvalId> [approve|reject]');
+        return;
+      }
+
+      console.log(`\n🔄 Resuming Aegis Workflow for Run "${runId}" with decision "${decisionArg}"...`);
+      const finalState = await resolveApprovalAndResume(runId, approvalId, decisionArg);
+
+      console.log(`\n================================================================`);
+      console.log(` ✅ WORKFLOW RESUMED AND EXECUTED!`);
+      console.log(`================================================================`);
+      console.log(`  Status       : ${finalState.status}`);
+      console.log(`  Execution Log:`);
+      finalState.executionLog?.forEach((l) => console.log(`    - ${l}`));
+      console.log(`================================================================\n`);
+      return;
+    }
 
   console.log(`Unknown command "${command}". Run "npx tsx cli.ts --help" for options.`);
 }

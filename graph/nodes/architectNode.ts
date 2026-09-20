@@ -19,6 +19,13 @@ export function createArchitectNode(agent?: ArchitectAgent) {
   const architect = agent ?? new ArchitectAgent();
 
   return async function architectNode(state: AegisState): Promise<AegisStateUpdate> {
+    if (state.approvalDecision && state.architecture && state.architecture.trim() !== "") {
+      return {
+        status: "architecting",
+        architecture: state.architecture,
+      };
+    }
+
     if (!state.task || state.task.trim() === "") {
       return {
         status: "failed",

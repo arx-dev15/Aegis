@@ -117,6 +117,77 @@ export function isDangerousAction(action: string, target?: string): { isDangerou
 }
 
 /**
+ * Analyze a terminal command string and determine its risk classification and permission decision.
+ */
+export function analyzeTerminalCommand(command: string): {
+  category: ToolCategory;
+  decision: PermissionDecision;
+  reason: string;
+} {
+  const cmd = command.trim();
+
+  // 1. Dangerous destructive commands & environment dumping -> BLOCK
+  if (
+    /rm\s+-rf/i.test(cmd) ||
+    /del\s+\/[sfq]/i.test(cmd) ||
+    /format\s+[c-z]:/i.test(cmd) ||
+    /\b(shutdown|reboot|poweroff|init\s+0)\b/i.test(cmd) ||
+    /\bsudo\b/i.test(cmd) ||
+    /\bchmod\b/i.test(cmd) ||
+    /\bchown\b/i.test(cmd) ||
+    /^\s*(env|printenv|set)\s*$/i.test(cmd) ||
+    /^\s*(env|printenv|set)\s*\|/i.test(cmd) ||
+    /\/etc\/(passwd|shadow|sudoers)/i.test(cmd) ||
+    /c:\\windows\\system32/i.test(cmd)
+  ) {
+    return {
+      category: "dangerous",
+      decision: "BLOCK",
+      reason: `Command "${cmd}" blocked by security policy (destructive operation, privilege escalation, or environment secret dumping).`,
+    };
+  }
+
+  // 2. Safe read-only / test / build inspection commands -> ALLOW
+  const isSafeCommand =
+    /^git\s+(status|diff|log|branch|show)\b/i.test(cmd) ||
+    /^(npm|npx|pnpm|yarn)\s+(test|run\s+build|run\s+test|tsc\s+--noEmit|--version)\b/i.test(cmd) ||
+    /^\s*npx\s+tsc\b/i.test(cmd) ||
+    /^\s*(ls|dir|pwd|echo|node\s+--version|npm\s+--version|python\s+--version|python3\s+--version)\b/i.test(cmd);
+
+  if (isSafeCommand) {
+    return {
+      category: "read-only",
+      decision: "ALLOW",
+      reason: `Safe inspection / build / test command "${cmd}" allowed automatically.`,
+    };
+  }
+
+  // 3. Risky commands (script execution, package install, git mutations) -> REQUIRE_APPROVAL
+  const isRiskyCommand =
+    /^python\b/i.test(cmd) ||
+    /^python3\b/i.test(cmd) ||
+    /^node\s+[^-]/i.test(cmd) ||
+    /^npm\s+(install|i|add|publish)\b/i.test(cmd) ||
+    /^git\s+(push|reset|checkout|commit|rebase|merge)\b/i.test(cmd) ||
+    /^\s*(touch|mkdir|cp|mv|rm)\b/i.test(cmd);
+
+  if (isRiskyCommand) {
+    return {
+      category: "sensitive-mutation",
+      decision: "REQUIRE_APPROVAL",
+      reason: `Potentially risky script/package/repo execution command "${cmd}" requires human approval before execution.`,
+    };
+  }
+
+  // Default terminal execution policy -> REQUIRE_APPROVAL for unclassified arbitrary commands
+  return {
+    category: "sensitive-mutation",
+    decision: "REQUIRE_APPROVAL",
+    reason: `Terminal execution of "${cmd}" requires human approval by default policy.`,
+  };
+}
+
+/**
  * Classify a tool request into a clear ToolCategory.
  */
 export function classifyToolAction(toolName: string, action: string, target?: string): ToolCategory {
@@ -127,6 +198,12 @@ export function classifyToolAction(toolName: string, action: string, target?: st
 
   const actLower = action.toLowerCase();
   const toolLower = toolName.toLowerCase();
+
+  if (toolLower === "terminal" || actLower === "execute_terminal" || actLower === "run_command") {
+    if (target) {
+      return analyzeTerminalCommand(target).category;
+    }
+  }
 
   if (READ_ONLY_ACTIONS.has(actLower) || READ_ONLY_ACTIONS.has(toolLower)) {
     return "read-only";
@@ -158,6 +235,62 @@ export function evaluatePermission(input: PermissionEvaluationInput): Permission
       reason: dangerousCheck.reason || `Action "${action}" on target "${target || "N/A"}" is classified as dangerous.`,
       code: "ERR_DANGEROUS_ACTION_BLOCKED",
     };
+  }
+
+  const actLower = action.toLowerCase();
+  const toolLower = toolName.toLowerCase();
+
+  // 1b. Specific granular check for terminal execution tool
+  if (toolLower === "terminal" || actLower === "execute_terminal" || actLower === "run_command") {
+    const termAnalysis = analyzeTerminalCommand(target || action);
+    if (termAnalysis.decision === "BLOCK") {
+      return {
+        allowed: false,
+        decision: "BLOCK",
+        category: "dangerous",
+        reason: termAnalysis.reason,
+        code: "ERR_TERMINAL_COMMAND_BLOCKED",
+      };
+    }
+
+    if (termAnalysis.decision === "ALLOW") {
+      return {
+        allowed: true,
+        decision: "ALLOW",
+        category: termAnalysis.category,
+        reason: termAnalysis.reason,
+      };
+    }
+
+    if (termAnalysis.decision === "REQUIRE_APPROVAL") {
+      if (executionMode === "automatic" && riskLevel !== "critical") {
+        return {
+          allowed: true,
+          decision: "ALLOW",
+          category: "sensitive-mutation",
+          reason: `Terminal command "${target || action}" allowed automatically under automatic execution mode.`,
+        };
+      }
+
+      const apprReq = createApprovalRequest({
+        runId,
+        type: "command-execution",
+        action: "execute_terminal",
+        title: `Approve terminal command: ${target || action}`,
+        description: termAnalysis.reason,
+        target: target || action,
+        riskLevel: riskLevel || "high",
+        requestedBy: toolName,
+      });
+
+      return {
+        allowed: false,
+        decision: "REQUIRE_APPROVAL",
+        category: "sensitive-mutation",
+        reason: termAnalysis.reason,
+        approvalRequest: apprReq,
+      };
+    }
   }
 
   const category = classifyToolAction(toolName, action, target);

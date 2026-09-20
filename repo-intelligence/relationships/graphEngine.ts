@@ -324,33 +324,66 @@ export function buildRelationshipGraph(input: BuildGraphInput): RelationshipReco
     }
   }
 
-  // 8. SYMBOL USES RELATIONSHIPS (e.g. AuthController USES AuthService)
+  // 8. SYMBOL USES RELATIONSHIPS (AST-bounded identifier & type references)
+  // Store existing CALLS edges for deduplication
+  const existingCallsSet = new Set<string>();
+  for (const rel of relationships) {
+    if (rel.type === 'CALLS') {
+      existingCallsSet.add(`${rel.sourceId}->${rel.targetId}`);
+    }
+  }
+
   for (const sym of symbols) {
     if (!fileContents || !fileContents[sym.filePath]) continue;
-    const content = fileContents[sym.filePath];
+    const fullContent = fileContents[sym.filePath];
 
-    for (const targetSym of symbols) {
-      if (
-        sym.id !== targetSym.id &&
-        targetSym.name.length > 3 &&
-        (targetSym.kind === 'class' || targetSym.kind === 'function' || targetSym.kind === 'method')
-      ) {
-        if (content.includes(targetSym.name)) {
-          addRel(
-            sym.id,
-            'symbol',
-            targetSym.id,
-            'symbol',
-            'USES',
-            {
-              filePath: sym.filePath,
-              startLine: sym.startLine,
-              endLine: sym.endLine,
-              reason: `Symbol ${sym.name} references ${targetSym.kind} ${targetSym.name}`,
-            },
-            'inferred'
-          );
-        }
+    // Extract symbol's specific line slice
+    const lines = fullContent.split('\n');
+    const startIdx = lines.length < sym.startLine ? 0 : Math.max(0, sym.startLine - 1);
+    const endIdx = lines.length < sym.endLine ? lines.length : Math.min(lines.length, sym.endLine);
+    const symSnippet = lines.slice(startIdx, endIdx).join('\n');
+
+    // Candidate target symbols: imported into this file or in same file
+    const importedFilePaths = importsExports
+      .filter((ie) => ie.fileId === sym.fileId && ie.type === 'import' && ie.resolvedFilePath)
+      .map((ie) => ie.resolvedFilePath!);
+
+    const candidateTargets = symbols.filter((targetSym) => {
+      if (targetSym.id === sym.id) return false;
+      if (targetSym.fileId === sym.fileId) return true;
+      if (importedFilePaths.includes(targetSym.filePath)) return true;
+      return false;
+    });
+
+    for (const targetSym of candidateTargets) {
+      if (existingCallsSet.has(`${sym.id}->${targetSym.id}`)) continue;
+
+      // Check if target symbol name appears as an exact identifier token inside symSnippet
+      const rxToken = new RegExp(`\\b${targetSym.name}\\b`);
+      const isParamTypeMatch = sym.parameters?.some((p) => p.type && rxToken.test(p.type));
+      const isReturnTypeMatch = sym.returnType && rxToken.test(sym.returnType);
+
+      if (isParamTypeMatch || isReturnTypeMatch || rxToken.test(symSnippet)) {
+        const edgeReason = isParamTypeMatch
+          ? `Symbol ${sym.name} parameter type references ${targetSym.name}`
+          : isReturnTypeMatch
+          ? `Symbol ${sym.name} return type references ${targetSym.name}`
+          : `Symbol ${sym.name} references identifier ${targetSym.kind} ${targetSym.name}`;
+
+        addRel(
+          sym.id,
+          'symbol',
+          targetSym.id,
+          'symbol',
+          'USES',
+          {
+            filePath: sym.filePath,
+            startLine: sym.startLine,
+            endLine: sym.endLine,
+            reason: edgeReason,
+          },
+          'exact'
+        );
       }
     }
   }

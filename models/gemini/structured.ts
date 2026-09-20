@@ -123,12 +123,12 @@ export async function callStructured<T extends z.ZodTypeAny>(
   config: GeminiConfig = {}
 ): Promise<z.infer<T>> {
   const client = getClient();
-  const modelName = config.model ?? "gemini-3.5-flash";
+  const primaryModel = config.model ?? process.env.GEMINI_MODEL ?? "gemini-3.6-flash";
+  const FALLBACK_MODELS = Array.from(new Set([primaryModel, "gemini-3.6-flash", "gemini-3.7-flash", "gemini-3.5-flash", "gemini-flash-latest"]));
 
-  // Retry up to 3 times on transient errors with exponential backoff (2s, 4s, 8s)
-  async function callOnce(): Promise<z.infer<T>> {
+  async function callOnceWithModel(targetModel: string): Promise<z.infer<T>> {
     const response = await client.models.generateContent({
-      model: modelName,
+      model: targetModel,
       contents: prompt,
       config: {
         temperature: config.temperature ?? 0.2,
@@ -139,36 +139,41 @@ export async function callStructured<T extends z.ZodTypeAny>(
 
     const text = response.text ?? "";
     const parsed = JSON.parse(text);
-
-    // Strip nulls before Zod validation (Google returns null for absent optional fields)
     const cleaned = stripNulls(parsed);
-
     return schema.parse(cleaned) as z.infer<T>;
   }
 
-  const MAX_RETRIES = 3;
   let lastError: unknown;
 
-  for (let i = 0; i <= MAX_RETRIES; i++) {
-    try {
-      return await callOnce();
-    } catch (err) {
-      lastError = err;
-      const msg = String(err);
-      const isTransient =
-        msg.includes("503") ||
-        msg.includes("429") ||
-        msg.includes("UNAVAILABLE") ||
-        msg.includes("RESOURCE_EXHAUSTED") ||
-        msg.includes("high demand");
+  for (const targetModel of FALLBACK_MODELS) {
+    const MAX_RETRIES = 2;
+    for (let i = 0; i <= MAX_RETRIES; i++) {
+      try {
+        return await callOnceWithModel(targetModel);
+      } catch (err) {
+        lastError = err;
+        const msg = String((err as any)?.message || err);
+        const isTransient =
+          msg.includes("503") ||
+          msg.includes("429") ||
+          msg.includes("UNAVAILABLE") ||
+          msg.includes("RESOURCE_EXHAUSTED") ||
+          msg.includes("high demand") ||
+          msg.includes("Quota exceeded");
 
-      if (isTransient && i < MAX_RETRIES) {
-        const backoffMs = Math.pow(2, i + 1) * 1000; // 2s, 4s, 8s
-        await new Promise((r) => setTimeout(r, backoffMs));
-        continue;
+        if (isTransient && i < MAX_RETRIES) {
+          const backoffMs = Math.pow(2, i + 1) * 1000;
+          await new Promise((r) => setTimeout(r, backoffMs));
+          continue;
+        }
+        break;
       }
-      throw err;
     }
+  }
+
+  const rawMsg = (lastError as any)?.message || String(lastError);
+  if (rawMsg.includes("429") || rawMsg.includes("RESOURCE_EXHAUSTED")) {
+    throw new Error(`[GEMINI-RATE-LIMIT] Gemini API Rate Limit / Quota Exceeded (HTTP 429). Free tier request quota reached. Please wait ~30-60 seconds for quota reset or update GOOGLE_API_KEY in .env.`);
   }
 
   throw lastError;

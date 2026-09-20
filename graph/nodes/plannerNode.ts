@@ -19,6 +19,14 @@ export function createPlannerNode(agent?: PlannerAgent) {
   const planner = agent ?? new PlannerAgent();
 
   return async function plannerNode(state: AegisState): Promise<AegisStateUpdate> {
+    if (state.approvalDecision && state.plan && state.plan.length > 0) {
+      return {
+        status: "planning",
+        plan: state.plan,
+        research: state.research,
+      };
+    }
+
     if (!state.task || state.task.trim() === "") {
       return {
         status: "failed",

@@ -13,10 +13,16 @@ import { plannerNode } from "./nodes/plannerNode.js";
 import { researcherNode } from "./nodes/researcherNode.js";
 import { architectNode } from "./nodes/architectNode.js";
 import { createDeveloperNode } from "./nodes/developerNode.js";
+import { createTesterNode } from "./nodes/testerNode.js";
+import { createReviewerNode } from "./nodes/reviewerNode.js";
+import { recoveryNode } from "./nodes/recoveryNode.js";
 import { requiresApproval, createApprovalRequest } from "./edges/approvalGate.js";
 import { ApprovalRequest, ApprovalDecision } from "./approvalTypes.js";
 
 // ── In-memory active runs registry for approval runtime ──────────────────────
+
+import fs from "fs";
+import path from "path";
 
 interface ActiveRun {
   runId: string;
@@ -27,30 +33,79 @@ interface ActiveRun {
 
 class ApprovalRuntime {
   private activeRuns: Map<string, ActiveRun> = new Map();
-  private checkpointer = new MemorySaver();
+
+  private getRunsDir(): string {
+    const dir = path.resolve(process.cwd(), ".aegis", "runs");
+    try {
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+    } catch {}
+    return dir;
+  }
+
+  private getRunFilePath(runId: string): string {
+    const safeId = runId.replace(/[^a-zA-Z0-9_-]/g, "_");
+    return path.join(this.getRunsDir(), `${safeId}.json`);
+  }
 
   public getRun(runId: string): ActiveRun | null {
-    return this.activeRuns.get(runId) || null;
+    if (this.activeRuns.has(runId)) {
+      return this.activeRuns.get(runId)!;
+    }
+    return this.loadRunFromDisk(runId);
+  }
+
+  public loadRunFromDisk(runId: string): ActiveRun | null {
+    try {
+      const filePath = this.getRunFilePath(runId);
+      if (fs.existsSync(filePath)) {
+        const raw = fs.readFileSync(filePath, "utf-8");
+        const parsed = JSON.parse(raw) as ActiveRun;
+        if (parsed && parsed.runId) {
+          this.activeRuns.set(runId, parsed);
+          return parsed;
+        }
+      }
+    } catch {}
+    return null;
   }
 
   public registerRun(runId: string, initialState: AegisState): ActiveRun {
     const run: ActiveRun = {
       runId,
       state: initialState,
-      pendingApproval: null,
+      pendingApproval: initialState.pendingApproval || null,
       history: [initialState],
     };
     this.activeRuns.set(runId, run);
+    this.persistRunToDisk(run);
     return run;
   }
 
   public updateRunState(runId: string, newState: AegisState): void {
-    const run = this.activeRuns.get(runId);
-    if (run) {
+    let run = this.activeRuns.get(runId) || this.loadRunFromDisk(runId);
+    if (!run) {
+      run = {
+        runId,
+        state: newState,
+        pendingApproval: newState.pendingApproval || null,
+        history: [newState],
+      };
+    } else {
       run.state = newState;
-      run.pendingApproval = newState.pendingApproval;
+      run.pendingApproval = newState.pendingApproval || null;
       run.history.push(newState);
     }
+    this.activeRuns.set(runId, run);
+    this.persistRunToDisk(run);
+  }
+
+  public persistRunToDisk(run: ActiveRun): void {
+    try {
+      const filePath = this.getRunFilePath(run.runId);
+      fs.writeFileSync(filePath, JSON.stringify(run, null, 2), "utf-8");
+    } catch {}
   }
 
   public clear(): void {
@@ -138,6 +193,39 @@ export function routeAfterApprovalCheck(state: AegisState): string {
   return "developerNode";
 }
 
+/**
+ * After tester runs, route based on result:
+ *   - Tests passed → reviewerNode
+ *   - Tests failed and retries remain → recoveryNode
+ *   - Tests failed and retries exhausted → END (with failed status)
+ */
+function approvalRouteAfterTester(state: AegisState): string {
+  if (state.testResults && state.testResults.passed) {
+    return "reviewerNode";
+  }
+  // Tests failed — check retry budget
+  if ((state.retryCount ?? 0) < (state.maxRetries ?? 3)) {
+    return "recoveryNode";
+  }
+  return END; // Exhausted retries
+}
+
+/**
+ * After reviewer runs, route based on result:
+ *   - Approved → END (workflow complete)
+ *   - Rejected and retries remain → recoveryNode
+ *   - Rejected and retries exhausted → END
+ */
+function approvalRouteAfterReviewer(state: AegisState): string {
+  if (state.reviewResults && state.reviewResults.approved) {
+    return END;
+  }
+  if ((state.retryCount ?? 0) < (state.maxRetries ?? 3)) {
+    return "recoveryNode";
+  }
+  return END;
+}
+
 // ── Graph Builder ─────────────────────────────────────────────────────────────
 
 export function buildApprovalWorkflow(customNodes?: {
@@ -146,6 +234,9 @@ export function buildApprovalWorkflow(customNodes?: {
   architect?: any;
   approvalCheck?: any;
   developer?: any;
+  tester?: any;
+  reviewer?: any;
+  recovery?: any;
   rejection?: any;
 }) {
   const planner = customNodes?.planner ?? plannerNode;
@@ -153,6 +244,9 @@ export function buildApprovalWorkflow(customNodes?: {
   const architect = customNodes?.architect ?? architectNode;
   const approvalCheck = customNodes?.approvalCheck ?? approvalCheckNode;
   const developer = customNodes?.developer ?? createDeveloperNode();
+  const tester = customNodes?.tester ?? createTesterNode();
+  const reviewer = customNodes?.reviewer ?? createReviewerNode();
+  const recovery = customNodes?.recovery ?? recoveryNode;
   const rejection = customNodes?.rejection ?? rejectionNode;
 
   const workflow = new StateGraph(AegisStateAnnotation)
@@ -160,18 +254,31 @@ export function buildApprovalWorkflow(customNodes?: {
     .addNode("researcher", researcher)
     .addNode("architect", architect)
     .addNode("approvalCheck", approvalCheck)
-    .addNode("developer", developer)
+    .addNode("developerNode", developer)
+    .addNode("testerNode", tester)
+    .addNode("reviewerNode", reviewer)
+    .addNode("recoveryNode", recovery)
     .addNode("rejection", rejection)
     .addEdge(START, "planner")
     .addEdge("planner", "researcher")
     .addEdge("researcher", "architect")
     .addEdge("architect", "approvalCheck")
     .addConditionalEdges("approvalCheck", routeAfterApprovalCheck, {
-      developerNode: "developer",
+      developerNode: "developerNode",
       rejectionNode: "rejection",
       [END]: END,
     })
-    .addEdge("developer", END)
+    .addEdge("developerNode", "testerNode")
+    .addConditionalEdges("testerNode", approvalRouteAfterTester, {
+      reviewerNode: "reviewerNode",
+      recoveryNode: "recoveryNode",
+      [END]: END,
+    })
+    .addConditionalEdges("reviewerNode", approvalRouteAfterReviewer, {
+      recoveryNode: "recoveryNode",
+      [END]: END,
+    })
+    .addEdge("recoveryNode", "developerNode") // retry loop: recovery → developer → tester → reviewer
     .addEdge("rejection", END);
 
   return workflow.compile({ checkpointer: new MemorySaver() });
@@ -233,6 +340,10 @@ export async function resolveApprovalAndResume(
   const threadConfig = { configurable: { thread_id: runId } };
   const currentRun = approvalRuntime.getRun(runId);
 
+  if (!currentRun || !currentRun.state || !currentRun.state.task) {
+    throw new Error(`Run state for runId "${runId}" not found or empty on disk. Cannot resume approval workflow.`);
+  }
+
   const decision: ApprovalDecision = {
     approvalId,
     action,
@@ -240,15 +351,15 @@ export async function resolveApprovalAndResume(
     decidedAt: Date.now(),
   };
 
-  const updatedState: Partial<AegisState> = {
-    ...(currentRun?.state || {}),
+  const updatedState: AegisState = {
+    ...currentRun.state,
     runId,
     approvalDecision: decision,
     pendingApproval: null,
   };
 
   // Resume workflow from checkpoint with decision attached
-  const resultState = await workflowInstance.invoke(updatedState as AegisState, threadConfig);
+  const resultState = await workflowInstance.invoke(updatedState, threadConfig);
   approvalRuntime.updateRunState(runId, resultState as AegisState);
 
   return resultState as AegisState;

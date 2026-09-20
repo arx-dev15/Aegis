@@ -1,0 +1,1685 @@
+{
+  "repository": {
+    "id": "repo_local_local_repo_b_ground_truth",
+    "provider": "local",
+    "owner": "local",
+    "name": "repo_b_ground_truth",
+    "url": "D:\\Rakshith\\Code Playback\\Aegis\\.tmp\\repo_b_ground_truth",
+    "defaultBranch": "main",
+    "analyzedRevision": "main",
+    "commitSha": "latest",
+    "status": "ready",
+    "createdAt": "2026-09-05T15:35:09.788Z",
+    "updatedAt": "2026-09-05T15:35:09.788Z"
+  },
+  "files": [
+    {
+      "id": "file_b9cfc7f2cdf7",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "path": "package.json",
+      "name": "package.json",
+      "extension": ".json",
+      "language": "JSON",
+      "size": 180,
+      "hash": "7526ea279ff07908",
+      "category": "CONFIG",
+      "lines": 1,
+      "revision": "main"
+    },
+    {
+      "id": "file_852625ee5afa",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "path": "src/controllers/projectController.ts",
+      "name": "projectController.ts",
+      "extension": ".ts",
+      "language": "TypeScript",
+      "size": 296,
+      "hash": "4a41200f71f8e659",
+      "category": "SOURCE",
+      "lines": 12,
+      "revision": "main"
+    },
+    {
+      "id": "file_4869b057b0ba",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "path": "src/models/project.ts",
+      "name": "project.ts",
+      "extension": ".ts",
+      "language": "TypeScript",
+      "size": 60,
+      "hash": "387aca82b1e1b895",
+      "category": "SOURCE",
+      "lines": 6,
+      "revision": "main"
+    },
+    {
+      "id": "file_d8e6433ea531",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "path": "src/services/projectService.ts",
+      "name": "projectService.ts",
+      "extension": ".ts",
+      "language": "TypeScript",
+      "size": 264,
+      "hash": "a11a6794f7cd5456",
+      "category": "SOURCE",
+      "lines": 12,
+      "revision": "main"
+    },
+    {
+      "id": "file_cb385086df13",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "path": "tests/projectService.test.ts",
+      "name": "projectService.test.ts",
+      "extension": ".ts",
+      "language": "TypeScript",
+      "size": 325,
+      "hash": "d3b99219afe3bd1e",
+      "category": "TEST",
+      "lines": 12,
+      "revision": "main"
+    }
+  ],
+  "symbols": [
+    {
+      "id": "sym_file_852625ee5afa_ProjectController_4",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "fileId": "file_852625ee5afa",
+      "filePath": "src/controllers/projectController.ts",
+      "name": "ProjectController",
+      "kind": "class",
+      "startLine": 4,
+      "endLine": 11,
+      "exported": true,
+      "visibility": "public",
+      "language": "TypeScript"
+    },
+    {
+      "id": "sym_file_852625ee5afa_create_7",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "fileId": "file_852625ee5afa",
+      "filePath": "src/controllers/projectController.ts",
+      "name": "create",
+      "kind": "method",
+      "startLine": 7,
+      "endLine": 10,
+      "parentSymbolId": "sym_file_852625ee5afa_ProjectController_4",
+      "exported": false,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "req",
+          "type": "any",
+          "optional": false
+        },
+        {
+          "name": "res",
+          "type": "any",
+          "optional": false
+        }
+      ],
+      "language": "TypeScript",
+      "calls": [
+        {
+          "targetName": "this.projectService.createProject",
+          "line": 8
+        },
+        {
+          "targetName": "res.json",
+          "line": 9
+        }
+      ]
+    },
+    {
+      "id": "sym_file_4869b057b0ba_Project_2",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "fileId": "file_4869b057b0ba",
+      "filePath": "src/models/project.ts",
+      "name": "Project",
+      "kind": "interface",
+      "startLine": 2,
+      "endLine": 5,
+      "exported": true,
+      "language": "TypeScript"
+    },
+    {
+      "id": "sym_file_d8e6433ea531_ProjectService_4",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "fileId": "file_d8e6433ea531",
+      "filePath": "src/services/projectService.ts",
+      "name": "ProjectService",
+      "kind": "class",
+      "startLine": 4,
+      "endLine": 11,
+      "exported": true,
+      "visibility": "public",
+      "language": "TypeScript"
+    },
+    {
+      "id": "sym_file_d8e6433ea531_createProject_5",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "fileId": "file_d8e6433ea531",
+      "filePath": "src/services/projectService.ts",
+      "name": "createProject",
+      "kind": "method",
+      "startLine": 5,
+      "endLine": 7,
+      "parentSymbolId": "sym_file_d8e6433ea531_ProjectService_4",
+      "exported": false,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "name",
+          "type": "string",
+          "optional": false
+        }
+      ],
+      "returnType": "Promise<Project>",
+      "language": "TypeScript",
+      "calls": []
+    },
+    {
+      "id": "sym_file_d8e6433ea531_findProject_8",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "fileId": "file_d8e6433ea531",
+      "filePath": "src/services/projectService.ts",
+      "name": "findProject",
+      "kind": "method",
+      "startLine": 8,
+      "endLine": 10,
+      "parentSymbolId": "sym_file_d8e6433ea531_ProjectService_4",
+      "exported": false,
+      "visibility": "public",
+      "parameters": [
+        {
+          "name": "id",
+          "type": "string",
+          "optional": false
+        }
+      ],
+      "returnType": "Promise<Project | null>",
+      "language": "TypeScript",
+      "calls": []
+    },
+    {
+      "id": "sym_file_cb385086df13_service_7",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "fileId": "file_cb385086df13",
+      "filePath": "tests/projectService.test.ts",
+      "name": "service",
+      "kind": "constant",
+      "startLine": 7,
+      "endLine": 7,
+      "exported": false,
+      "language": "TypeScript",
+      "calls": [
+        {
+          "targetName": "ProjectService",
+          "line": 7
+        }
+      ]
+    },
+    {
+      "id": "sym_file_cb385086df13_p_8",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "fileId": "file_cb385086df13",
+      "filePath": "tests/projectService.test.ts",
+      "name": "p",
+      "kind": "constant",
+      "startLine": 8,
+      "endLine": 8,
+      "exported": false,
+      "language": "TypeScript",
+      "calls": [
+        {
+          "targetName": "service.createProject",
+          "line": 8
+        }
+      ]
+    }
+  ],
+  "importsExports": [
+    {
+      "id": "imp_file_852625ee5afa_1",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "fileId": "file_852625ee5afa",
+      "filePath": "src/controllers/projectController.ts",
+      "type": "import",
+      "moduleSpecifier": "../services/projectService",
+      "resolvedFilePath": "src/services/projectService.ts",
+      "symbols": [
+        "ProjectService"
+      ],
+      "line": 2
+    },
+    {
+      "id": "imp_file_d8e6433ea531_1",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "fileId": "file_d8e6433ea531",
+      "filePath": "src/services/projectService.ts",
+      "type": "import",
+      "moduleSpecifier": "../models/project",
+      "resolvedFilePath": "src/models/project.ts",
+      "symbols": [
+        "Project"
+      ],
+      "line": 2
+    },
+    {
+      "id": "imp_file_cb385086df13_1",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "fileId": "file_cb385086df13",
+      "filePath": "tests/projectService.test.ts",
+      "type": "import",
+      "moduleSpecifier": "vitest",
+      "symbols": [
+        "describe",
+        "it",
+        "expect"
+      ],
+      "line": 2
+    },
+    {
+      "id": "imp_file_cb385086df13_2",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "fileId": "file_cb385086df13",
+      "filePath": "tests/projectService.test.ts",
+      "type": "import",
+      "moduleSpecifier": "../src/services/projectService",
+      "resolvedFilePath": "src/services/projectService.ts",
+      "symbols": [
+        "ProjectService"
+      ],
+      "line": 3
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "dep_file_b9cfc7f2cdf7_1",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "name": "express",
+      "version": "^4.18.2",
+      "type": "runtime",
+      "packageManager": "npm",
+      "manifestPath": "package.json"
+    },
+    {
+      "id": "dep_file_b9cfc7f2cdf7_2",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "name": "@prisma/client",
+      "version": "^5.0.0",
+      "type": "runtime",
+      "packageManager": "npm",
+      "manifestPath": "package.json"
+    },
+    {
+      "id": "dep_file_b9cfc7f2cdf7_3",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "name": "typescript",
+      "version": "^5.0.0",
+      "type": "dev",
+      "packageManager": "npm",
+      "manifestPath": "package.json"
+    },
+    {
+      "id": "dep_file_b9cfc7f2cdf7_4",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "name": "vitest",
+      "version": "^1.0.0",
+      "type": "dev",
+      "packageManager": "npm",
+      "manifestPath": "package.json"
+    }
+  ],
+  "apis": [],
+  "databases": [],
+  "tests": [
+    {
+      "id": "test_file_cb385086df13_1",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "fileId": "file_cb385086df13",
+      "filePath": "tests/projectService.test.ts",
+      "testName": "ProjectService",
+      "framework": "Vitest / Jest",
+      "targetFilePaths": [
+        "src/services/projectService.ts"
+      ],
+      "targetSymbolIds": [
+        "sym_file_4869b057b0ba_Project_2",
+        "sym_file_d8e6433ea531_ProjectService_4",
+        "sym_file_d8e6433ea531_createProject_5"
+      ]
+    },
+    {
+      "id": "test_file_cb385086df13_2",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "fileId": "file_cb385086df13",
+      "filePath": "tests/projectService.test.ts",
+      "testName": "should create project",
+      "framework": "Vitest / Jest",
+      "targetFilePaths": [
+        "src/services/projectService.ts"
+      ],
+      "targetSymbolIds": [
+        "sym_file_d8e6433ea531_ProjectService_4",
+        "sym_file_d8e6433ea531_createProject_5"
+      ]
+    }
+  ],
+  "gitCommits": [
+    {
+      "id": "commit_7770f616",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sha": "7770f616f8596d64195699aea3f7167c1eaa8b2d",
+      "author": "arx-dev15",
+      "email": "raks96758@gmail.com",
+      "timestamp": "2026-09-05T18:27:49+05:30",
+      "message": "Github integration",
+      "changedFiles": [
+        ".gemini/antigravity-ide/brain/repo_intelligence/index.json",
+        ".gemini/antigravity-ide/brain/repo_intelligence/repo_github_arx-dev15_tax-advisor.snapshot.json",
+        ".gemini/antigravity-ide/brain/repo_intelligence/repo_github_expressjs_express.snapshot.json",
+        ".gemini/antigravity-ide/brain/repo_intelligence/repo_hybrid_test.snapshot.json",
+        ".gemini/antigravity-ide/brain/repo_intelligence/repo_local_Aegis_mtlqq6eh.snapshot.json",
+        ".gemini/antigravity-ide/brain/repo_intelligence/repo_local_Aegis_mtlr8ttn.snapshot.json",
+        ".gemini/antigravity-ide/brain/repo_intelligence/repo_local_Aegis_mtlsnljf.snapshot.json",
+        ".gemini/antigravity-ide/brain/repo_intelligence/repo_local_Aegis_mtltdnsg.snapshot.json",
+        ".gemini/antigravity-ide/brain/repo_intelligence/repo_local_Aegis_mto8qwru.snapshot.json",
+        ".gemini/antigravity-ide/brain/repo_intelligence/repo_local_Aegis_mto9brdo.snapshot.json",
+        ".gemini/antigravity-ide/brain/repo_intelligence/repo_local_local_aegis.snapshot.json",
+        ".gemini/antigravity-ide/brain/repo_intelligence/repo_local_local_payment-app.snapshot.json",
+        ".gemini/antigravity-ide/brain/repo_intelligence/repo_showcase_test.snapshot.json",
+        ".gemini/antigravity-ide/brain/repo_intelligence/repo_test.snapshot.json",
+        ".tmp/repo_ingest/expressjs_express_mtlsklz2",
+        "AGENT_BUILD_CONTEXT.md",
+        "Agent_Flow.md",
+        "Architecture.md",
+        "Build_plan.md",
+        "Directory-architecture.md",
+        "Implementation_Plan.md",
+        "Must_build.md",
+        "Next_builds.md",
+        "PR.md",
+        "README.md",
+        "apps/api/controllers/repoIntelligence.ts",
+        "apps/api/routes/index.ts",
+        "apps/api/routes/repoIntelligence.ts",
+        "apps/web/components/repo-explorer/RepoExplorer.tsx",
+        "cli.ts",
+        "database/migrations/002_repo_intelligence.sql",
+        "repo-intelligence/connection/connectionManager.ts",
+        "repo-intelligence/connection/remoteIngestion.ts",
+        "repo-intelligence/extractors/apiExtractor.ts",
+        "repo-intelligence/extractors/databaseExtractor.ts",
+        "repo-intelligence/extractors/dependencyExtractor.ts",
+        "repo-intelligence/extractors/importExportExtractor.ts",
+        "repo-intelligence/extractors/testExtractor.ts",
+        "repo-intelligence/git/gitAnalyzer.ts",
+        "repo-intelligence/incremental/reanalyzer.ts",
+        "repo-intelligence/index.ts",
+        "repo-intelligence/parsers/tsCompilerLoader.ts",
+        "repo-intelligence/parsers/tsParser.ts",
+        "repo-intelligence/relationships/graphEngine.ts",
+        "repo-intelligence/repoIntelligence.test.ts",
+        "repo-intelligence/retrieval/hybridRetriever.ts",
+        "repo-intelligence/scanner/classifier.ts",
+        "repo-intelligence/scanner/fileScanner.ts",
+        "repo-intelligence/scanner/security.ts",
+        "repo-intelligence/storage/jsonStore.ts",
+        "repo-intelligence/storage/pgStore.ts",
+        "repo-intelligence/test/phase1.test.ts",
+        "repo-intelligence/test/phase2.test.ts",
+        "repo-intelligence/test/phase3.test.ts",
+        "repo-intelligence/test/phase4.test.ts",
+        "repo-intelligence/test/phase5.test.ts",
+        "repo-intelligence/test/phase6.test.ts",
+        "repo-intelligence/test/phase7.test.ts",
+        "repo-intelligence/test/phase8.test.ts",
+        "repo-intelligence/types.ts",
+        "testAll.ts",
+        "tools/index.ts",
+        "tools/repoIntelligence/repoExplorerTool.ts"
+      ],
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "id": "commit_dc61e381",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sha": "dc61e3817539ab5c17ff5ddf9351f74af0e1c672",
+      "author": "arx-dev15",
+      "email": "raks96758@gmail.com",
+      "timestamp": "2026-09-02T00:28:28+05:30",
+      "message": "Added Github integration",
+      "changedFiles": [
+        "AGENT_BUILD_CONTEXT.md",
+        "apps/api/controllers/projects.ts",
+        "apps/api/routes/projects.ts",
+        "demoGithub.ts",
+        "inspectRepo.ts",
+        "testAll.ts",
+        "testLiveGithub.ts",
+        "tools/github/client.ts",
+        "tools/github/github.test.ts",
+        "tools/github/index.ts",
+        "tools/guardrails/policyEngine.ts",
+        "tools/index.ts"
+      ],
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "id": "commit_7281496e",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sha": "7281496e9d93edbaaea0eb28fa6fb4177fcbfb25",
+      "author": "arx-dev15",
+      "email": "raks96758@gmail.com",
+      "timestamp": "2026-09-01T00:18:01+05:30",
+      "message": "Added temp + persistent mem, approval,rejections",
+      "changedFiles": [
+        "AGENT_BUILD_CONTEXT.md",
+        "apps/api/controllers/approvals.ts",
+        "apps/api/services/agentService.ts",
+        "graph/approvalTypes.ts",
+        "graph/approvalWorkflow.test.ts",
+        "graph/approvalWorkflow.ts",
+        "graph/edges/agentRouter.test.ts",
+        "graph/edges/approvalGate.ts",
+        "graph/index.ts",
+        "graph/nodes/architectNode.ts",
+        "graph/nodes/developerNode.ts",
+        "graph/nodes/plannerNode.ts",
+        "graph/nodes/researcherNode.ts",
+        "graph/state.ts",
+        "graph/test.ts",
+        "memory/index.ts",
+        "memory/long-term/longTermMemory.ts",
+        "memory/memory.test.ts",
+        "memory/memoryManager.ts",
+        "memory/short-term/shortTermMemory.ts",
+        "memory/types.ts",
+        "rag/chunkers/textChunker.ts",
+        "rag/embeddings/geminiEmbedder.ts",
+        "rag/index.ts",
+        "rag/loaders/fileLoader.ts",
+        "rag/pipeline.ts",
+        "rag/projectKnowledge.test.ts",
+        "rag/projectKnowledge.ts",
+        "rag/rag.test.ts",
+        "rag/retriever/retriever.ts",
+        "rag/types.ts",
+        "rag/vector-store/inMemoryStore.ts",
+        "testAll.ts",
+        "tools/filesystem/index.ts",
+        "tools/guardrails/enforcer.ts",
+        "tools/guardrails/guardrails.test.ts",
+        "tools/guardrails/index.ts",
+        "tools/guardrails/policyEngine.ts",
+        "tools/guardrails/types.ts",
+        "tools/index.ts",
+        "tools/terminal/index.ts"
+      ],
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "id": "commit_f1ecf4db",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sha": "f1ecf4dbf8ede2f630ef1a0e9480cb1165a1b599",
+      "author": "arx-dev15",
+      "email": "raks96758@gmail.com",
+      "timestamp": "2026-08-30T16:36:18+05:30",
+      "message": "Added Failure recovery and iteration loops",
+      "changedFiles": [
+        "AGENT_BUILD_CONTEXT.md",
+        "agents/developer/developer.ts",
+        "agents/tester/tester.ts",
+        "graph/dynamicRoutingWorkflow.test.ts",
+        "graph/dynamicRoutingWorkflow.ts",
+        "graph/edges/agentRouter.test.ts",
+        "graph/edges/agentRouter.ts",
+        "graph/edges/multiAgentRouting.ts",
+        "graph/failureRecovery.test.ts",
+        "graph/index.ts",
+        "graph/multiAgentWorkflow.ts",
+        "graph/nodes/developerNode.ts",
+        "graph/nodes/recoveryNode.ts",
+        "graph/nodes/securityNode.ts",
+        "graph/nodes/testerNode.ts",
+        "graph/state.ts",
+        "graph/test.ts",
+        "models/gemini/structured.ts",
+        "runDemo.ts",
+        "testAll.ts",
+        "tools/filesystem/index.ts",
+        "tools/terminal/index.ts"
+      ],
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "id": "commit_5d1e328e",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sha": "5d1e328e58a76a64bb17835bd6a13c0c72a86944",
+      "author": "RAKSHITH-CODR",
+      "email": "raks96758@gmail.com",
+      "timestamp": "2026-08-17T03:17:37+05:30",
+      "message": "test",
+      "changedFiles": [
+        "package.json",
+        "runDemo.ts"
+      ],
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "id": "commit_1eb0499f",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sha": "1eb0499fba46a31eefa516cda8bee3fcee78218b",
+      "author": "RAKSHITH-CODR",
+      "email": "raks96758@gmail.com",
+      "timestamp": "2026-08-17T03:10:40+05:30",
+      "message": "Orchestration",
+      "changedFiles": [
+        "AGENT_BUILD_CONTEXT.md",
+        "graph/edges/multiAgentRouting.ts",
+        "graph/index.ts",
+        "graph/multiAgentWorkflow.test.ts",
+        "graph/multiAgentWorkflow.ts",
+        "graph/nodes/multiAgentNodes.ts",
+        "package.json",
+        "testAll.ts",
+        "tsconfig.json"
+      ],
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "id": "commit_50a698ed",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sha": "50a698ed194ece63c3ff1b68176b6ec923a1a765",
+      "author": "RAKSHITH-CODR",
+      "email": "raks96758@gmail.com",
+      "timestamp": "2026-08-17T02:54:49+05:30",
+      "message": "Added agents",
+      "changedFiles": [
+        "AGENT_BUILD_CONTEXT.md",
+        "agents/architect/architect.ts",
+        "agents/architect/index.ts",
+        "agents/architect/prompt.ts",
+        "agents/architect/schema.ts",
+        "agents/architect/test.ts",
+        "agents/architect/types.ts",
+        "agents/developer/developer.ts",
+        "agents/developer/index.ts",
+        "agents/developer/prompt.ts",
+        "agents/developer/schema.ts",
+        "agents/developer/test.ts",
+        "agents/developer/types.ts",
+        "agents/index.ts",
+        "agents/researcher/index.ts",
+        "agents/researcher/prompt.ts",
+        "agents/researcher/researcher.ts",
+        "agents/researcher/schema.ts",
+        "agents/researcher/test.ts",
+        "agents/researcher/types.ts",
+        "agents/reviewer/index.ts",
+        "agents/reviewer/prompt.ts",
+        "agents/reviewer/reviewer.ts",
+        "agents/reviewer/schema.ts",
+        "agents/reviewer/test.ts",
+        "agents/reviewer/types.ts",
+        "agents/security/index.ts",
+        "agents/security/prompt.ts",
+        "agents/security/schema.ts",
+        "agents/security/security.ts",
+        "agents/security/test.ts",
+        "agents/security/types.ts",
+        "agents/tester/index.ts",
+        "agents/tester/prompt.ts",
+        "agents/tester/schema.ts",
+        "agents/tester/test.ts",
+        "agents/tester/tester.ts",
+        "agents/tester/types.ts",
+        "graph/architectWorkflow.test.ts",
+        "graph/architectWorkflow.ts",
+        "graph/developerWorkflow.test.ts",
+        "graph/developerWorkflow.ts",
+        "graph/index.ts",
+        "graph/nodes/architectNode.ts",
+        "graph/nodes/developerNode.ts",
+        "graph/nodes/researcherNode.ts",
+        "graph/nodes/reviewerNode.ts",
+        "graph/nodes/securityNode.ts",
+        "graph/nodes/testerNode.ts",
+        "graph/researcherWorkflow.test.ts",
+        "graph/researcherWorkflow.ts",
+        "graph/reviewerWorkflow.test.ts",
+        "graph/reviewerWorkflow.ts",
+        "graph/securityWorkflow.test.ts",
+        "graph/securityWorkflow.ts",
+        "graph/testerWorkflow.test.ts",
+        "graph/testerWorkflow.ts",
+        "tsconfig.json"
+      ],
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "id": "commit_337b9a0f",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sha": "337b9a0f838965f323c85bcb5d525a7ab0408d6f",
+      "author": "RAKSHITH-CODR",
+      "email": "raks96758@gmail.com",
+      "timestamp": "2026-08-17T00:35:03+05:30",
+      "message": "Planner agent",
+      "changedFiles": [
+        "AGENT_BUILD_CONTEXT.md",
+        "agents/index.ts",
+        "agents/planner/index.ts",
+        "agents/planner/planner.ts",
+        "agents/planner/prompt.ts",
+        "agents/planner/schema.ts",
+        "agents/planner/test.ts",
+        "agents/planner/types.ts",
+        "graph/index.ts",
+        "graph/nodes/plannerNode.ts",
+        "graph/plannerWorkflow.test.ts",
+        "graph/plannerWorkflow.ts"
+      ],
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "id": "commit_59651be6",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sha": "59651be6672dd688877935bc3720402ea7945d2e",
+      "author": "RAKSHITH-CODR",
+      "email": "raks96758@gmail.com",
+      "timestamp": "2026-08-16T03:03:24+05:30",
+      "message": "Error handling",
+      "changedFiles": [
+        "AGENT_BUILD_CONTEXT.md",
+        "graph/edges/retryRouting.ts",
+        "graph/edges/routing.ts",
+        "graph/index.ts",
+        "graph/nodes/agentNode.ts",
+        "graph/nodes/resilientNodes.ts",
+        "graph/nodes/sampleNodes.ts",
+        "graph/resilientWorkflow.test.ts",
+        "graph/resilientWorkflow.ts",
+        "graph/singleAgentWorkflow.test.ts",
+        "graph/singleAgentWorkflow.ts",
+        "graph/state.ts",
+        "graph/test.ts",
+        "graph/workflow.test.ts",
+        "graph/workflow.ts"
+      ],
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "id": "commit_d888291a",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sha": "d888291a5dde4e251ab661ea8228870cd7896843",
+      "author": "RAKSHITH-CODR",
+      "email": "raks96758@gmail.com",
+      "timestamp": "2026-08-15T02:24:32+05:30",
+      "message": "Added LLM + LangGraph State",
+      "changedFiles": [
+        "AGENT_BUILD_CONTEXT.md",
+        "agents/agent.ts",
+        "agents/index.ts",
+        "agents/test.ts",
+        "graph/index.ts",
+        "graph/state.ts",
+        "graph/test.ts",
+        "models/gemini/.gitkeep",
+        "models/gemini/config.ts",
+        "models/gemini/index.ts",
+        "models/gemini/model.ts",
+        "models/gemini/structured.test.ts",
+        "models/gemini/structured.ts",
+        "models/gemini/test.ts",
+        "notepad.html",
+        "package-lock.json",
+        "package.json",
+        "tools/calculator/index.ts",
+        "tools/calculator/test.ts",
+        "tools/index.ts",
+        "tools/types.ts",
+        "tsconfig.agentic.json"
+      ],
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "id": "commit_abcd62df",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sha": "abcd62dffb1a62686922a21793c7b09449e16ebc",
+      "author": "RAKSHITH-CODR",
+      "email": "raks96758@gmail.com",
+      "timestamp": "2026-08-13T01:53:14+05:30",
+      "message": "..",
+      "changedFiles": [
+        ".env.example",
+        ".gitignore",
+        "apps/api/config.ts",
+        "apps/api/controllers/activity.ts",
+        "apps/api/controllers/approvals.ts",
+        "apps/api/controllers/files.ts",
+        "apps/api/controllers/projects.ts",
+        "apps/api/controllers/runs.ts",
+        "apps/api/controllers/tasks.ts",
+        "apps/api/db.ts",
+        "apps/api/middleware/auth.ts",
+        "apps/api/middleware/errorHandler.ts",
+        "apps/api/middleware/validate.ts",
+        "apps/api/migrate.ts",
+        "apps/api/package-lock.json",
+        "apps/api/package.json",
+        "apps/api/routes/activity.ts",
+        "apps/api/routes/approvals.ts",
+        "apps/api/routes/index.ts",
+        "apps/api/routes/projects.ts",
+        "apps/api/routes/runs.ts",
+        "apps/api/routes/tasks.ts",
+        "apps/api/schemas/approval.ts",
+        "apps/api/schemas/project.ts",
+        "apps/api/schemas/run.ts",
+        "apps/api/schemas/task.ts",
+        "apps/api/seed.ts",
+        "apps/api/server.ts",
+        "apps/api/services/agentService.ts",
+        "apps/api/services/memoryStore.ts",
+        "apps/api/test/create_project.json",
+        "apps/api/test/db-check.ts",
+        "apps/api/test/test-api.ts",
+        "apps/api/tsconfig.json",
+        "apps/api/ws.ts",
+        "apps/web/app/agents/page.tsx",
+        "apps/web/app/globals.css",
+        "apps/web/app/layout.tsx",
+        "apps/web/app/new-task/page.tsx",
+        "apps/web/app/page.tsx",
+        "apps/web/app/projects/[id]/page.tsx",
+        "apps/web/app/settings/page.tsx",
+        "apps/web/app/tasks/[id]/page.tsx",
+        "apps/web/components/layout/AppShell.tsx",
+        "apps/web/components/layout/Header.tsx",
+        "apps/web/components/layout/Sidebar.tsx",
+        "apps/web/components/ui/Badge.tsx",
+        "apps/web/components/ui/Button.tsx",
+        "apps/web/components/ui/Card.tsx",
+        "apps/web/components/ui/EmptyState.tsx",
+        "apps/web/components/ui/StatusDot.tsx",
+        "apps/web/components/ui/Tabs.tsx",
+        "apps/web/data/mock.ts",
+        "apps/web/hooks/useActivity.ts",
+        "apps/web/hooks/useProject.ts",
+        "apps/web/hooks/useProjects.ts",
+        "apps/web/hooks/useRun.ts",
+        "apps/web/hooks/useTask.ts",
+        "apps/web/index.html",
+        "apps/web/lib/api.ts",
+        "apps/web/next-env.d.ts",
+        "apps/web/next.config.ts",
+        "apps/web/package-lock.json",
+        "apps/web/package.json",
+        "apps/web/postcss.config.cjs",
+        "apps/web/postcss.config.js",
+        "apps/web/src/app/agents/page.tsx",
+        "apps/web/src/app/globals.css",
+        "apps/web/src/app/layout.tsx",
+        "apps/web/src/app/new-task/page.tsx",
+        "apps/web/src/app/page.tsx",
+        "apps/web/src/app/projects/[id]/page.tsx",
+        "apps/web/src/app/settings/page.tsx",
+        "apps/web/src/app/tasks/[id]/page.tsx",
+        "apps/web/src/components/layout/AppShell.tsx",
+        "apps/web/src/components/layout/Header.tsx",
+        "apps/web/src/components/layout/Sidebar.tsx",
+        "apps/web/src/components/ui/Badge.tsx",
+        "apps/web/src/components/ui/Button.tsx",
+        "apps/web/src/components/ui/Card.tsx",
+        "apps/web/src/components/ui/EmptyState.tsx",
+        "apps/web/src/components/ui/StatusDot.tsx",
+        "apps/web/src/components/ui/Tabs.tsx",
+        "apps/web/src/data/mock.ts",
+        "apps/web/src/types/index.ts",
+        "apps/web/tailwind.config.js",
+        "apps/web/tsconfig.json",
+        "apps/web/tsconfig.tsbuildinfo",
+        "apps/web/types/index.ts",
+        "apps/web/vite.config.ts",
+        "database/migrations/001_initial.sql",
+        "notepad.html"
+      ],
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "id": "commit_f62dd2b1",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sha": "f62dd2b1aef997d3eda4ae725c92a5ebd21c8ebb",
+      "author": "arx-dev15",
+      "email": "raks96758@gmail.com",
+      "timestamp": "2026-08-12T14:58:08+05:30",
+      "message": "...",
+      "changedFiles": [
+        "Implementation_Plan.md",
+        "Must_build.md",
+        "Next_builds.md"
+      ],
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "id": "commit_521ba6c0",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sha": "521ba6c051a880440b8925bc18e26dae6e925db9",
+      "author": "arx-dev15",
+      "email": "raks96758@gmail.com",
+      "timestamp": "2026-08-12T14:51:53+05:30",
+      "message": "Structure",
+      "changedFiles": [
+        ".env.example",
+        ".gitignore",
+        "agents/.gitkeep",
+        "agents/architect/.gitkeep",
+        "agents/developer/.gitkeep",
+        "agents/planner/.gitkeep",
+        "agents/researcher/.gitkeep",
+        "agents/reviewer/.gitkeep",
+        "agents/security/.gitkeep",
+        "agents/tester/.gitkeep",
+        "apps/.gitkeep",
+        "apps/api/.gitkeep",
+        "apps/api/controllers/.gitkeep",
+        "apps/api/middleware/.gitkeep",
+        "apps/api/routes/.gitkeep",
+        "apps/web/.gitkeep",
+        "apps/web/components/.gitkeep",
+        "apps/web/hooks/.gitkeep",
+        "apps/web/lib/.gitkeep",
+        "apps/web/pages/.gitkeep",
+        "database/.gitkeep",
+        "docker/.gitkeep",
+        "evaluation/.gitkeep",
+        "evaluation/benchmarks/.gitkeep",
+        "evaluation/datasets/.gitkeep",
+        "evaluation/evaluators/.gitkeep",
+        "graph/.gitkeep",
+        "graph/edges/.gitkeep",
+        "graph/nodes/.gitkeep",
+        "memory/.gitkeep",
+        "memory/long-term/.gitkeep",
+        "memory/short-term/.gitkeep",
+        "models/.gitkeep",
+        "models/embeddings/.gitkeep",
+        "models/gemini/.gitkeep",
+        "observability/.gitkeep",
+        "package-lock.json",
+        "package.json",
+        "rag/.gitkeep",
+        "rag/chunkers/.gitkeep",
+        "rag/embeddings/.gitkeep",
+        "rag/loaders/.gitkeep",
+        "rag/retriever/.gitkeep",
+        "rag/vector-store/.gitkeep",
+        "shared/.gitkeep",
+        "shared/config/.gitkeep",
+        "shared/types/.gitkeep",
+        "shared/utils/.gitkeep",
+        "tools/.gitkeep",
+        "tools/browser/.gitkeep",
+        "tools/database/.gitkeep",
+        "tools/filesystem/.gitkeep",
+        "tools/github/.gitkeep",
+        "tools/search/.gitkeep",
+        "tools/terminal/.gitkeep",
+        "tsconfig.json"
+      ],
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "id": "commit_a3cf8207",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sha": "a3cf820756f88e1c8d16fb67e9cf7b8e45b15901",
+      "author": "arx-dev15",
+      "email": "raks96758@gmail.com",
+      "timestamp": "2026-08-12T12:55:18+05:30",
+      "message": "addes server.ts",
+      "changedFiles": [
+        "apps/api/server.ts"
+      ],
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "id": "commit_62ac8fe4",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sha": "62ac8fe46ea26f6bba65f78a5cb83a02dc9eab11",
+      "author": "arx-dev15",
+      "email": "raks96758@gmail.com",
+      "timestamp": "2026-08-12T11:58:23+05:30",
+      "message": ".",
+      "changedFiles": [
+        "PR.md"
+      ],
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "id": "commit_2c4f32ac",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sha": "2c4f32accbb02ea0b32cb3ed2b5246812a483c0b",
+      "author": "arx-dev15",
+      "email": "raks96758@gmail.com",
+      "timestamp": "2026-08-12T11:57:19+05:30",
+      "message": ".",
+      "changedFiles": [
+        "Directory-architecture.md"
+      ],
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "id": "commit_0385cc14",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sha": "0385cc14696ca5690c8aff42ed4caefaa3aa7543",
+      "author": "sudhanshu2984",
+      "email": "sudhanshu2984@gmail.com",
+      "timestamp": "2026-08-12T11:52:12+05:30",
+      "message": "push",
+      "changedFiles": [],
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "id": "commit_27b4d73a",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sha": "27b4d73a61668edafbe166902d8ff01c83817c72",
+      "author": "sudhanshu2984",
+      "email": "sudhanshu2984@gmail.com",
+      "timestamp": "2026-08-12T11:49:03+05:30",
+      "message": "Plan",
+      "changedFiles": [
+        "Agent_Flow.md",
+        "Architecture.md",
+        "Build_plan.md",
+        "Implementation_Plan.md"
+      ],
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "id": "commit_3e982101",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sha": "3e982101142a55ba3cd2ebe0c4b7ad403da0a5b8",
+      "author": "ARX15",
+      "email": "raks96758@gmail.com",
+      "timestamp": "2026-08-12T11:47:34+05:30",
+      "message": "Initial commit",
+      "changedFiles": [
+        "README.md"
+      ],
+      "additions": 0,
+      "deletions": 0
+    }
+  ],
+  "relationships": [
+    {
+      "id": "rel_1",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "file_852625ee5afa",
+      "sourceType": "file",
+      "targetId": "sym_file_852625ee5afa_ProjectController_4",
+      "targetType": "symbol",
+      "type": "CONTAINS",
+      "provenance": {
+        "filePath": "src/controllers/projectController.ts",
+        "startLine": 4,
+        "endLine": 11,
+        "reason": "File src/controllers/projectController.ts defines class ProjectController"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_2",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "file_852625ee5afa",
+      "sourceType": "file",
+      "targetId": "sym_file_852625ee5afa_create_7",
+      "targetType": "symbol",
+      "type": "CONTAINS",
+      "provenance": {
+        "filePath": "src/controllers/projectController.ts",
+        "startLine": 7,
+        "endLine": 10,
+        "reason": "File src/controllers/projectController.ts defines method create"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_3",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "file_4869b057b0ba",
+      "sourceType": "file",
+      "targetId": "sym_file_4869b057b0ba_Project_2",
+      "targetType": "symbol",
+      "type": "CONTAINS",
+      "provenance": {
+        "filePath": "src/models/project.ts",
+        "startLine": 2,
+        "endLine": 5,
+        "reason": "File src/models/project.ts defines interface Project"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_4",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "file_d8e6433ea531",
+      "sourceType": "file",
+      "targetId": "sym_file_d8e6433ea531_ProjectService_4",
+      "targetType": "symbol",
+      "type": "CONTAINS",
+      "provenance": {
+        "filePath": "src/services/projectService.ts",
+        "startLine": 4,
+        "endLine": 11,
+        "reason": "File src/services/projectService.ts defines class ProjectService"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_5",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "file_d8e6433ea531",
+      "sourceType": "file",
+      "targetId": "sym_file_d8e6433ea531_createProject_5",
+      "targetType": "symbol",
+      "type": "CONTAINS",
+      "provenance": {
+        "filePath": "src/services/projectService.ts",
+        "startLine": 5,
+        "endLine": 7,
+        "reason": "File src/services/projectService.ts defines method createProject"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_6",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "file_d8e6433ea531",
+      "sourceType": "file",
+      "targetId": "sym_file_d8e6433ea531_findProject_8",
+      "targetType": "symbol",
+      "type": "CONTAINS",
+      "provenance": {
+        "filePath": "src/services/projectService.ts",
+        "startLine": 8,
+        "endLine": 10,
+        "reason": "File src/services/projectService.ts defines method findProject"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_7",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "file_cb385086df13",
+      "sourceType": "file",
+      "targetId": "sym_file_cb385086df13_service_7",
+      "targetType": "symbol",
+      "type": "CONTAINS",
+      "provenance": {
+        "filePath": "tests/projectService.test.ts",
+        "startLine": 7,
+        "endLine": 7,
+        "reason": "File tests/projectService.test.ts defines constant service"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_8",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "file_cb385086df13",
+      "sourceType": "file",
+      "targetId": "sym_file_cb385086df13_p_8",
+      "targetType": "symbol",
+      "type": "CONTAINS",
+      "provenance": {
+        "filePath": "tests/projectService.test.ts",
+        "startLine": 8,
+        "endLine": 8,
+        "reason": "File tests/projectService.test.ts defines constant p"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_9",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "file_852625ee5afa",
+      "sourceType": "file",
+      "targetId": "file_d8e6433ea531",
+      "targetType": "file",
+      "type": "IMPORTS",
+      "provenance": {
+        "filePath": "src/controllers/projectController.ts",
+        "startLine": 2,
+        "reason": "File src/controllers/projectController.ts imports module from src/services/projectService.ts"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_10",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "file_d8e6433ea531",
+      "sourceType": "file",
+      "targetId": "file_852625ee5afa",
+      "targetType": "file",
+      "type": "IMPORTED_BY",
+      "provenance": {
+        "filePath": "src/services/projectService.ts",
+        "reason": "File src/services/projectService.ts is imported by src/controllers/projectController.ts"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_11",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "sym_file_852625ee5afa_ProjectController_4",
+      "sourceType": "symbol",
+      "targetId": "sym_file_d8e6433ea531_ProjectService_4",
+      "targetType": "symbol",
+      "type": "IMPORTS",
+      "provenance": {
+        "filePath": "src/controllers/projectController.ts",
+        "startLine": 2,
+        "reason": "Symbol ProjectController in src/controllers/projectController.ts imports ProjectService from src/services/projectService.ts"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_12",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "sym_file_852625ee5afa_create_7",
+      "sourceType": "symbol",
+      "targetId": "sym_file_d8e6433ea531_ProjectService_4",
+      "targetType": "symbol",
+      "type": "IMPORTS",
+      "provenance": {
+        "filePath": "src/controllers/projectController.ts",
+        "startLine": 2,
+        "reason": "Symbol create in src/controllers/projectController.ts imports ProjectService from src/services/projectService.ts"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_13",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "file_d8e6433ea531",
+      "sourceType": "file",
+      "targetId": "file_4869b057b0ba",
+      "targetType": "file",
+      "type": "IMPORTS",
+      "provenance": {
+        "filePath": "src/services/projectService.ts",
+        "startLine": 2,
+        "reason": "File src/services/projectService.ts imports module from src/models/project.ts"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_14",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "file_4869b057b0ba",
+      "sourceType": "file",
+      "targetId": "file_d8e6433ea531",
+      "targetType": "file",
+      "type": "IMPORTED_BY",
+      "provenance": {
+        "filePath": "src/models/project.ts",
+        "reason": "File src/models/project.ts is imported by src/services/projectService.ts"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_15",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "sym_file_d8e6433ea531_ProjectService_4",
+      "sourceType": "symbol",
+      "targetId": "sym_file_4869b057b0ba_Project_2",
+      "targetType": "symbol",
+      "type": "IMPORTS",
+      "provenance": {
+        "filePath": "src/services/projectService.ts",
+        "startLine": 2,
+        "reason": "Symbol ProjectService in src/services/projectService.ts imports Project from src/models/project.ts"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_16",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "sym_file_d8e6433ea531_createProject_5",
+      "sourceType": "symbol",
+      "targetId": "sym_file_4869b057b0ba_Project_2",
+      "targetType": "symbol",
+      "type": "IMPORTS",
+      "provenance": {
+        "filePath": "src/services/projectService.ts",
+        "startLine": 2,
+        "reason": "Symbol createProject in src/services/projectService.ts imports Project from src/models/project.ts"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_17",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "sym_file_d8e6433ea531_findProject_8",
+      "sourceType": "symbol",
+      "targetId": "sym_file_4869b057b0ba_Project_2",
+      "targetType": "symbol",
+      "type": "IMPORTS",
+      "provenance": {
+        "filePath": "src/services/projectService.ts",
+        "startLine": 2,
+        "reason": "Symbol findProject in src/services/projectService.ts imports Project from src/models/project.ts"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_18",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "file_cb385086df13",
+      "sourceType": "file",
+      "targetId": "file_d8e6433ea531",
+      "targetType": "file",
+      "type": "IMPORTS",
+      "provenance": {
+        "filePath": "tests/projectService.test.ts",
+        "startLine": 3,
+        "reason": "File tests/projectService.test.ts imports module from src/services/projectService.ts"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_19",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "file_d8e6433ea531",
+      "sourceType": "file",
+      "targetId": "file_cb385086df13",
+      "targetType": "file",
+      "type": "IMPORTED_BY",
+      "provenance": {
+        "filePath": "src/services/projectService.ts",
+        "reason": "File src/services/projectService.ts is imported by tests/projectService.test.ts"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_20",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "sym_file_cb385086df13_service_7",
+      "sourceType": "symbol",
+      "targetId": "sym_file_d8e6433ea531_ProjectService_4",
+      "targetType": "symbol",
+      "type": "IMPORTS",
+      "provenance": {
+        "filePath": "tests/projectService.test.ts",
+        "startLine": 3,
+        "reason": "Symbol service in tests/projectService.test.ts imports ProjectService from src/services/projectService.ts"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_21",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "sym_file_cb385086df13_p_8",
+      "sourceType": "symbol",
+      "targetId": "sym_file_d8e6433ea531_ProjectService_4",
+      "targetType": "symbol",
+      "type": "IMPORTS",
+      "provenance": {
+        "filePath": "tests/projectService.test.ts",
+        "startLine": 3,
+        "reason": "Symbol p in tests/projectService.test.ts imports ProjectService from src/services/projectService.ts"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_22",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "sym_file_852625ee5afa_create_7",
+      "sourceType": "symbol",
+      "targetId": "sym_file_d8e6433ea531_createProject_5",
+      "targetType": "symbol",
+      "type": "CALLS",
+      "provenance": {
+        "filePath": "src/controllers/projectController.ts",
+        "startLine": 8,
+        "snippet": "Call expression: this.projectService.createProject()",
+        "reason": "Symbol create calls createProject() at line 8"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_23",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "sym_file_d8e6433ea531_createProject_5",
+      "sourceType": "symbol",
+      "targetId": "sym_file_852625ee5afa_create_7",
+      "targetType": "symbol",
+      "type": "CALLED_BY",
+      "provenance": {
+        "filePath": "src/services/projectService.ts",
+        "reason": "Symbol createProject is called by create() in src/controllers/projectController.ts"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_24",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "sym_file_cb385086df13_service_7",
+      "sourceType": "symbol",
+      "targetId": "sym_file_d8e6433ea531_ProjectService_4",
+      "targetType": "symbol",
+      "type": "CALLS",
+      "provenance": {
+        "filePath": "tests/projectService.test.ts",
+        "startLine": 7,
+        "snippet": "Call expression: ProjectService()",
+        "reason": "Symbol service calls ProjectService() at line 7"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_25",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "sym_file_d8e6433ea531_ProjectService_4",
+      "sourceType": "symbol",
+      "targetId": "sym_file_cb385086df13_service_7",
+      "targetType": "symbol",
+      "type": "CALLED_BY",
+      "provenance": {
+        "filePath": "src/services/projectService.ts",
+        "reason": "Symbol ProjectService is called by service() in tests/projectService.test.ts"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_26",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "sym_file_cb385086df13_p_8",
+      "sourceType": "symbol",
+      "targetId": "sym_file_d8e6433ea531_createProject_5",
+      "targetType": "symbol",
+      "type": "CALLS",
+      "provenance": {
+        "filePath": "tests/projectService.test.ts",
+        "startLine": 8,
+        "snippet": "Call expression: service.createProject()",
+        "reason": "Symbol p calls createProject() at line 8"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_27",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "sym_file_d8e6433ea531_createProject_5",
+      "sourceType": "symbol",
+      "targetId": "sym_file_cb385086df13_p_8",
+      "targetType": "symbol",
+      "type": "CALLED_BY",
+      "provenance": {
+        "filePath": "src/services/projectService.ts",
+        "reason": "Symbol createProject is called by p() in tests/projectService.test.ts"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_28",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "file_d8e6433ea531",
+      "sourceType": "file",
+      "targetId": "file_cb385086df13",
+      "targetType": "file",
+      "type": "TESTED_BY",
+      "provenance": {
+        "filePath": "tests/projectService.test.ts",
+        "reason": "Source file src/services/projectService.ts tested by test suite tests/projectService.test.ts"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_29",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "sym_file_4869b057b0ba_Project_2",
+      "sourceType": "symbol",
+      "targetId": "file_cb385086df13",
+      "targetType": "file",
+      "type": "TESTED_BY",
+      "provenance": {
+        "filePath": "tests/projectService.test.ts",
+        "reason": "Symbol Project tested by test suite tests/projectService.test.ts"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_30",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "sym_file_d8e6433ea531_ProjectService_4",
+      "sourceType": "symbol",
+      "targetId": "file_cb385086df13",
+      "targetType": "file",
+      "type": "TESTED_BY",
+      "provenance": {
+        "filePath": "tests/projectService.test.ts",
+        "reason": "Symbol ProjectService tested by test suite tests/projectService.test.ts"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_31",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "sym_file_d8e6433ea531_createProject_5",
+      "sourceType": "symbol",
+      "targetId": "file_cb385086df13",
+      "targetType": "file",
+      "type": "TESTED_BY",
+      "provenance": {
+        "filePath": "tests/projectService.test.ts",
+        "reason": "Symbol createProject tested by test suite tests/projectService.test.ts"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_32",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "file_d8e6433ea531",
+      "sourceType": "file",
+      "targetId": "file_cb385086df13",
+      "targetType": "file",
+      "type": "TESTED_BY",
+      "provenance": {
+        "filePath": "tests/projectService.test.ts",
+        "reason": "Source file src/services/projectService.ts tested by test suite tests/projectService.test.ts"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_33",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "sym_file_d8e6433ea531_ProjectService_4",
+      "sourceType": "symbol",
+      "targetId": "file_cb385086df13",
+      "targetType": "file",
+      "type": "TESTED_BY",
+      "provenance": {
+        "filePath": "tests/projectService.test.ts",
+        "reason": "Symbol ProjectService tested by test suite tests/projectService.test.ts"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_34",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "sym_file_d8e6433ea531_createProject_5",
+      "sourceType": "symbol",
+      "targetId": "file_cb385086df13",
+      "targetType": "file",
+      "type": "TESTED_BY",
+      "provenance": {
+        "filePath": "tests/projectService.test.ts",
+        "reason": "Symbol createProject tested by test suite tests/projectService.test.ts"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_35",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "sym_file_852625ee5afa_ProjectController_4",
+      "sourceType": "symbol",
+      "targetId": "sym_file_852625ee5afa_create_7",
+      "targetType": "symbol",
+      "type": "USES",
+      "provenance": {
+        "filePath": "src/controllers/projectController.ts",
+        "startLine": 4,
+        "endLine": 11,
+        "reason": "Symbol ProjectController references identifier method create"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_36",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "sym_file_852625ee5afa_ProjectController_4",
+      "sourceType": "symbol",
+      "targetId": "sym_file_d8e6433ea531_ProjectService_4",
+      "targetType": "symbol",
+      "type": "USES",
+      "provenance": {
+        "filePath": "src/controllers/projectController.ts",
+        "startLine": 4,
+        "endLine": 11,
+        "reason": "Symbol ProjectController references identifier class ProjectService"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_37",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "sym_file_852625ee5afa_ProjectController_4",
+      "sourceType": "symbol",
+      "targetId": "sym_file_d8e6433ea531_createProject_5",
+      "targetType": "symbol",
+      "type": "USES",
+      "provenance": {
+        "filePath": "src/controllers/projectController.ts",
+        "startLine": 4,
+        "endLine": 11,
+        "reason": "Symbol ProjectController references identifier method createProject"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_38",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "sym_file_d8e6433ea531_ProjectService_4",
+      "sourceType": "symbol",
+      "targetId": "sym_file_4869b057b0ba_Project_2",
+      "targetType": "symbol",
+      "type": "USES",
+      "provenance": {
+        "filePath": "src/services/projectService.ts",
+        "startLine": 4,
+        "endLine": 11,
+        "reason": "Symbol ProjectService references identifier interface Project"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_39",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "sym_file_d8e6433ea531_ProjectService_4",
+      "sourceType": "symbol",
+      "targetId": "sym_file_d8e6433ea531_createProject_5",
+      "targetType": "symbol",
+      "type": "USES",
+      "provenance": {
+        "filePath": "src/services/projectService.ts",
+        "startLine": 4,
+        "endLine": 11,
+        "reason": "Symbol ProjectService references identifier method createProject"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_40",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "sym_file_d8e6433ea531_ProjectService_4",
+      "sourceType": "symbol",
+      "targetId": "sym_file_d8e6433ea531_findProject_8",
+      "targetType": "symbol",
+      "type": "USES",
+      "provenance": {
+        "filePath": "src/services/projectService.ts",
+        "startLine": 4,
+        "endLine": 11,
+        "reason": "Symbol ProjectService references identifier method findProject"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_41",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "sym_file_d8e6433ea531_createProject_5",
+      "sourceType": "symbol",
+      "targetId": "sym_file_4869b057b0ba_Project_2",
+      "targetType": "symbol",
+      "type": "USES",
+      "provenance": {
+        "filePath": "src/services/projectService.ts",
+        "startLine": 5,
+        "endLine": 7,
+        "reason": "Symbol createProject return type references Project"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_42",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "sym_file_d8e6433ea531_findProject_8",
+      "sourceType": "symbol",
+      "targetId": "sym_file_4869b057b0ba_Project_2",
+      "targetType": "symbol",
+      "type": "USES",
+      "provenance": {
+        "filePath": "src/services/projectService.ts",
+        "startLine": 8,
+        "endLine": 10,
+        "reason": "Symbol findProject return type references Project"
+      },
+      "confidence": "exact"
+    },
+    {
+      "id": "rel_43",
+      "repoId": "repo_local_local_repo_b_ground_truth",
+      "sourceId": "sym_file_cb385086df13_p_8",
+      "sourceType": "symbol",
+      "targetId": "sym_file_cb385086df13_service_7",
+      "targetType": "symbol",
+      "type": "USES",
+      "provenance": {
+        "filePath": "tests/projectService.test.ts",
+        "startLine": 8,
+        "endLine": 8,
+        "reason": "Symbol p references identifier constant service"
+      },
+      "confidence": "exact"
+    }
+  ]
+}

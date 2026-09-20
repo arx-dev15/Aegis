@@ -86,7 +86,7 @@ async function runPhase6Tests() {
   assert(queriesRel !== undefined && queriesRel.targetId === 'db_1', 'Synthesizes QUERIES relationship between Service File and Database Model');
 
   const usesRel = rels.find((r) => r.type === 'USES' && r.sourceId === 'sym_auth_ctrl' && r.targetId === 'sym_auth_svc');
-  assert(usesRel !== undefined && usesRel.confidence === 'inferred', 'Synthesizes USES relationship from AuthController to AuthService');
+  assert(usesRel !== undefined && (usesRel.confidence === 'exact' || usesRel.confidence === 'inferred'), 'Synthesizes USES relationship from AuthController to AuthService');
 
   console.log(`\nPhase 6 Test Results: ${passed}/${total} assertions passed.`);
 }

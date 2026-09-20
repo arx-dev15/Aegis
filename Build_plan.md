@@ -1,81 +1,522 @@
-# Aegis Master Construction Build Plan
+# AEGIS — BUILD PLAN
 
-This document outlines the sequential construction roadmap for **Aegis**. Features 01 through 27 are fully implemented and verified.
+This document defines the current development sequence for AEGIS.
 
----
+It is intentionally NOT a feature-by-feature roadmap.
 
-## 🟢 PHASE 1 — FOUNDATION & MODEL LAYER `[IMPLEMENTED]`
+The current objective is to make the existing AEGIS capabilities operate
+as one real engineering system before adding further capabilities.
 
-- **Feature 01 — Gemini Model Layer**: Gemini SDK initialization (`@google/genai`), configuration, model binding (`models/gemini/model.ts`).
-- **Feature 02 — Structured Output**: Zod schema to Gemini schema converter and response validation (`models/gemini/structured.ts`).
-- **Feature 03 — Tool System**: Standardized tool interface, calculator, filesystem, and search schemas (`tools/`).
-- **Feature 04 — First Tool-Calling Agent**: Single-agent tool execution loop with Gemini function declarations (`agents/agent.ts`).
+Read `AGENT_BUILD_CONTEXT.md` and `Must_build.md` before using this plan.
 
----
 
-## 🟢 PHASE 2 — LANGGRAPH ORCHESTRATION & STATE `[IMPLEMENTED]`
+============================================================
+PHASE 0 — DOCUMENTATION / DEVELOPMENT CONTROL RESET
+============================================================
 
-- **Feature 05 — LangGraph State**: Central `AegisStateAnnotation` definition (`graph/state.ts`).
-- **Feature 06 — Nodes + Edges + Routing**: LangGraph node wrappers, conditional routing logic (`graph/nodes/`, `graph/edges/`).
-- **Feature 07 — Single-Agent Graph**: Executing tool-calling agents inside LangGraph StateGraph (`graph/singleAgentWorkflow.ts`).
-- **Feature 08 — Loops, Retries & Error Handling**: Bounded retry state, retry limits, error recovery nodes (`graph/resilientWorkflow.ts`).
+STATUS: COMPLETE
 
----
+Objective:
 
-## 🟢 PHASE 3 — SPECIALIZED AEGIS AGENTS `[IMPLEMENTED]`
+Establish a single, consistent development model for AEGIS.
 
-- **Feature 09 — Planner Agent**: Task decomposition into structured `PlanStep[]` (`agents/planner/`).
-- **Feature 10 — Researcher Agent**: Technical research, file discovery, context aggregation (`agents/researcher/`).
-- **Feature 11 — Architect Agent**: System design, API spec creation, component boundaries (`agents/architect/`).
-- **Feature 12 — Developer Agent**: Production code generation, file modification proposals (`agents/developer/`).
-- **Feature 13 — Tester Agent**: Test suite construction & execution verification (`agents/tester/`).
-- **Feature 14 — Reviewer Agent**: Quality assurance, code review, diff inspection (`agents/reviewer/`).
-- **Feature 15 — Security Agent**: Vulnerability scanning, credential audit, injection prevention (`agents/security/`).
+Completed:
 
----
+- `AGENT_BUILD_CONTEXT.md` updated.
+- `Must_build.md` updated.
+- Feature-count-driven development is paused.
+- MVP-first development is now the active development model.
+- Implemented / Integrated / Validated / Complete are explicitly
+  distinguished.
 
-## 🟢 PHASE 4 — MULTI-AGENT ORCHESTRATION & ROUTING `[IMPLEMENTED]`
 
-- **Feature 16 — Full Aegis Multi-Agent Workflow**: Wiring all 7 agents into an end-to-end StateGraph (`graph/multiAgentWorkflow.ts`).
-- **Feature 17 — Agent Routing & Conditional Execution**: State-driven router (`determineNextAgent`) skipping redundant agent nodes when artifacts pre-exist (`graph/edges/agentRouter.ts`).
-- **Feature 18 — Failure Recovery & Iteration Loops**: Contextual failure recovery via `recoveryNode` routing test/review failures back to Developer/Architect without full workflow restart (`graph/failureRecovery.test.ts`).
+============================================================
+PHASE 1 — READ-ONLY SYSTEM AUDIT
+============================================================
 
----
+STATUS: NEXT
 
-## 🟢 PHASE 5 — KNOWLEDGE & MEMORY SYSTEMS `[IMPLEMENTED]`
+Objective:
 
-- **Feature 19 — RAG Pipeline**: File loading, sliding-window chunking, Gemini embeddings (`gemini-embedding-001`), cosine similarity vector store (`rag/`).
-- **Feature 20 — Project Knowledge Retrieval**: `ProjectKnowledge` service for codebase knowledge ingestion and agent context enhancement (`rag/projectKnowledge.ts`).
-- **Feature 21 — Short-Term Memory**: Run-isolated working scratchpad (`memory/short-term/shortTermMemory.ts`).
-- **Feature 22 — Long-Term Memory**: Persistent epistemic knowledge store across process restarts (`memory/long-term/longTermMemory.ts`).
+Understand what the current AEGIS runtime actually does.
 
----
+IMPORTANT:
 
-## 🟢 PHASE 6 — SAFETY, GUARDRAILS & REPOSITORY INTELLIGENCE `[IMPLEMENTED]`
+This phase is READ-ONLY.
 
-- **Feature 23 — Human-in-the-Loop Approval**: Policy gate and `MemorySaver` graph interruption (`status: "paused"`) for sensitive actions (`graph/approvalWorkflow.ts`).
-- **Feature 24 — Tool Permissions / Guardrails**: Direct low-level tool enforcement (`enforceToolGuardrail`) blocking dangerous system commands (`rm -rf /`) and path escapes (`tools/guardrails/`).
-- **Feature 25 — Real GitHub Integration**: Production GitHub REST tools calling `api.github.com` live with `GITHUB_TOKEN` from `.env` and credential masking (`tools/github/`).
-- **Feature 26 — Repository Intelligence Engine**: `ts-morph` AST parser, domain extractors (APIs, DB Models, Dependencies, Tests), typed provenance relationship graph, and hybrid impact analyzer (`repo-intelligence/`).
-- **Feature 27 — Interactive CLI Foundation**: First-class command-line tool (`cli.ts`) for connecting, checking status, searching codebase knowledge, and running impact analysis directly.
+Do NOT:
 
----
+- refactor
+- simplify architecture
+- delete files
+- add features
+- rewrite workflows
+- change agents
+- change UI
+- change APIs
 
-## 🟡 PHASE 7 — ENVIRONMENT & EXTERNAL INTEGRATIONS `[IN PROGRESS / PLANNED]`
+The purpose is to discover reality before changing it.
 
-- **Build 28 — Terminal & Sandbox Execution** `[IN PROGRESS]`: Secure execution of `npm test`, `npm run build`, and `git diff` inside a sandboxed runner (`tools/terminal/`).
-- **Build 29 — MCP Integration** `[PLANNED]`: Standardized Model Context Protocol server/client interface (`tools/mcp/`).
-- **Build 30 — Session Runtime, Resume & Branching** `[PLANNED]`: Persistent session checkpoints allowing state reconstruction, branching, and rewinding (`graph/checkpointing/`).
+Audit the actual runtime path:
 
----
+```text
+USER
+ ↓
+ENTRY POINT
+ ↓
+TASK CREATION
+ ↓
+AEGIS STATE
+ ↓
+WORKFLOW / GRAPH
+ ↓
+REPOSITORY UNDERSTANDING
+ ↓
+AGENTS
+ ↓
+TOOLS
+ ↓
+APPROVAL
+ ↓
+IMPLEMENTATION
+ ↓
+TESTING
+ ↓
+REVIEW
+ ↓
+SECURITY
+ ↓
+VERIFICATION
+ ↓
+RESULT
 
-## 🔵 PHASE 8 — QUALITY, OBSERVABILITY & EVALUATION `[PLANNED]`
+Determine for every stage:
 
-- **Build 31 — Observability, Tracing & Token Tracking** `[PLANNED]`: Tracking agent runs, LLM calls, tool calls, token usage, latency, and costs (`observability/`).
-- **Build 32 — Agent Evaluation & Benchmarks** `[PLANNED]`: Automated benchmark suite measuring planning accuracy, retrieval quality, and task success rate (`evaluation/`).
+where it is implemented
+what invokes it
+what data enters it
+what it produces
+who consumes its output
+whether it is actually reachable
+whether it is real or mocked
+whether it is integrated
+whether it is only an isolated implementation
 
----
+Required output:
 
-## 🟣 PHASE 9 — ARCHITECTURE SIMPLIFICATION & REFACTOR `[PLANNED]`
+A. Runtime Entry Point
 
-- **Build 33 — Architecture Simplification Refactor** `[PLANNED]`: Post-stability non-breaking consolidation to reduce file fragmentation, clean up barrel imports, and streamline internal structures while preserving 100% of capabilities, APIs, and tests.
+Identify the actual user-facing entry point currently used by AEGIS.
+
+B. Actual Workflow
+
+Trace the real execution path from user task to final result.
+
+C. Integration Map
+
+Identify:
+
+connected components
+disconnected components
+duplicate paths
+dead paths
+demo paths
+mock paths
+missing state transitions
+missing data flow
+missing verification
+D. Capability Status
+
+Classify relevant components as:
+
+NOT IMPLEMENTED
+STUB
+IMPLEMENTED
+INTEGRATED
+VALIDATED
+BROKEN
+UNUSED
+E. Critical Gaps
+
+Identify the smallest set of problems preventing the MVP from working.
+
+Do not fix them during this phase.
+
+============================================================
+PHASE 2 — MVP CORE WORKFLOW INTEGRATION
+
+STATUS: BLOCKED UNTIL PHASE 1
+
+Objective:
+
+Connect the existing components into the actual AEGIS engineering
+workflow.
+
+Target:
+
+USER TASK
+ ↓
+REPOSITORY CONTEXT
+ ↓
+INVESTIGATION
+ ↓
+PLAN
+ ↓
+APPROVAL
+ ↓
+IMPLEMENT
+ ↓
+TEST
+ ↓
+REVIEW
+ ↓
+SECURITY
+ ↓
+VERIFY
+ ↓
+RESULT
+
+Priority:
+
+Fix actual runtime entry.
+Fix task/state flow.
+Connect repository context.
+Connect investigation.
+Connect planning.
+Connect approval.
+Connect implementation.
+Connect test execution.
+Connect review.
+Connect security.
+Connect final verification.
+Connect user-facing result.
+
+Use existing implementations wherever possible.
+
+Do NOT build replacement systems unless the existing implementation
+cannot support the required workflow.
+
+============================================================
+PHASE 3 — REAL REPOSITORY VALIDATION
+
+STATUS: BLOCKED UNTIL PHASE 2
+
+Objective:
+
+Prove that AEGIS can work against a real repository.
+
+Validation must use:
+
+real repository
+real source files
+real repository structure
+real engineering task
+
+Validate:
+
+repository inspection
+relevant-file discovery
+repository context
+dependency/relationship understanding
+agent reasoning
+actual implementation
+
+No fake repository data.
+
+============================================================
+PHASE 4 — REAL ENGINEERING TASK
+
+STATUS: BLOCKED UNTIL PHASE 3
+
+Objective:
+
+Run the complete AEGIS workflow against a realistic engineering task.
+
+Example:
+
+Add GET /users/:id and appropriate tests.
+
+Expected:
+
+User
+ ↓
+Task
+ ↓
+Repository Understanding
+ ↓
+Investigation
+ ↓
+Plan
+ ↓
+Approval
+ ↓
+Implementation
+ ↓
+Tests
+ ↓
+Review
+ ↓
+Security
+ ↓
+Verification
+ ↓
+Result
+
+The task must use the actual AEGIS runtime.
+
+Do NOT create a special demo workflow for this validation.
+
+============================================================
+PHASE 5 — FAILURE / RECOVERY VALIDATION
+
+STATUS: BLOCKED UNTIL PHASE 4
+
+Objective:
+
+Prove that AEGIS can handle realistic engineering failure.
+
+Example:
+
+Implementation
+ ↓
+Tests fail
+ ↓
+Failure captured
+ ↓
+Relevant context preserved
+ ↓
+Workflow routes to appropriate recovery stage
+ ↓
+Fix
+ ↓
+Tests
+ ↓
+Verification
+
+Validate:
+
+tool failures
+test failures
+agent failures
+invalid output
+retry behavior
+contextual recovery
+final failure reporting
+
+Do not blindly restart the entire workflow.
+
+============================================================
+PHASE 6 — MVP ACCEPTANCE
+
+STATUS: BLOCKED UNTIL PHASE 5
+
+Objective:
+
+Determine whether AEGIS actually satisfies the MVP.
+
+MVP acceptance requires:
+
+[ ] Real user task
+
+[ ] Real repository
+
+[ ] Real repository understanding
+
+[ ] Real investigation
+
+[ ] Real plan
+
+[ ] Real approval where required
+
+[ ] Real file modification
+
+[ ] Real tests
+
+[ ] Real review
+
+[ ] Relevant security validation
+
+[ ] Real final verification
+
+[ ] Useful final result
+
+[ ] Evidence of execution
+
+[ ] At least one successful real engineering task
+
+[ ] At least one realistic failure/recovery scenario
+
+If any critical requirement fails:
+
+MVP IS NOT COMPLETE.
+
+Return to the responsible phase and fix the smallest responsible
+component.
+
+============================================================
+PHASE 7 — ARCHITECTURE SIMPLIFICATION
+
+STATUS: DEFERRED
+
+This phase begins ONLY after MVP validation.
+
+Objective:
+
+Simplify the working system without reducing functionality.
+
+Audit:
+
+file count
+folder depth
+duplicate modules
+duplicate types
+duplicate services
+unnecessary wrappers
+unnecessary abstractions
+dead code
+demo code
+stub code
+fragmented agent modules
+fragmented graph modules
+unnecessary barrel files
+
+Target:
+
+Same capabilities
++
+Clearer flow
++
+Fewer unnecessary moving parts
+
+Do NOT:
+
+rewrite everything
+refactor working code for aesthetics
+remove functionality
+change behavior unnecessarily
+
+Every refactor must be followed by regression verification.
+
+============================================================
+PHASE 8 — PRODUCT HARDENING
+
+STATUS: FUTURE
+
+After MVP and architecture simplification:
+
+Potential work:
+
+stronger repository intelligence
+relationship-aware RAG
+change impact analysis
+stronger CLI
+sessions
+resume/branching
+context management
+observability
+evaluation
+reusable engineering skills
+GitHub execution
+CI integration
+PR automation
+architecture drift detection
+============================================================
+PHASE 9 — ADVANCED AUTOMATION
+
+STATUS: FUTURE
+
+Long-term target:
+
+Issue / Engineering Task
+ ↓
+Understand
+ ↓
+Investigate
+ ↓
+Plan
+ ↓
+Approve
+ ↓
+Implement
+ ↓
+Test
+ ↓
+Review
+ ↓
+Security
+ ↓
+PR
+ ↓
+CI
+ ↓
+Fix
+ ↓
+Verify
+
+This phase must only be pursued after the core engineering workflow is
+stable.
+
+============================================================
+CURRENT DEVELOPMENT STATE
+
+CURRENT PHASE:
+
+PHASE 1 — READ-ONLY SYSTEM AUDIT
+
+CURRENT OBJECTIVE:
+
+Determine what AEGIS ACTUALLY does today.
+
+CURRENT RULE:
+
+DO NOT IMPLEMENT NEW FEATURES.
+
+NEXT ACTION:
+
+Perform the read-only runtime audit.
+
+Trace the real execution path and produce the integration-gap map.
+
+============================================================
+ROADMAP RULE
+
+Historical feature numbers remain useful for tracking what has already
+been built.
+
+They do NOT determine what gets built next.
+
+The next task is determined by:
+
+CURRENT MVP GAP
+
+not:
+
+NEXT FEATURE NUMBER
+============================================================
+DEFINITION OF PROGRESS
+
+Progress is measured by:
+
+Working product capability
+
+not:
+
+Number of files
+
+not:
+
+Number of agents
+
+not:
+
+Number of features
+
+not:
+
+Number of tests
+
+not:
+
+Number of integrations implemented in isolation
+============================================================
+END OF BUILD PLAN

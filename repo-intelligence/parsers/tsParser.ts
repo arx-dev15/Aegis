@@ -84,7 +84,7 @@ export function parseTypeScriptSymbols(input: ParseSymbolsInput): SymbolRecord[]
     const calls: Array<{ targetName: string; line: number }> = [];
 
     function findCalls(n: any) {
-      if (ts.isCallExpression(n)) {
+      if (ts.isCallExpression(n) || ts.isNewExpression(n)) {
         const expr = n.expression;
         let callName: string | undefined;
 
