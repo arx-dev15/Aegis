@@ -11,6 +11,7 @@
 import type { AegisState, AegisStateUpdate } from "../state.js";
 import { ArchitectAgent } from "../../agents/architect/architect.js";
 import { memoryManager } from "../../memory/memoryManager.js";
+import { formatPlanContext } from "../planContext.js";
 
 /**
  * Creates an architect node using a provided ArchitectAgent instance or defaults to standard ArchitectAgent.
@@ -37,7 +38,8 @@ export function createArchitectNode(agent?: ArchitectAgent) {
       const memoryContext = state.memoryContext || (state.runId ? memoryManager.getFormattedMemoryContext({ runId: state.runId }) : "");
       const baseResearch = memoryContext ? `${state.research}\n\n${memoryContext}`.trim() : state.research;
 
-      const result = await architect.design(state.task, baseResearch);
+      const planContext = formatPlanContext(state.plan, "architect");
+      const result = await architect.design(state.task, baseResearch, planContext);
 
       if (state.runId) {
         memoryManager.shortTerm.set(state.runId, "architect_summary", result.summary, "step_note");

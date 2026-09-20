@@ -38,14 +38,20 @@ export class ArchitectAgent {
     private model: ArchitectModel = new GeminiArchitectModel()
   ) {}
 
-  async design(goal: string, research?: string): Promise<ArchitectureResult> {
+  async design(goal: string, research?: string, planContext?: string): Promise<ArchitectureResult> {
     if (!goal.trim()) {
       throw new Error("Architect goal cannot be empty.");
     }
 
-    const fullPrompt = research && research.trim() !== ""
-      ? `${goal.trim()}\n\nResearch Input:\n${research.trim()}`
-      : goal.trim();
+    let fullPrompt = goal.trim();
+
+    if (planContext && planContext.trim() !== "") {
+      fullPrompt += `\n\n${planContext.trim()}`;
+    }
+
+    if (research && research.trim() !== "") {
+      fullPrompt += `\n\nResearch Input:\n${research.trim()}`;
+    }
 
     const result = await this.model.generateStructured<ArchitectureResult>(
       ARCHITECT_SYSTEM_PROMPT,

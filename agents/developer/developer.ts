@@ -47,18 +47,24 @@ export class DeveloperAgent {
    *                          When provided, the Developer will focus on fixing the issues
    *                          described rather than generating fresh code from scratch.
    * @param existingCodeContext - Optional real existing source code read from workspace files.
+   * @param planContext         - Optional structured engineering plan steps.
    */
   async develop(
     task: string,
     architecture?: string,
     recoveryContext?: string,
-    existingCodeContext?: string
+    existingCodeContext?: string,
+    planContext?: string
   ): Promise<DeveloperResult> {
     if (!task.trim()) {
       throw new Error("Developer task cannot be empty.");
     }
 
     let fullPrompt = task.trim();
+
+    if (planContext && planContext.trim() !== "") {
+      fullPrompt += `\n\n${planContext.trim()}`;
+    }
 
     if (architecture && architecture.trim() !== "") {
       fullPrompt += `\n\nArchitecture Context:\n${architecture.trim()}`;

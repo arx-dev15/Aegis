@@ -38,14 +38,20 @@ export class ResearcherAgent {
     private model: ResearcherModel = new GeminiResearcherModel()
   ) {}
 
-  async research(objective: string, context?: string): Promise<ResearchResult> {
+  async research(objective: string, context?: string, planContext?: string): Promise<ResearchResult> {
     if (!objective.trim()) {
       throw new Error("Research objective cannot be empty.");
     }
 
-    const fullPrompt = context && context.trim() !== ""
-      ? `${objective.trim()}\n\nAdditional Context:\n${context.trim()}`
-      : objective.trim();
+    let fullPrompt = objective.trim();
+
+    if (planContext && planContext.trim() !== "") {
+      fullPrompt += `\n\n${planContext.trim()}`;
+    }
+
+    if (context && context.trim() !== "") {
+      fullPrompt += `\n\nAdditional Context:\n${context.trim()}`;
+    }
 
     const result = await this.model.generateStructured<ResearchResult>(
       RESEARCHER_SYSTEM_PROMPT,

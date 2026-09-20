@@ -293,5 +293,18 @@
     "status": "ready",
     "createdAt": "2026-09-20T15:03:38.389Z",
     "updatedAt": "2026-09-20T15:03:38.389Z"
+  },
+  "repo_local_local_aegis-r02-real-val-1789928376143": {
+    "id": "repo_local_local_aegis-r02-real-val-1789928376143",
+    "provider": "local",
+    "owner": "local",
+    "name": "aegis-r02-real-val-1789928376143",
+    "url": "C:\\Users\\Ganesha\\AppData\\Local\\Temp\\aegis-r02-real-val-1789928376143",
+    "defaultBranch": "main",
+    "analyzedRevision": "head",
+    "commitSha": "head",
+    "status": "ready",
+    "createdAt": "2026-09-20T18:19:36.151Z",
+    "updatedAt": "2026-09-20T18:19:36.151Z"
   }
 }

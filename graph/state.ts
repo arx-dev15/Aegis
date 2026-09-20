@@ -28,8 +28,11 @@ export type ExecutionStatus =
 
 export interface PlanStep {
   id: string;
+  title?: string;
   description: string;
   status: "pending" | "in_progress" | "completed" | "failed";
+  dependencies?: string[];
+  verification?: string;
 }
 
 export interface CodeChange {

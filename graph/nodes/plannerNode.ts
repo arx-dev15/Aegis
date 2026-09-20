@@ -46,8 +46,11 @@ export function createPlannerNode(agent?: PlannerAgent) {
 
       const planSteps: PlanStep[] = result.steps.map((step) => ({
         id: step.id,
+        title: step.title,
         description: `${step.title}: ${step.description}`,
         status: "pending",
+        dependencies: step.dependencies,
+        verification: step.verification,
       }));
 
       const researchSummary = [

@@ -33,6 +33,7 @@ import {
   findMatchingRepoSnapshot,
   queryRepositoryIntelligence,
 } from "../../repo-intelligence/retrieval/hybridRetriever.js";
+import { formatPlanContext } from "../planContext.js";
 
 /**
  * Format the latest RecoveryContext into a human-readable string for the Developer.
@@ -208,7 +209,12 @@ export function createDeveloperNode(agent?: DeveloperAgent) {
         executionLog
       );
 
-      const result = await developer.develop(state.task, baseArch, recoveryCtx, existingCodeContext);
+      const planContext = formatPlanContext(state.plan, "developer");
+      if (planContext) {
+        executionLog.push(`[DEV-PLAN] Developer received ${state.plan?.length ?? 0} plan step(s)`);
+      }
+
+      const result = await developer.develop(state.task, baseArch, recoveryCtx, existingCodeContext, planContext);
 
       if (state.runId) {
         memoryManager.shortTerm.set(

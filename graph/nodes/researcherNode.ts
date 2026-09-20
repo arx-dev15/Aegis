@@ -21,6 +21,8 @@ import { memoryManager } from "../../memory/memoryManager.js";
 import { JsonRepositoryStore } from "../../repo-intelligence/storage/jsonStore.js";
 import { queryRepositoryIntelligence } from "../../repo-intelligence/retrieval/hybridRetriever.js";
 
+import { formatPlanContext } from "../planContext.js";
+
 const repoStore = new JsonRepositoryStore();
 
 /**
@@ -102,7 +104,8 @@ export function createResearcherNode(agent?: ResearcherAgent) {
         .join("\n\n")
         .trim();
 
-      const result = await researcher.research(state.task, baseResearch || undefined);
+      const planContext = formatPlanContext(state.plan, "researcher");
+      const result = await researcher.research(state.task, baseResearch || undefined, planContext);
 
       if (state.runId) {
         memoryManager.shortTerm.set(state.runId, "researcher_summary", result.summary, "step_note");
