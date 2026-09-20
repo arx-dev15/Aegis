@@ -32,6 +32,7 @@ export async function startTask(options: StartTaskOptions): Promise<AgentService
   executeApprovalWorkflow(options.runId, {
     task: options.description,
     runId: options.runId,
+    executionMode: options.executionMode,
   }).catch((err) => {
     console.error(`[AgentService] Error during workflow run ${options.runId}:`, err)
   })

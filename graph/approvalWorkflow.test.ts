@@ -47,12 +47,24 @@ const mockDeveloper = async (state: AegisState): Promise<AegisStateUpdate> => ({
   executionLog: ["[DEV-TOOL] Executed file changes safely"],
 });
 
+const mockTester = async (state: AegisState): Promise<AegisStateUpdate> => ({
+  status: "testing",
+  testResults: { passed: true, totalTests: 1, passedTests: 1, failedTests: 0 },
+});
+
+const mockReviewer = async (state: AegisState): Promise<AegisStateUpdate> => ({
+  status: "reviewing",
+  reviewResults: { approved: true, comments: ["Approved"] },
+});
+
 // Compiled workflow with fast deterministic mock nodes
 const testApprovalWorkflow = buildApprovalWorkflow({
   planner: mockPlanner,
   researcher: mockResearcher,
   architect: mockArchitect,
   developer: mockDeveloper,
+  tester: mockTester,
+  reviewer: mockReviewer,
 });
 
 async function runTests(): Promise<void> {
@@ -119,7 +131,10 @@ async function runTests(): Promise<void> {
       testApprovalWorkflow
     );
 
-    assert(resumedState.status === "developing", `Resumed status should be 'developing', got '${resumedState.status}'`);
+    assert(
+      resumedState.status === "developing" || resumedState.status === "reviewing",
+      `Resumed status should be 'developing' or 'reviewing', got '${resumedState.status}'`
+    );
     assert(resumedState.pendingApproval === null, "pendingApproval should be cleared");
     assert(resumedState.approvalDecision?.action === "approve", "Decision should be approve");
 
@@ -151,7 +166,7 @@ async function runTests(): Promise<void> {
       testApprovalWorkflow
     );
 
-    assert(rejectedState.status === "completed", `Rejected status should terminate safely as 'completed', got '${rejectedState.status}'`);
+    assert(rejectedState.status === "failed", `Rejected status should terminate safely as 'failed', got '${rejectedState.status}'`);
     assert(rejectedState.approvalDecision?.action === "reject", "Decision should be reject");
     assert(
       rejectedState.executionLog.some((log) => log.includes("HUMAN-APPROVAL-REJECTED")),

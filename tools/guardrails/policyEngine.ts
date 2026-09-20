@@ -223,9 +223,9 @@ export function classifyToolAction(toolName: string, action: string, target?: st
  * Returns explicit decision: ALLOW, REQUIRE_APPROVAL, or BLOCK.
  */
 export function evaluatePermission(input: PermissionEvaluationInput): PermissionEvaluationResult {
-  const { toolName, action, target, executionMode = "semi-auto", riskLevel, runId = "run_default" } = input;
+  const { toolName, action, target, executionMode = "semi-auto", riskLevel, runId = "run_default", isApproved } = input;
 
-  // 1. Dangerous action check -> ALWAYS BLOCK
+  // 1. Dangerous action check -> ALWAYS BLOCK (even if approved)
   const dangerousCheck = isDangerousAction(action, target);
   if (dangerousCheck.isDangerous) {
     return {
@@ -234,6 +234,16 @@ export function evaluatePermission(input: PermissionEvaluationInput): Permission
       category: "dangerous",
       reason: dangerousCheck.reason || `Action "${action}" on target "${target || "N/A"}" is classified as dangerous.`,
       code: "ERR_DANGEROUS_ACTION_BLOCKED",
+    };
+  }
+
+  // 1a. If operation was already approved by human reviewer and is not dangerous -> ALLOW
+  if (isApproved) {
+    return {
+      allowed: true,
+      decision: "ALLOW",
+      category: classifyToolAction(toolName, action, target),
+      reason: `Operation "${action}" on "${target || "workspace"}" allowed following human approval under ${executionMode} execution mode.`,
     };
   }
 

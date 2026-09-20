@@ -34,6 +34,7 @@ function createBaseState(overrides: Partial<AegisState> = {}): AegisState {
     memoryContext: "",
     pendingApproval: null,
     approvalDecision: null,
+    executionMode: "semi-auto",
     ...overrides,
   };
 }

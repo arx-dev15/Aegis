@@ -103,7 +103,7 @@ export const AegisStateAnnotation = Annotation.Root({
 
   /** File changes generated during development */
   codeChanges: Annotation<CodeChange[]>({
-    reducer: (existing, update) => existing.concat(update),
+    reducer: (_, update) => update,
     default: () => [],
   }),
 
@@ -193,6 +193,15 @@ export const AegisStateAnnotation = Annotation.Root({
   pendingApproval: Annotation<ApprovalRequest | null>({
     reducer: (_, update) => update,
     default: () => null,
+  }),
+
+  /**
+   * Execution mode for guardrails and approval policy evaluation.
+   * Options: "automatic" | "semi-auto" | "manual". Defaults to "semi-auto".
+   */
+  executionMode: Annotation<"automatic" | "semi-auto" | "manual">({
+    reducer: (_, update) => update,
+    default: () => "semi-auto",
   }),
 
   /**

@@ -1,0 +1,169 @@
+{
+  "runId": "run_appr_1789934577119_3",
+  "state": {
+    "task": "Delete legacy authentication routes",
+    "plan": [
+      {
+        "id": "step-1",
+        "description": "Design module",
+        "status": "completed"
+      }
+    ],
+    "research": "Mock research analysis complete.\nMock research analysis complete.\nMock research analysis complete.",
+    "architecture": "Mock architecture design spec.",
+    "codeChanges": [
+      {
+        "path": "src/auth.ts",
+        "action": "modify",
+        "summary": "Update auth middleware"
+      }
+    ],
+    "testResults": null,
+    "reviewResults": null,
+    "errors": [
+      "Action rejected by human reviewer: Rejecting file deletion: legacy routes are still needed for backwards compatibility."
+    ],
+    "status": "failed",
+    "retryCount": 0,
+    "maxRetries": 3,
+    "workspace": "",
+    "executionLog": [
+      "[DEV-TOOL] Executed file changes safely",
+      "[HUMAN-APPROVAL-GATE] Execution paused for run run_appr_1789934577119_3. Created ApprovalRequest appr_1789934577130_gyqxp.",
+      "[DEV-TOOL] Executed file changes safely",
+      "[HUMAN-APPROVAL-GATE] Execution paused for run run_appr_1789934577119_3. Created ApprovalRequest appr_1789934577130_gyqxp.",
+      "[DEV-TOOL] Executed file changes safely",
+      "[HUMAN-APPROVAL-REJECTED] Action rejected by human reviewer. Reason: \"Rejecting file deletion: legacy routes are still needed for backwards compatibility.\". Protected changes skipped safely."
+    ],
+    "recoveryContext": [],
+    "runId": "run_appr_1789934577119_3",
+    "memoryContext": "",
+    "pendingApproval": null,
+    "executionMode": "semi-auto",
+    "approvalDecision": {
+      "approvalId": "appr_1789934577130_gyqxp",
+      "action": "reject",
+      "reason": "Rejecting file deletion: legacy routes are still needed for backwards compatibility.",
+      "decidedAt": 1789934577133
+    }
+  },
+  "pendingApproval": null,
+  "history": [
+    {
+      "task": "Delete legacy authentication routes",
+      "plan": [],
+      "research": "",
+      "architecture": "",
+      "codeChanges": [],
+      "testResults": null,
+      "reviewResults": null,
+      "errors": [],
+      "status": "idle",
+      "retryCount": 0,
+      "maxRetries": 3,
+      "workspace": "",
+      "executionLog": [],
+      "recoveryContext": [],
+      "runId": "run_appr_1789934577119_3",
+      "memoryContext": "",
+      "pendingApproval": null,
+      "approvalDecision": null,
+      "executionMode": "semi-auto"
+    },
+    {
+      "task": "Delete legacy authentication routes",
+      "plan": [
+        {
+          "id": "step-1",
+          "description": "Design module",
+          "status": "completed"
+        }
+      ],
+      "research": "Mock research analysis complete.",
+      "architecture": "Mock architecture design spec.",
+      "codeChanges": [
+        {
+          "path": "src/auth.ts",
+          "action": "modify",
+          "summary": "Update auth middleware"
+        }
+      ],
+      "testResults": null,
+      "reviewResults": null,
+      "errors": [],
+      "status": "paused",
+      "retryCount": 0,
+      "maxRetries": 3,
+      "workspace": "",
+      "executionLog": [
+        "[DEV-TOOL] Executed file changes safely",
+        "[HUMAN-APPROVAL-GATE] Execution paused for run run_appr_1789934577119_3. Created ApprovalRequest appr_1789934577130_gyqxp."
+      ],
+      "recoveryContext": [],
+      "runId": "run_appr_1789934577119_3",
+      "memoryContext": "",
+      "pendingApproval": {
+        "id": "appr_1789934577130_gyqxp",
+        "runId": "run_appr_1789934577119_3",
+        "type": "code-review",
+        "action": "write_file",
+        "title": "Approve code changes for: Delete legacy authentication routes",
+        "description": "Developer proposes 1 file change(s):\n- MODIFY src/auth.ts: Update auth middleware",
+        "target": "src/auth.ts",
+        "riskLevel": "high",
+        "requestedBy": "developerNode",
+        "status": "pending",
+        "requestedAt": 1789934577130
+      },
+      "executionMode": "semi-auto",
+      "approvalDecision": null
+    },
+    {
+      "task": "Delete legacy authentication routes",
+      "plan": [
+        {
+          "id": "step-1",
+          "description": "Design module",
+          "status": "completed"
+        }
+      ],
+      "research": "Mock research analysis complete.\nMock research analysis complete.\nMock research analysis complete.",
+      "architecture": "Mock architecture design spec.",
+      "codeChanges": [
+        {
+          "path": "src/auth.ts",
+          "action": "modify",
+          "summary": "Update auth middleware"
+        }
+      ],
+      "testResults": null,
+      "reviewResults": null,
+      "errors": [
+        "Action rejected by human reviewer: Rejecting file deletion: legacy routes are still needed for backwards compatibility."
+      ],
+      "status": "failed",
+      "retryCount": 0,
+      "maxRetries": 3,
+      "workspace": "",
+      "executionLog": [
+        "[DEV-TOOL] Executed file changes safely",
+        "[HUMAN-APPROVAL-GATE] Execution paused for run run_appr_1789934577119_3. Created ApprovalRequest appr_1789934577130_gyqxp.",
+        "[DEV-TOOL] Executed file changes safely",
+        "[HUMAN-APPROVAL-GATE] Execution paused for run run_appr_1789934577119_3. Created ApprovalRequest appr_1789934577130_gyqxp.",
+        "[DEV-TOOL] Executed file changes safely",
+        "[HUMAN-APPROVAL-REJECTED] Action rejected by human reviewer. Reason: \"Rejecting file deletion: legacy routes are still needed for backwards compatibility.\". Protected changes skipped safely."
+      ],
+      "recoveryContext": [],
+      "runId": "run_appr_1789934577119_3",
+      "memoryContext": "",
+      "pendingApproval": null,
+      "executionMode": "semi-auto",
+      "approvalDecision": {
+        "approvalId": "appr_1789934577130_gyqxp",
+        "action": "reject",
+        "reason": "Rejecting file deletion: legacy routes are still needed for backwards compatibility.",
+        "decidedAt": 1789934577133
+      }
+    }
+  ]
+}

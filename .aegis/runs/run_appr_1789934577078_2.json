@@ -1,0 +1,185 @@
+{
+  "runId": "run_appr_1789934577078_2",
+  "state": {
+    "task": "Add security headers middleware",
+    "plan": [
+      {
+        "id": "step-1",
+        "description": "Design module",
+        "status": "completed"
+      }
+    ],
+    "research": "Mock research analysis complete.\nMock research analysis complete.\nMock research analysis complete.",
+    "architecture": "Mock architecture design spec.",
+    "codeChanges": [
+      {
+        "path": "src/auth.ts",
+        "action": "modify",
+        "summary": "Update auth middleware"
+      }
+    ],
+    "testResults": {
+      "passed": true,
+      "totalTests": 1,
+      "passedTests": 1,
+      "failedTests": 0
+    },
+    "reviewResults": {
+      "approved": true,
+      "comments": [
+        "Approved"
+      ]
+    },
+    "errors": [],
+    "status": "reviewing",
+    "retryCount": 0,
+    "maxRetries": 3,
+    "workspace": "",
+    "executionLog": [
+      "[DEV-TOOL] Executed file changes safely",
+      "[HUMAN-APPROVAL-GATE] Execution paused for run run_appr_1789934577078_2. Created ApprovalRequest appr_1789934577090_jjvdf.",
+      "[DEV-TOOL] Executed file changes safely",
+      "[HUMAN-APPROVAL-GATE] Execution paused for run run_appr_1789934577078_2. Created ApprovalRequest appr_1789934577090_jjvdf.",
+      "[DEV-TOOL] Executed file changes safely",
+      "[DEV-APPLY] Workspace is empty (simulation mode). Skipping physical disk writes."
+    ],
+    "recoveryContext": [],
+    "runId": "run_appr_1789934577078_2",
+    "memoryContext": "",
+    "pendingApproval": null,
+    "executionMode": "semi-auto",
+    "approvalDecision": {
+      "approvalId": "appr_1789934577090_jjvdf",
+      "action": "approve",
+      "reason": "Approved by Security Lead",
+      "decidedAt": 1789934577094
+    }
+  },
+  "pendingApproval": null,
+  "history": [
+    {
+      "task": "Add security headers middleware",
+      "plan": [],
+      "research": "",
+      "architecture": "",
+      "codeChanges": [],
+      "testResults": null,
+      "reviewResults": null,
+      "errors": [],
+      "status": "idle",
+      "retryCount": 0,
+      "maxRetries": 3,
+      "workspace": "",
+      "executionLog": [],
+      "recoveryContext": [],
+      "runId": "run_appr_1789934577078_2",
+      "memoryContext": "",
+      "pendingApproval": null,
+      "approvalDecision": null,
+      "executionMode": "semi-auto"
+    },
+    {
+      "task": "Add security headers middleware",
+      "plan": [
+        {
+          "id": "step-1",
+          "description": "Design module",
+          "status": "completed"
+        }
+      ],
+      "research": "Mock research analysis complete.",
+      "architecture": "Mock architecture design spec.",
+      "codeChanges": [
+        {
+          "path": "src/auth.ts",
+          "action": "modify",
+          "summary": "Update auth middleware"
+        }
+      ],
+      "testResults": null,
+      "reviewResults": null,
+      "errors": [],
+      "status": "paused",
+      "retryCount": 0,
+      "maxRetries": 3,
+      "workspace": "",
+      "executionLog": [
+        "[DEV-TOOL] Executed file changes safely",
+        "[HUMAN-APPROVAL-GATE] Execution paused for run run_appr_1789934577078_2. Created ApprovalRequest appr_1789934577090_jjvdf."
+      ],
+      "recoveryContext": [],
+      "runId": "run_appr_1789934577078_2",
+      "memoryContext": "",
+      "pendingApproval": {
+        "id": "appr_1789934577090_jjvdf",
+        "runId": "run_appr_1789934577078_2",
+        "type": "code-review",
+        "action": "write_file",
+        "title": "Approve code changes for: Add security headers middleware",
+        "description": "Developer proposes 1 file change(s):\n- MODIFY src/auth.ts: Update auth middleware",
+        "target": "src/auth.ts",
+        "riskLevel": "high",
+        "requestedBy": "developerNode",
+        "status": "pending",
+        "requestedAt": 1789934577090
+      },
+      "executionMode": "semi-auto",
+      "approvalDecision": null
+    },
+    {
+      "task": "Add security headers middleware",
+      "plan": [
+        {
+          "id": "step-1",
+          "description": "Design module",
+          "status": "completed"
+        }
+      ],
+      "research": "Mock research analysis complete.\nMock research analysis complete.\nMock research analysis complete.",
+      "architecture": "Mock architecture design spec.",
+      "codeChanges": [
+        {
+          "path": "src/auth.ts",
+          "action": "modify",
+          "summary": "Update auth middleware"
+        }
+      ],
+      "testResults": {
+        "passed": true,
+        "totalTests": 1,
+        "passedTests": 1,
+        "failedTests": 0
+      },
+      "reviewResults": {
+        "approved": true,
+        "comments": [
+          "Approved"
+        ]
+      },
+      "errors": [],
+      "status": "reviewing",
+      "retryCount": 0,
+      "maxRetries": 3,
+      "workspace": "",
+      "executionLog": [
+        "[DEV-TOOL] Executed file changes safely",
+        "[HUMAN-APPROVAL-GATE] Execution paused for run run_appr_1789934577078_2. Created ApprovalRequest appr_1789934577090_jjvdf.",
+        "[DEV-TOOL] Executed file changes safely",
+        "[HUMAN-APPROVAL-GATE] Execution paused for run run_appr_1789934577078_2. Created ApprovalRequest appr_1789934577090_jjvdf.",
+        "[DEV-TOOL] Executed file changes safely",
+        "[DEV-APPLY] Workspace is empty (simulation mode). Skipping physical disk writes."
+      ],
+      "recoveryContext": [],
+      "runId": "run_appr_1789934577078_2",
+      "memoryContext": "",
+      "pendingApproval": null,
+      "executionMode": "semi-auto",
+      "approvalDecision": {
+        "approvalId": "appr_1789934577090_jjvdf",
+        "action": "approve",
+        "reason": "Approved by Security Lead",
+        "decidedAt": 1789934577094
+      }
+    }
+  ]
+}

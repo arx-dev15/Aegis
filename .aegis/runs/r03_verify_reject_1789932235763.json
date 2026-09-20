@@ -1,0 +1,183 @@
+{
+  "runId": "r03_verify_reject_1789932235763",
+  "state": {
+    "task": "Unwanted update",
+    "plan": [
+      {
+        "id": "step-1",
+        "description": "Unwanted step",
+        "status": "completed"
+      }
+    ],
+    "research": "Unwanted research\nUnwanted research\nUnwanted research",
+    "architecture": "Unwanted architecture",
+    "codeChanges": [
+      {
+        "path": "src/index.ts",
+        "action": "modify",
+        "summary": "Attempted overwrite with B",
+        "content": "// OVERWRITE B"
+      }
+    ],
+    "testResults": null,
+    "reviewResults": null,
+    "errors": [
+      "Action rejected by human reviewer: User rejected proposal"
+    ],
+    "status": "completed",
+    "retryCount": 0,
+    "maxRetries": 3,
+    "workspace": "C:\\Users\\Ganesha\\AppData\\Local\\Temp\\aegis-r03-reject-1789932235754",
+    "executionLog": [
+      "[DEV-INSPECT] No pre-indexed Repository Snapshot found for workspace.",
+      "[DEV-INSPECT] No candidate relevant existing files identified.",
+      "[DEV-PLAN] Developer received 1 plan step(s)",
+      "[DEV-PREPARE] Prepared proposal with 1 file change(s) (read-only, disk unchanged)",
+      "[HUMAN-APPROVAL-GATE] Execution paused for run r03_verify_reject_1789932235763. Created ApprovalRequest appr_1789932235802_nmslq.",
+      "[DEV-INSPECT] No pre-indexed Repository Snapshot found for workspace.",
+      "[DEV-INSPECT] No candidate relevant existing files identified.",
+      "[DEV-PLAN] Developer received 1 plan step(s)",
+      "[DEV-PREPARE] Prepared proposal with 1 file change(s) (read-only, disk unchanged)",
+      "[HUMAN-APPROVAL-GATE] Execution paused for run r03_verify_reject_1789932235763. Created ApprovalRequest appr_1789932235802_nmslq.",
+      "[DEV-PREPARE] Preserving existing generated proposal (1 file changes) for approval/apply",
+      "[HUMAN-APPROVAL-REJECTED] Action rejected by human reviewer. Reason: \"User rejected proposal\". Protected changes skipped safely."
+    ],
+    "recoveryContext": [],
+    "runId": "r03_verify_reject_1789932235763",
+    "memoryContext": "",
+    "pendingApproval": null,
+    "approvalDecision": {
+      "approvalId": "appr_1789932235802_nmslq",
+      "action": "reject",
+      "reason": "User rejected proposal",
+      "decidedAt": 1789932235818
+    }
+  },
+  "pendingApproval": null,
+  "history": [
+    {
+      "task": "Unwanted update",
+      "plan": [],
+      "research": "",
+      "architecture": "",
+      "codeChanges": [],
+      "testResults": null,
+      "reviewResults": null,
+      "errors": [],
+      "status": "idle",
+      "retryCount": 0,
+      "maxRetries": 3,
+      "workspace": "C:\\Users\\Ganesha\\AppData\\Local\\Temp\\aegis-r03-reject-1789932235754",
+      "executionLog": [],
+      "recoveryContext": [],
+      "runId": "r03_verify_reject_1789932235763",
+      "memoryContext": "",
+      "pendingApproval": null,
+      "approvalDecision": null
+    },
+    {
+      "task": "Unwanted update",
+      "plan": [
+        {
+          "id": "step-1",
+          "description": "Unwanted step",
+          "status": "completed"
+        }
+      ],
+      "research": "Unwanted research",
+      "architecture": "Unwanted architecture",
+      "codeChanges": [
+        {
+          "path": "src/index.ts",
+          "action": "modify",
+          "summary": "Attempted overwrite with B",
+          "content": "// OVERWRITE B"
+        }
+      ],
+      "testResults": null,
+      "reviewResults": null,
+      "errors": [],
+      "status": "paused",
+      "retryCount": 0,
+      "maxRetries": 3,
+      "workspace": "C:\\Users\\Ganesha\\AppData\\Local\\Temp\\aegis-r03-reject-1789932235754",
+      "executionLog": [
+        "[DEV-INSPECT] No pre-indexed Repository Snapshot found for workspace.",
+        "[DEV-INSPECT] No candidate relevant existing files identified.",
+        "[DEV-PLAN] Developer received 1 plan step(s)",
+        "[DEV-PREPARE] Prepared proposal with 1 file change(s) (read-only, disk unchanged)",
+        "[HUMAN-APPROVAL-GATE] Execution paused for run r03_verify_reject_1789932235763. Created ApprovalRequest appr_1789932235802_nmslq."
+      ],
+      "recoveryContext": [],
+      "runId": "r03_verify_reject_1789932235763",
+      "memoryContext": "",
+      "pendingApproval": {
+        "id": "appr_1789932235802_nmslq",
+        "runId": "r03_verify_reject_1789932235763",
+        "type": "code-review",
+        "action": "write_file",
+        "title": "Approve code changes for: Unwanted update",
+        "description": "Developer proposes 1 file change(s):\n- MODIFY src/index.ts: Attempted overwrite with B",
+        "target": "src/index.ts",
+        "riskLevel": "high",
+        "requestedBy": "developerNode",
+        "status": "pending",
+        "requestedAt": 1789932235802
+      },
+      "approvalDecision": null
+    },
+    {
+      "task": "Unwanted update",
+      "plan": [
+        {
+          "id": "step-1",
+          "description": "Unwanted step",
+          "status": "completed"
+        }
+      ],
+      "research": "Unwanted research\nUnwanted research\nUnwanted research",
+      "architecture": "Unwanted architecture",
+      "codeChanges": [
+        {
+          "path": "src/index.ts",
+          "action": "modify",
+          "summary": "Attempted overwrite with B",
+          "content": "// OVERWRITE B"
+        }
+      ],
+      "testResults": null,
+      "reviewResults": null,
+      "errors": [
+        "Action rejected by human reviewer: User rejected proposal"
+      ],
+      "status": "completed",
+      "retryCount": 0,
+      "maxRetries": 3,
+      "workspace": "C:\\Users\\Ganesha\\AppData\\Local\\Temp\\aegis-r03-reject-1789932235754",
+      "executionLog": [
+        "[DEV-INSPECT] No pre-indexed Repository Snapshot found for workspace.",
+        "[DEV-INSPECT] No candidate relevant existing files identified.",
+        "[DEV-PLAN] Developer received 1 plan step(s)",
+        "[DEV-PREPARE] Prepared proposal with 1 file change(s) (read-only, disk unchanged)",
+        "[HUMAN-APPROVAL-GATE] Execution paused for run r03_verify_reject_1789932235763. Created ApprovalRequest appr_1789932235802_nmslq.",
+        "[DEV-INSPECT] No pre-indexed Repository Snapshot found for workspace.",
+        "[DEV-INSPECT] No candidate relevant existing files identified.",
+        "[DEV-PLAN] Developer received 1 plan step(s)",
+        "[DEV-PREPARE] Prepared proposal with 1 file change(s) (read-only, disk unchanged)",
+        "[HUMAN-APPROVAL-GATE] Execution paused for run r03_verify_reject_1789932235763. Created ApprovalRequest appr_1789932235802_nmslq.",
+        "[DEV-PREPARE] Preserving existing generated proposal (1 file changes) for approval/apply",
+        "[HUMAN-APPROVAL-REJECTED] Action rejected by human reviewer. Reason: \"User rejected proposal\". Protected changes skipped safely."
+      ],
+      "recoveryContext": [],
+      "runId": "r03_verify_reject_1789932235763",
+      "memoryContext": "",
+      "pendingApproval": null,
+      "approvalDecision": {
+        "approvalId": "appr_1789932235802_nmslq",
+        "action": "reject",
+        "reason": "User rejected proposal",
+        "decidedAt": 1789932235818
+      }
+    }
+  ]
+}

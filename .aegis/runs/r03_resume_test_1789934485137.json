@@ -1,0 +1,207 @@
+{
+  "runId": "r03_resume_test_1789934485137",
+  "state": {
+    "task": "Create calc and config",
+    "plan": [
+      {
+        "id": "step-1",
+        "description": "Design module",
+        "status": "completed"
+      }
+    ],
+    "research": "Mock research analysis complete.\nMock research analysis complete.\nMock research analysis complete.",
+    "architecture": "Mock architecture design spec.",
+    "codeChanges": [
+      {
+        "path": "src/calc.ts",
+        "action": "add",
+        "summary": "Created calc function",
+        "content": "export function calc(x: number) { return x + 1; }"
+      },
+      {
+        "path": "src/config.ts",
+        "action": "add",
+        "summary": "Added configuration settings",
+        "content": "export const CONFIG = { env: 'test' };"
+      }
+    ],
+    "testResults": null,
+    "reviewResults": null,
+    "errors": [
+      "Failed to apply approved proposal change to src/calc.ts: [GUARDRAIL-BLOCKED] Sensitive operation \"write_file\" requires human approval under semi-auto execution mode."
+    ],
+    "status": "failed",
+    "retryCount": 0,
+    "maxRetries": 3,
+    "workspace": "C:\\Users\\Ganesha\\AppData\\Local\\Temp\\aegis-r03-test-1789934485038",
+    "executionLog": [
+      "[DEV-INSPECT] No pre-indexed Repository Snapshot found for workspace.",
+      "[DEV-INSPECT] No candidate relevant existing files identified.",
+      "[DEV-PLAN] Developer received 1 plan step(s)",
+      "[DEV-PREPARE] Prepared proposal with 2 file change(s) (read-only, disk unchanged)",
+      "[HUMAN-APPROVAL-GATE] Execution paused for run r03_resume_test_1789934485137. Created ApprovalRequest appr_1789934485147_5malt.",
+      "[DEV-INSPECT] No pre-indexed Repository Snapshot found for workspace.",
+      "[DEV-INSPECT] No candidate relevant existing files identified.",
+      "[DEV-PLAN] Developer received 1 plan step(s)",
+      "[DEV-PREPARE] Prepared proposal with 2 file change(s) (read-only, disk unchanged)",
+      "[HUMAN-APPROVAL-GATE] Execution paused for run r03_resume_test_1789934485137. Created ApprovalRequest appr_1789934485147_5malt.",
+      "[DEV-PREPARE] Preserving existing generated proposal (2 file changes) for approval/apply",
+      "[DEV-APPLY] Applying 2 approved file change(s) to C:\\Users\\Ganesha\\AppData\\Local\\Temp\\aegis-r03-test-1789934485038 (mode: semi-auto)...",
+      "[DEV-APPLY] ERROR on src/calc.ts: [GUARDRAIL-BLOCKED] Sensitive operation \"write_file\" requires human approval under semi-auto execution mode."
+    ],
+    "recoveryContext": [],
+    "runId": "r03_resume_test_1789934485137",
+    "memoryContext": "",
+    "pendingApproval": null,
+    "executionMode": "semi-auto",
+    "approvalDecision": {
+      "approvalId": "appr_1789934485147_5malt",
+      "action": "approve",
+      "reason": "Approved",
+      "decidedAt": 1789934485149
+    }
+  },
+  "pendingApproval": null,
+  "history": [
+    {
+      "task": "Create calc and config",
+      "plan": [],
+      "research": "",
+      "architecture": "",
+      "codeChanges": [],
+      "testResults": null,
+      "reviewResults": null,
+      "errors": [],
+      "status": "idle",
+      "retryCount": 0,
+      "maxRetries": 3,
+      "workspace": "C:\\Users\\Ganesha\\AppData\\Local\\Temp\\aegis-r03-test-1789934485038",
+      "executionLog": [],
+      "recoveryContext": [],
+      "runId": "r03_resume_test_1789934485137",
+      "memoryContext": "",
+      "pendingApproval": null,
+      "approvalDecision": null,
+      "executionMode": "semi-auto"
+    },
+    {
+      "task": "Create calc and config",
+      "plan": [
+        {
+          "id": "step-1",
+          "description": "Design module",
+          "status": "completed"
+        }
+      ],
+      "research": "Mock research analysis complete.",
+      "architecture": "Mock architecture design spec.",
+      "codeChanges": [
+        {
+          "path": "src/calc.ts",
+          "action": "add",
+          "summary": "Created calc function",
+          "content": "export function calc(x: number) { return x + 1; }"
+        },
+        {
+          "path": "src/config.ts",
+          "action": "add",
+          "summary": "Added configuration settings",
+          "content": "export const CONFIG = { env: 'test' };"
+        }
+      ],
+      "testResults": null,
+      "reviewResults": null,
+      "errors": [],
+      "status": "paused",
+      "retryCount": 0,
+      "maxRetries": 3,
+      "workspace": "C:\\Users\\Ganesha\\AppData\\Local\\Temp\\aegis-r03-test-1789934485038",
+      "executionLog": [
+        "[DEV-INSPECT] No pre-indexed Repository Snapshot found for workspace.",
+        "[DEV-INSPECT] No candidate relevant existing files identified.",
+        "[DEV-PLAN] Developer received 1 plan step(s)",
+        "[DEV-PREPARE] Prepared proposal with 2 file change(s) (read-only, disk unchanged)",
+        "[HUMAN-APPROVAL-GATE] Execution paused for run r03_resume_test_1789934485137. Created ApprovalRequest appr_1789934485147_5malt."
+      ],
+      "recoveryContext": [],
+      "runId": "r03_resume_test_1789934485137",
+      "memoryContext": "",
+      "pendingApproval": {
+        "id": "appr_1789934485147_5malt",
+        "runId": "r03_resume_test_1789934485137",
+        "type": "code-review",
+        "action": "write_file",
+        "title": "Approve code changes for: Create calc and config",
+        "description": "Developer proposes 2 file change(s):\n- CREATE src/calc.ts: Created calc function\n- CREATE src/config.ts: Added configuration settings",
+        "target": "src/calc.ts, src/config.ts",
+        "riskLevel": "high",
+        "requestedBy": "developerNode",
+        "status": "pending",
+        "requestedAt": 1789934485147
+      },
+      "executionMode": "semi-auto",
+      "approvalDecision": null
+    },
+    {
+      "task": "Create calc and config",
+      "plan": [
+        {
+          "id": "step-1",
+          "description": "Design module",
+          "status": "completed"
+        }
+      ],
+      "research": "Mock research analysis complete.\nMock research analysis complete.\nMock research analysis complete.",
+      "architecture": "Mock architecture design spec.",
+      "codeChanges": [
+        {
+          "path": "src/calc.ts",
+          "action": "add",
+          "summary": "Created calc function",
+          "content": "export function calc(x: number) { return x + 1; }"
+        },
+        {
+          "path": "src/config.ts",
+          "action": "add",
+          "summary": "Added configuration settings",
+          "content": "export const CONFIG = { env: 'test' };"
+        }
+      ],
+      "testResults": null,
+      "reviewResults": null,
+      "errors": [
+        "Failed to apply approved proposal change to src/calc.ts: [GUARDRAIL-BLOCKED] Sensitive operation \"write_file\" requires human approval under semi-auto execution mode."
+      ],
+      "status": "failed",
+      "retryCount": 0,
+      "maxRetries": 3,
+      "workspace": "C:\\Users\\Ganesha\\AppData\\Local\\Temp\\aegis-r03-test-1789934485038",
+      "executionLog": [
+        "[DEV-INSPECT] No pre-indexed Repository Snapshot found for workspace.",
+        "[DEV-INSPECT] No candidate relevant existing files identified.",
+        "[DEV-PLAN] Developer received 1 plan step(s)",
+        "[DEV-PREPARE] Prepared proposal with 2 file change(s) (read-only, disk unchanged)",
+        "[HUMAN-APPROVAL-GATE] Execution paused for run r03_resume_test_1789934485137. Created ApprovalRequest appr_1789934485147_5malt.",
+        "[DEV-INSPECT] No pre-indexed Repository Snapshot found for workspace.",
+        "[DEV-INSPECT] No candidate relevant existing files identified.",
+        "[DEV-PLAN] Developer received 1 plan step(s)",
+        "[DEV-PREPARE] Prepared proposal with 2 file change(s) (read-only, disk unchanged)",
+        "[HUMAN-APPROVAL-GATE] Execution paused for run r03_resume_test_1789934485137. Created ApprovalRequest appr_1789934485147_5malt.",
+        "[DEV-PREPARE] Preserving existing generated proposal (2 file changes) for approval/apply",
+        "[DEV-APPLY] Applying 2 approved file change(s) to C:\\Users\\Ganesha\\AppData\\Local\\Temp\\aegis-r03-test-1789934485038 (mode: semi-auto)...",
+        "[DEV-APPLY] ERROR on src/calc.ts: [GUARDRAIL-BLOCKED] Sensitive operation \"write_file\" requires human approval under semi-auto execution mode."
+      ],
+      "recoveryContext": [],
+      "runId": "r03_resume_test_1789934485137",
+      "memoryContext": "",
+      "pendingApproval": null,
+      "executionMode": "semi-auto",
+      "approvalDecision": {
+        "approvalId": "appr_1789934485147_5malt",
+        "action": "approve",
+        "reason": "Approved",
+        "decidedAt": 1789934485149
+      }
+    }
+  ]
+}

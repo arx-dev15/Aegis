@@ -1,0 +1,187 @@
+{
+  "runId": "r03_verify_rej_sem_1789934674124",
+  "state": {
+    "task": "Unwanted change",
+    "plan": [
+      {
+        "id": "step-1",
+        "description": "Step 1",
+        "status": "completed"
+      }
+    ],
+    "research": "Research notes\nResearch notes\nResearch notes",
+    "architecture": "Arch spec",
+    "codeChanges": [
+      {
+        "path": "src/index.ts",
+        "action": "modify",
+        "summary": "Attempted overwrite with bad logic",
+        "content": "// UNWANTED BAD LOGIC"
+      }
+    ],
+    "testResults": null,
+    "reviewResults": null,
+    "errors": [
+      "Action rejected by human reviewer: Security review rejected unvalidated input handling"
+    ],
+    "status": "failed",
+    "retryCount": 0,
+    "maxRetries": 3,
+    "workspace": "C:\\Users\\Ganesha\\AppData\\Local\\Temp\\aegis-r03-hard-reject-1789934674106",
+    "executionLog": [
+      "[DEV-INSPECT] No pre-indexed Repository Snapshot found for workspace.",
+      "[DEV-INSPECT] No candidate relevant existing files identified.",
+      "[DEV-PLAN] Developer received 1 plan step(s)",
+      "[DEV-PREPARE] Prepared proposal with 1 file change(s) (read-only, disk unchanged)",
+      "[HUMAN-APPROVAL-GATE] Execution paused for run r03_verify_rej_sem_1789934674124. Created ApprovalRequest appr_1789934674181_hsqjc.",
+      "[DEV-INSPECT] No pre-indexed Repository Snapshot found for workspace.",
+      "[DEV-INSPECT] No candidate relevant existing files identified.",
+      "[DEV-PLAN] Developer received 1 plan step(s)",
+      "[DEV-PREPARE] Prepared proposal with 1 file change(s) (read-only, disk unchanged)",
+      "[HUMAN-APPROVAL-GATE] Execution paused for run r03_verify_rej_sem_1789934674124. Created ApprovalRequest appr_1789934674181_hsqjc.",
+      "[DEV-PREPARE] Preserving existing generated proposal (1 file changes) for approval/apply",
+      "[HUMAN-APPROVAL-REJECTED] Action rejected by human reviewer. Reason: \"Security review rejected unvalidated input handling\". Protected changes skipped safely."
+    ],
+    "recoveryContext": [],
+    "runId": "r03_verify_rej_sem_1789934674124",
+    "memoryContext": "",
+    "pendingApproval": null,
+    "executionMode": "semi-auto",
+    "approvalDecision": {
+      "approvalId": "appr_1789934674181_hsqjc",
+      "action": "reject",
+      "reason": "Security review rejected unvalidated input handling",
+      "decidedAt": 1789934674195
+    }
+  },
+  "pendingApproval": null,
+  "history": [
+    {
+      "task": "Unwanted change",
+      "plan": [],
+      "research": "",
+      "architecture": "",
+      "codeChanges": [],
+      "testResults": null,
+      "reviewResults": null,
+      "errors": [],
+      "status": "idle",
+      "retryCount": 0,
+      "maxRetries": 3,
+      "workspace": "C:\\Users\\Ganesha\\AppData\\Local\\Temp\\aegis-r03-hard-reject-1789934674106",
+      "executionLog": [],
+      "recoveryContext": [],
+      "runId": "r03_verify_rej_sem_1789934674124",
+      "memoryContext": "",
+      "pendingApproval": null,
+      "approvalDecision": null,
+      "executionMode": "semi-auto"
+    },
+    {
+      "task": "Unwanted change",
+      "plan": [
+        {
+          "id": "step-1",
+          "description": "Step 1",
+          "status": "completed"
+        }
+      ],
+      "research": "Research notes",
+      "architecture": "Arch spec",
+      "codeChanges": [
+        {
+          "path": "src/index.ts",
+          "action": "modify",
+          "summary": "Attempted overwrite with bad logic",
+          "content": "// UNWANTED BAD LOGIC"
+        }
+      ],
+      "testResults": null,
+      "reviewResults": null,
+      "errors": [],
+      "status": "paused",
+      "retryCount": 0,
+      "maxRetries": 3,
+      "workspace": "C:\\Users\\Ganesha\\AppData\\Local\\Temp\\aegis-r03-hard-reject-1789934674106",
+      "executionLog": [
+        "[DEV-INSPECT] No pre-indexed Repository Snapshot found for workspace.",
+        "[DEV-INSPECT] No candidate relevant existing files identified.",
+        "[DEV-PLAN] Developer received 1 plan step(s)",
+        "[DEV-PREPARE] Prepared proposal with 1 file change(s) (read-only, disk unchanged)",
+        "[HUMAN-APPROVAL-GATE] Execution paused for run r03_verify_rej_sem_1789934674124. Created ApprovalRequest appr_1789934674181_hsqjc."
+      ],
+      "recoveryContext": [],
+      "runId": "r03_verify_rej_sem_1789934674124",
+      "memoryContext": "",
+      "pendingApproval": {
+        "id": "appr_1789934674181_hsqjc",
+        "runId": "r03_verify_rej_sem_1789934674124",
+        "type": "code-review",
+        "action": "write_file",
+        "title": "Approve code changes for: Unwanted change",
+        "description": "Developer proposes 1 file change(s):\n- MODIFY src/index.ts: Attempted overwrite with bad logic",
+        "target": "src/index.ts",
+        "riskLevel": "high",
+        "requestedBy": "developerNode",
+        "status": "pending",
+        "requestedAt": 1789934674181
+      },
+      "executionMode": "semi-auto",
+      "approvalDecision": null
+    },
+    {
+      "task": "Unwanted change",
+      "plan": [
+        {
+          "id": "step-1",
+          "description": "Step 1",
+          "status": "completed"
+        }
+      ],
+      "research": "Research notes\nResearch notes\nResearch notes",
+      "architecture": "Arch spec",
+      "codeChanges": [
+        {
+          "path": "src/index.ts",
+          "action": "modify",
+          "summary": "Attempted overwrite with bad logic",
+          "content": "// UNWANTED BAD LOGIC"
+        }
+      ],
+      "testResults": null,
+      "reviewResults": null,
+      "errors": [
+        "Action rejected by human reviewer: Security review rejected unvalidated input handling"
+      ],
+      "status": "failed",
+      "retryCount": 0,
+      "maxRetries": 3,
+      "workspace": "C:\\Users\\Ganesha\\AppData\\Local\\Temp\\aegis-r03-hard-reject-1789934674106",
+      "executionLog": [
+        "[DEV-INSPECT] No pre-indexed Repository Snapshot found for workspace.",
+        "[DEV-INSPECT] No candidate relevant existing files identified.",
+        "[DEV-PLAN] Developer received 1 plan step(s)",
+        "[DEV-PREPARE] Prepared proposal with 1 file change(s) (read-only, disk unchanged)",
+        "[HUMAN-APPROVAL-GATE] Execution paused for run r03_verify_rej_sem_1789934674124. Created ApprovalRequest appr_1789934674181_hsqjc.",
+        "[DEV-INSPECT] No pre-indexed Repository Snapshot found for workspace.",
+        "[DEV-INSPECT] No candidate relevant existing files identified.",
+        "[DEV-PLAN] Developer received 1 plan step(s)",
+        "[DEV-PREPARE] Prepared proposal with 1 file change(s) (read-only, disk unchanged)",
+        "[HUMAN-APPROVAL-GATE] Execution paused for run r03_verify_rej_sem_1789934674124. Created ApprovalRequest appr_1789934674181_hsqjc.",
+        "[DEV-PREPARE] Preserving existing generated proposal (1 file changes) for approval/apply",
+        "[HUMAN-APPROVAL-REJECTED] Action rejected by human reviewer. Reason: \"Security review rejected unvalidated input handling\". Protected changes skipped safely."
+      ],
+      "recoveryContext": [],
+      "runId": "r03_verify_rej_sem_1789934674124",
+      "memoryContext": "",
+      "pendingApproval": null,
+      "executionMode": "semi-auto",
+      "approvalDecision": {
+        "approvalId": "appr_1789934674181_hsqjc",
+        "action": "reject",
+        "reason": "Security review rejected unvalidated input handling",
+        "decidedAt": 1789934674195
+      }
+    }
+  ]
+}

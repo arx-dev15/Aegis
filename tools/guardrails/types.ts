@@ -32,6 +32,8 @@ export interface PermissionEvaluationInput {
   runId?: string;
   /** Additional contextual metadata */
   context?: Record<string, any>;
+  /** Whether human approval was granted prior to execution */
+  isApproved?: boolean;
 }
 
 export interface PermissionEvaluationResult {
@@ -54,4 +56,6 @@ export interface GuardrailOptions {
   rootDir?: string;
   /** Override execution mode */
   executionMode?: "automatic" | "semi-auto" | "manual";
+  /** Whether human approval was granted prior to tool execution */
+  isApproved?: boolean;
 }

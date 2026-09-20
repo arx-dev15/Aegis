@@ -13,8 +13,10 @@ import {
   CreateApprovalRequestOptions,
 } from "../approvalTypes";
 
+export type ExecutionMode = "automatic" | "semi-auto" | "manual";
+
 export interface RequiresApprovalPolicyOptions {
-  executionMode?: "automatic" | "semi-auto" | "manual";
+  executionMode?: ExecutionMode;
   riskLevel?: ApprovalRiskLevel;
   isMutating?: boolean;
 }

@@ -87,6 +87,7 @@ async function runTests(): Promise<void> {
       memoryContext: "",
       pendingApproval: null,
       approvalDecision: null,
+      executionMode: "semi-auto",
     };
 
     if (sampleState.status !== "testing") {

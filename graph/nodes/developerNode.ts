@@ -196,6 +196,16 @@ export function createDeveloperNode(agent?: DeveloperAgent) {
     try {
       const executionLog: string[] = [];
 
+      // If a proposal has already been generated for this attempt and approval is in progress/resolved, reuse it
+      if (state.codeChanges && state.codeChanges.length > 0 && (state.approvalDecision || state.pendingApproval)) {
+        executionLog.push(`[DEV-PREPARE] Preserving existing generated proposal (${state.codeChanges.length} file changes) for approval/apply`);
+        return {
+          status: "developing",
+          codeChanges: state.codeChanges,
+          executionLog,
+        };
+      }
+
       // ── Phase 1: Grounding & LLM implementation plan generation ──────────
       const recoveryCtx = formatRecoveryContext(state.recoveryContext ?? []);
       const memoryContext = state.memoryContext || (state.runId ? memoryManager.getFormattedMemoryContext({ runId: state.runId }) : "");
@@ -232,34 +242,9 @@ export function createDeveloperNode(agent?: DeveloperAgent) {
         content: fc.content,
       }));
 
-      // ── Phase 2: Real file execution (only when workspace is configured) ──
-      if (state.workspace && state.workspace.trim() !== "") {
-        const workspace = state.workspace.trim();
-        const toolOptions = state.approvalDecision?.action === "approve" ? { executionMode: "automatic" as const } : undefined;
-
-        for (const change of result.fileChanges) {
-          try {
-            if (change.action === "delete") {
-              const del = await deleteFile(workspace, change.path, toolOptions);
-              executionLog.push(
-                `[DEV-TOOL] DELETE ${change.path} → ${del.deleted ? "deleted" : "not found (ok)"}`
-              );
-            } else {
-              // "add" or "modify" — write the file
-              const content = change.content ?? "";
-              const write = await writeFile(workspace, change.path, content, toolOptions);
-              executionLog.push(
-                `[DEV-TOOL] WRITE ${change.path} → ${write.bytesWritten} bytes written`
-              );
-            }
-          } catch (toolErr) {
-            // A tool error does not abort the whole workflow — log it
-            executionLog.push(
-              `[DEV-TOOL] ERROR on ${change.path}: ${(toolErr as Error).message}`
-            );
-          }
-        }
-      }
+      executionLog.push(
+        `[DEV-PREPARE] Prepared proposal with ${newCodeChanges.length} file change(s) (read-only, disk unchanged)`
+      );
 
       return {
         status: "developing",

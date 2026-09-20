@@ -18,6 +18,7 @@ import { createReviewerNode } from "./nodes/reviewerNode.js";
 import { recoveryNode } from "./nodes/recoveryNode.js";
 import { requiresApproval, createApprovalRequest } from "./edges/approvalGate.js";
 import { ApprovalRequest, ApprovalDecision } from "./approvalTypes.js";
+import { writeFile, deleteFile } from "../tools/filesystem/index.js";
 
 // ── In-memory active runs registry for approval runtime ──────────────────────
 
@@ -118,14 +119,14 @@ export const approvalRuntime = new ApprovalRuntime();
 // ── Custom Approval Nodes ───────────────────────────────────────────────────
 
 /**
- * Gate node inspecting state before Developer execution.
- * Checks if code changes require human approval.
+ * Gate node inspecting state after Developer proposal generation.
+ * Checks if proposed code changes require human approval.
  * If required and no approval decision exists, sets status: "paused" and creates pendingApproval.
  */
 export async function approvalCheckNode(state: AegisState): Promise<AegisStateUpdate> {
   const runId = state.runId || "default_run";
   const hasCodeChanges = state.codeChanges && state.codeChanges.length > 0;
-  const isMutating = hasCodeChanges || (state.workspace && state.workspace.length > 0);
+  const isMutating = hasCodeChanges || Boolean(state.workspace && state.workspace.length > 0);
 
   // If we already have an approval decision, proceed
   if (state.approvalDecision) {
@@ -138,18 +139,37 @@ export async function approvalCheckNode(state: AegisState): Promise<AegisStateUp
 
   // Check policy if approval is required
   const needsAppr = requiresApproval("write_file", {
-    executionMode: "semi-auto",
+    executionMode: state.executionMode || "semi-auto",
     isMutating: Boolean(isMutating),
   });
 
   if (needsAppr) {
+    const changeCount = state.codeChanges?.length ?? 0;
+    const changeSummaries = (state.codeChanges ?? [])
+      .map((c) => {
+        const actionLabel = c.action === "add" ? "CREATE" : c.action.toUpperCase();
+        const summaryPart = c.summary ? `: ${c.summary}` : "";
+        return `- ${actionLabel} ${c.path}${summaryPart}`;
+      })
+      .join("\n");
+
+    const description =
+      changeCount > 0
+        ? `Developer proposes ${changeCount} file change(s):\n${changeSummaries}`
+        : `Developer proposes operations on workspace "${state.workspace}".`;
+
+    const target =
+      state.codeChanges && state.codeChanges.length > 0
+        ? state.codeChanges.map((c) => c.path).join(", ")
+        : state.workspace;
+
     const req = createApprovalRequest({
       runId,
       type: "code-review",
       action: "write_file",
       title: `Approve code changes for: ${state.task}`,
-      description: `Developer proposes ${state.codeChanges.length} file change(s).`,
-      target: state.codeChanges.map((c) => c.path).join(", "),
+      description,
+      target,
       riskLevel: "high",
       requestedBy: "developerNode",
     });
@@ -165,6 +185,55 @@ export async function approvalCheckNode(state: AegisState): Promise<AegisStateUp
 }
 
 /**
+ * Node executed after approval to apply exact proposed file changes to disk.
+ * Uses existing safe filesystem tools (writeFile, deleteFile) with zero LLM calls.
+ */
+export async function applyProposalNode(state: AegisState): Promise<AegisStateUpdate> {
+  const executionLog: string[] = [];
+
+  if (!state.codeChanges || state.codeChanges.length === 0) {
+    executionLog.push("[DEV-APPLY] No proposed file changes to apply.");
+    return { status: "developing", executionLog };
+  }
+
+  if (!state.workspace || state.workspace.trim() === "") {
+    executionLog.push("[DEV-APPLY] Workspace is empty (simulation mode). Skipping physical disk writes.");
+    return { status: "developing", executionLog };
+  }
+
+  const workspace = state.workspace.trim();
+  const mode = state.executionMode || "semi-auto";
+  executionLog.push(`[DEV-APPLY] Applying ${state.codeChanges.length} approved file change(s) to ${workspace} (mode: ${mode})...`);
+
+  for (const change of state.codeChanges) {
+    try {
+      if (change.action === "delete") {
+        const del = await deleteFile(workspace, change.path, { executionMode: mode, isApproved: true });
+        executionLog.push(
+          `[DEV-APPLY] DELETE ${change.path} → ${del.deleted ? "deleted" : "not found (ok)"}`
+        );
+      } else {
+        const content = change.content ?? "";
+        const write = await writeFile(workspace, change.path, content, { executionMode: mode, isApproved: true });
+        executionLog.push(
+          `[DEV-APPLY] WRITE ${change.path} → ${write.bytesWritten} bytes written`
+        );
+      }
+    } catch (err) {
+      const errMsg = (err as Error).message;
+      executionLog.push(`[DEV-APPLY] ERROR on ${change.path}: ${errMsg}`);
+      return {
+        status: "failed",
+        errors: [`Failed to apply approved proposal change to ${change.path}: ${errMsg}`],
+        executionLog,
+      };
+    }
+  }
+
+  return { status: "developing", executionLog };
+}
+
+/**
  * Rejection handling node executed when human decision is "reject".
  * Skips file changes, logs human refusal, and cleanly terminates/routes without side effects.
  */
@@ -172,7 +241,7 @@ export async function rejectionNode(state: AegisState): Promise<AegisStateUpdate
   const reason = state.approvalDecision?.reason || "Human reviewer rejected proposed action.";
 
   return {
-    status: "completed",
+    status: "failed",
     pendingApproval: null,
     executionLog: [
       `[HUMAN-APPROVAL-REJECTED] Action rejected by human reviewer. Reason: "${reason}". Protected changes skipped safely.`,
@@ -190,7 +259,14 @@ export function routeAfterApprovalCheck(state: AegisState): string {
     }
     return END; // Pauses graph execution cleanly
   }
-  return "developerNode";
+  return "applyProposalNode";
+}
+
+export function routeAfterApplyProposal(state: AegisState): string {
+  if (state.status === "failed") {
+    return END;
+  }
+  return "testerNode";
 }
 
 /**
@@ -234,6 +310,7 @@ export function buildApprovalWorkflow(customNodes?: {
   architect?: any;
   approvalCheck?: any;
   developer?: any;
+  applyProposal?: any;
   tester?: any;
   reviewer?: any;
   recovery?: any;
@@ -244,6 +321,7 @@ export function buildApprovalWorkflow(customNodes?: {
   const architect = customNodes?.architect ?? architectNode;
   const approvalCheck = customNodes?.approvalCheck ?? approvalCheckNode;
   const developer = customNodes?.developer ?? createDeveloperNode();
+  const applyProposal = customNodes?.applyProposal ?? applyProposalNode;
   const tester = customNodes?.tester ?? createTesterNode();
   const reviewer = customNodes?.reviewer ?? createReviewerNode();
   const recovery = customNodes?.recovery ?? recoveryNode;
@@ -253,8 +331,9 @@ export function buildApprovalWorkflow(customNodes?: {
     .addNode("planner", planner)
     .addNode("researcher", researcher)
     .addNode("architect", architect)
-    .addNode("approvalCheck", approvalCheck)
     .addNode("developerNode", developer)
+    .addNode("approvalCheck", approvalCheck)
+    .addNode("applyProposalNode", applyProposal)
     .addNode("testerNode", tester)
     .addNode("reviewerNode", reviewer)
     .addNode("recoveryNode", recovery)
@@ -262,13 +341,17 @@ export function buildApprovalWorkflow(customNodes?: {
     .addEdge(START, "planner")
     .addEdge("planner", "researcher")
     .addEdge("researcher", "architect")
-    .addEdge("architect", "approvalCheck")
+    .addEdge("architect", "developerNode")
+    .addEdge("developerNode", "approvalCheck")
     .addConditionalEdges("approvalCheck", routeAfterApprovalCheck, {
-      developerNode: "developerNode",
+      applyProposalNode: "applyProposalNode",
       rejectionNode: "rejection",
       [END]: END,
     })
-    .addEdge("developerNode", "testerNode")
+    .addConditionalEdges("applyProposalNode", routeAfterApplyProposal, {
+      testerNode: "testerNode",
+      [END]: END,
+    })
     .addConditionalEdges("testerNode", approvalRouteAfterTester, {
       reviewerNode: "reviewerNode",
       recoveryNode: "recoveryNode",
@@ -278,7 +361,7 @@ export function buildApprovalWorkflow(customNodes?: {
       recoveryNode: "recoveryNode",
       [END]: END,
     })
-    .addEdge("recoveryNode", "developerNode") // retry loop: recovery → developer → tester → reviewer
+    .addEdge("recoveryNode", "developerNode") // retry loop: recovery → developer → approvalCheck → applyProposal → tester → reviewer
     .addEdge("rejection", END);
 
   return workflow.compile({ checkpointer: new MemorySaver() });
@@ -317,6 +400,7 @@ export async function executeApprovalWorkflow(
     memoryContext: initialState.memoryContext || "",
     pendingApproval: initialState.pendingApproval || null,
     approvalDecision: initialState.approvalDecision || null,
+    executionMode: initialState.executionMode || "semi-auto",
   };
 
   approvalRuntime.registerRun(runId, fullState);

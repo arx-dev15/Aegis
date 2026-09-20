@@ -338,9 +338,19 @@ COMMANDS:
         filteredTaskArgs = runArgs.slice(0, wsFlagIdx).concat(runArgs.slice(wsFlagIdx + 2));
       }
 
+      let executionMode: 'automatic' | 'semi-auto' | 'manual' = 'semi-auto';
+      const modeFlagIdx = filteredTaskArgs.findIndex((a) => a === '--mode' || a === '--execution-mode');
+      if (modeFlagIdx !== -1 && filteredTaskArgs[modeFlagIdx + 1]) {
+        const parsedMode = filteredTaskArgs[modeFlagIdx + 1].toLowerCase();
+        if (parsedMode === 'automatic' || parsedMode === 'semi-auto' || parsedMode === 'manual') {
+          executionMode = parsedMode;
+        }
+        filteredTaskArgs = filteredTaskArgs.slice(0, modeFlagIdx).concat(filteredTaskArgs.slice(modeFlagIdx + 2));
+      }
+
       const taskInput = filteredTaskArgs.join(' ');
       if (!taskInput) {
-        console.log('Error: Usage: npx tsx cli.ts run "<task_description>" [--workspace <path>]');
+        console.log('Error: Usage: npx tsx cli.ts run "<task_description>" [--workspace <path>] [--mode <automatic|semi-auto|manual>]');
         return;
       }
 
@@ -353,11 +363,13 @@ COMMANDS:
       console.log(`\n🚀 Starting Aegis Engineering Task Workflow...`);
       console.log(`  Task      : "${taskInput}"`);
       console.log(`  Workspace : ${workspace}`);
+      console.log(`  Mode      : ${executionMode}`);
       console.log(`  Run ID    : ${runId}\n`);
 
       const initialState = {
         task: taskInput,
         workspace: workspace,
+        executionMode: executionMode,
       };
 
       const finalState = await executeApprovalWorkflow(runId, initialState);

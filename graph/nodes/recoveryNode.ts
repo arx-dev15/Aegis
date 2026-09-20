@@ -144,6 +144,8 @@ export async function recoveryNode(state: AegisState): Promise<AegisStateUpdate>
   return {
     retryCount: nextRetries,
     recoveryContext: [context],
+    codeChanges: [],
+    approvalDecision: null,
     errors: [
       `[RECOVERY] Attempt ${nextRetries}/${maxRetries} — ${context.failingAgent} failed: ${context.reason}`,
     ],

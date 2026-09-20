@@ -1,0 +1,132 @@
+{
+  "runId": "run_appr_1789932055285_1",
+  "state": {
+    "task": "Refactor database connection module",
+    "plan": [
+      {
+        "id": "step-1",
+        "description": "Design module",
+        "status": "completed"
+      }
+    ],
+    "research": "Mock research analysis complete.",
+    "architecture": "Mock architecture design spec.",
+    "codeChanges": [
+      {
+        "path": "src/auth.ts",
+        "action": "modify",
+        "summary": "Update auth middleware"
+      }
+    ],
+    "testResults": null,
+    "reviewResults": null,
+    "errors": [],
+    "status": "paused",
+    "retryCount": 0,
+    "maxRetries": 3,
+    "workspace": "dummy_workspace",
+    "executionLog": [
+      "[DEV-TOOL] Executed file changes safely",
+      "[HUMAN-APPROVAL-GATE] Execution paused for run run_appr_1789932055285_1. Created ApprovalRequest appr_1789932055317_f5tze."
+    ],
+    "recoveryContext": [],
+    "runId": "run_appr_1789932055285_1",
+    "memoryContext": "",
+    "pendingApproval": {
+      "id": "appr_1789932055317_f5tze",
+      "runId": "run_appr_1789932055285_1",
+      "type": "code-review",
+      "action": "write_file",
+      "title": "Approve code changes for: Refactor database connection module",
+      "description": "Developer proposes 1 file change(s):\n- MODIFY src/auth.ts: Update auth middleware",
+      "target": "src/auth.ts",
+      "riskLevel": "high",
+      "requestedBy": "developerNode",
+      "status": "pending",
+      "requestedAt": 1789932055317
+    },
+    "approvalDecision": null
+  },
+  "pendingApproval": {
+    "id": "appr_1789932055317_f5tze",
+    "runId": "run_appr_1789932055285_1",
+    "type": "code-review",
+    "action": "write_file",
+    "title": "Approve code changes for: Refactor database connection module",
+    "description": "Developer proposes 1 file change(s):\n- MODIFY src/auth.ts: Update auth middleware",
+    "target": "src/auth.ts",
+    "riskLevel": "high",
+    "requestedBy": "developerNode",
+    "status": "pending",
+    "requestedAt": 1789932055317
+  },
+  "history": [
+    {
+      "task": "Refactor database connection module",
+      "plan": [],
+      "research": "",
+      "architecture": "",
+      "codeChanges": [],
+      "testResults": null,
+      "reviewResults": null,
+      "errors": [],
+      "status": "idle",
+      "retryCount": 0,
+      "maxRetries": 3,
+      "workspace": "dummy_workspace",
+      "executionLog": [],
+      "recoveryContext": [],
+      "runId": "run_appr_1789932055285_1",
+      "memoryContext": "",
+      "pendingApproval": null,
+      "approvalDecision": null
+    },
+    {
+      "task": "Refactor database connection module",
+      "plan": [
+        {
+          "id": "step-1",
+          "description": "Design module",
+          "status": "completed"
+        }
+      ],
+      "research": "Mock research analysis complete.",
+      "architecture": "Mock architecture design spec.",
+      "codeChanges": [
+        {
+          "path": "src/auth.ts",
+          "action": "modify",
+          "summary": "Update auth middleware"
+        }
+      ],
+      "testResults": null,
+      "reviewResults": null,
+      "errors": [],
+      "status": "paused",
+      "retryCount": 0,
+      "maxRetries": 3,
+      "workspace": "dummy_workspace",
+      "executionLog": [
+        "[DEV-TOOL] Executed file changes safely",
+        "[HUMAN-APPROVAL-GATE] Execution paused for run run_appr_1789932055285_1. Created ApprovalRequest appr_1789932055317_f5tze."
+      ],
+      "recoveryContext": [],
+      "runId": "run_appr_1789932055285_1",
+      "memoryContext": "",
+      "pendingApproval": {
+        "id": "appr_1789932055317_f5tze",
+        "runId": "run_appr_1789932055285_1",
+        "type": "code-review",
+        "action": "write_file",
+        "title": "Approve code changes for: Refactor database connection module",
+        "description": "Developer proposes 1 file change(s):\n- MODIFY src/auth.ts: Update auth middleware",
+        "target": "src/auth.ts",
+        "riskLevel": "high",
+        "requestedBy": "developerNode",
+        "status": "pending",
+        "requestedAt": 1789932055317
+      },
+      "approvalDecision": null
+    }
+  ]
+}

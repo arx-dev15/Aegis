@@ -1,0 +1,183 @@
+{
+  "runId": "run_appr_1789934599216_4",
+  "state": {
+    "task": "Implement user session timeout handler",
+    "plan": [
+      {
+        "id": "step-1",
+        "description": "Design module",
+        "status": "completed"
+      }
+    ],
+    "research": "Mock research analysis complete.\nMock research analysis complete.\nMock research analysis complete.",
+    "architecture": "Mock architecture design spec.",
+    "codeChanges": [
+      {
+        "path": "src/auth.ts",
+        "action": "modify",
+        "summary": "Update auth middleware"
+      }
+    ],
+    "testResults": {
+      "passed": true,
+      "totalTests": 1,
+      "passedTests": 1,
+      "failedTests": 0
+    },
+    "reviewResults": {
+      "approved": true,
+      "comments": [
+        "Approved"
+      ]
+    },
+    "errors": [],
+    "status": "reviewing",
+    "retryCount": 0,
+    "maxRetries": 3,
+    "workspace": "",
+    "executionLog": [
+      "[DEV-TOOL] Executed file changes safely",
+      "[HUMAN-APPROVAL-GATE] Execution paused for run run_appr_1789934599216_4. Created ApprovalRequest appr_1789934599223_njmpp.",
+      "[DEV-TOOL] Executed file changes safely",
+      "[HUMAN-APPROVAL-GATE] Execution paused for run run_appr_1789934599216_4. Created ApprovalRequest appr_1789934599223_njmpp.",
+      "[DEV-TOOL] Executed file changes safely",
+      "[DEV-APPLY] Workspace is empty (simulation mode). Skipping physical disk writes."
+    ],
+    "recoveryContext": [],
+    "runId": "run_appr_1789934599216_4",
+    "memoryContext": "",
+    "pendingApproval": null,
+    "executionMode": "semi-auto",
+    "approvalDecision": {
+      "approvalId": "appr_1789934599223_njmpp",
+      "action": "approve",
+      "decidedAt": 1789934599225
+    }
+  },
+  "pendingApproval": null,
+  "history": [
+    {
+      "task": "Implement user session timeout handler",
+      "plan": [],
+      "research": "",
+      "architecture": "",
+      "codeChanges": [],
+      "testResults": null,
+      "reviewResults": null,
+      "errors": [],
+      "status": "idle",
+      "retryCount": 0,
+      "maxRetries": 3,
+      "workspace": "",
+      "executionLog": [],
+      "recoveryContext": [],
+      "runId": "run_appr_1789934599216_4",
+      "memoryContext": "",
+      "pendingApproval": null,
+      "approvalDecision": null,
+      "executionMode": "semi-auto"
+    },
+    {
+      "task": "Implement user session timeout handler",
+      "plan": [
+        {
+          "id": "step-1",
+          "description": "Design module",
+          "status": "completed"
+        }
+      ],
+      "research": "Mock research analysis complete.",
+      "architecture": "Mock architecture design spec.",
+      "codeChanges": [
+        {
+          "path": "src/auth.ts",
+          "action": "modify",
+          "summary": "Update auth middleware"
+        }
+      ],
+      "testResults": null,
+      "reviewResults": null,
+      "errors": [],
+      "status": "paused",
+      "retryCount": 0,
+      "maxRetries": 3,
+      "workspace": "",
+      "executionLog": [
+        "[DEV-TOOL] Executed file changes safely",
+        "[HUMAN-APPROVAL-GATE] Execution paused for run run_appr_1789934599216_4. Created ApprovalRequest appr_1789934599223_njmpp."
+      ],
+      "recoveryContext": [],
+      "runId": "run_appr_1789934599216_4",
+      "memoryContext": "",
+      "pendingApproval": {
+        "id": "appr_1789934599223_njmpp",
+        "runId": "run_appr_1789934599216_4",
+        "type": "code-review",
+        "action": "write_file",
+        "title": "Approve code changes for: Implement user session timeout handler",
+        "description": "Developer proposes 1 file change(s):\n- MODIFY src/auth.ts: Update auth middleware",
+        "target": "src/auth.ts",
+        "riskLevel": "high",
+        "requestedBy": "developerNode",
+        "status": "pending",
+        "requestedAt": 1789934599223
+      },
+      "executionMode": "semi-auto",
+      "approvalDecision": null
+    },
+    {
+      "task": "Implement user session timeout handler",
+      "plan": [
+        {
+          "id": "step-1",
+          "description": "Design module",
+          "status": "completed"
+        }
+      ],
+      "research": "Mock research analysis complete.\nMock research analysis complete.\nMock research analysis complete.",
+      "architecture": "Mock architecture design spec.",
+      "codeChanges": [
+        {
+          "path": "src/auth.ts",
+          "action": "modify",
+          "summary": "Update auth middleware"
+        }
+      ],
+      "testResults": {
+        "passed": true,
+        "totalTests": 1,
+        "passedTests": 1,
+        "failedTests": 0
+      },
+      "reviewResults": {
+        "approved": true,
+        "comments": [
+          "Approved"
+        ]
+      },
+      "errors": [],
+      "status": "reviewing",
+      "retryCount": 0,
+      "maxRetries": 3,
+      "workspace": "",
+      "executionLog": [
+        "[DEV-TOOL] Executed file changes safely",
+        "[HUMAN-APPROVAL-GATE] Execution paused for run run_appr_1789934599216_4. Created ApprovalRequest appr_1789934599223_njmpp.",
+        "[DEV-TOOL] Executed file changes safely",
+        "[HUMAN-APPROVAL-GATE] Execution paused for run run_appr_1789934599216_4. Created ApprovalRequest appr_1789934599223_njmpp.",
+        "[DEV-TOOL] Executed file changes safely",
+        "[DEV-APPLY] Workspace is empty (simulation mode). Skipping physical disk writes."
+      ],
+      "recoveryContext": [],
+      "runId": "run_appr_1789934599216_4",
+      "memoryContext": "",
+      "pendingApproval": null,
+      "executionMode": "semi-auto",
+      "approvalDecision": {
+        "approvalId": "appr_1789934599223_njmpp",
+        "action": "approve",
+        "decidedAt": 1789934599225
+      }
+    }
+  ]
+}

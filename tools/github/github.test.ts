@@ -264,6 +264,7 @@ async function runTests(): Promise<void> {
       memoryContext: "",
       pendingApproval: null,
       approvalDecision: null,
+      executionMode: "semi-auto" as const,
     };
 
     const nextAgent = determineNextAgent(sampleState);

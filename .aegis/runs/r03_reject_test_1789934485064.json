@@ -1,0 +1,205 @@
+{
+  "runId": "r03_reject_test_1789934485064",
+  "state": {
+    "task": "Update calc",
+    "plan": [
+      {
+        "id": "step-1",
+        "description": "Design module",
+        "status": "completed"
+      }
+    ],
+    "research": "Mock research analysis complete.\nMock research analysis complete.\nMock research analysis complete.",
+    "architecture": "Mock architecture design spec.",
+    "codeChanges": [
+      {
+        "path": "src/calc.ts",
+        "action": "add",
+        "summary": "Created calc function",
+        "content": "export function calc(x: number) { return x + 1; }"
+      },
+      {
+        "path": "src/config.ts",
+        "action": "add",
+        "summary": "Added configuration settings",
+        "content": "export const CONFIG = { env: 'test' };"
+      }
+    ],
+    "testResults": null,
+    "reviewResults": null,
+    "errors": [
+      "Action rejected by human reviewer: Not wanted"
+    ],
+    "status": "failed",
+    "retryCount": 0,
+    "maxRetries": 3,
+    "workspace": "C:\\Users\\Ganesha\\AppData\\Local\\Temp\\aegis-r03-test-1789934485038",
+    "executionLog": [
+      "[DEV-INSPECT] No pre-indexed Repository Snapshot found for workspace.",
+      "[DEV-INSPECT] No candidate relevant existing files identified.",
+      "[DEV-PLAN] Developer received 1 plan step(s)",
+      "[DEV-PREPARE] Prepared proposal with 2 file change(s) (read-only, disk unchanged)",
+      "[HUMAN-APPROVAL-GATE] Execution paused for run r03_reject_test_1789934485064. Created ApprovalRequest appr_1789934485100_yejp6.",
+      "[DEV-INSPECT] No pre-indexed Repository Snapshot found for workspace.",
+      "[DEV-INSPECT] No candidate relevant existing files identified.",
+      "[DEV-PLAN] Developer received 1 plan step(s)",
+      "[DEV-PREPARE] Prepared proposal with 2 file change(s) (read-only, disk unchanged)",
+      "[HUMAN-APPROVAL-GATE] Execution paused for run r03_reject_test_1789934485064. Created ApprovalRequest appr_1789934485100_yejp6.",
+      "[DEV-PREPARE] Preserving existing generated proposal (2 file changes) for approval/apply",
+      "[HUMAN-APPROVAL-REJECTED] Action rejected by human reviewer. Reason: \"Not wanted\". Protected changes skipped safely."
+    ],
+    "recoveryContext": [],
+    "runId": "r03_reject_test_1789934485064",
+    "memoryContext": "",
+    "pendingApproval": null,
+    "executionMode": "semi-auto",
+    "approvalDecision": {
+      "approvalId": "appr_1789934485100_yejp6",
+      "action": "reject",
+      "reason": "Not wanted",
+      "decidedAt": 1789934485110
+    }
+  },
+  "pendingApproval": null,
+  "history": [
+    {
+      "task": "Update calc",
+      "plan": [],
+      "research": "",
+      "architecture": "",
+      "codeChanges": [],
+      "testResults": null,
+      "reviewResults": null,
+      "errors": [],
+      "status": "idle",
+      "retryCount": 0,
+      "maxRetries": 3,
+      "workspace": "C:\\Users\\Ganesha\\AppData\\Local\\Temp\\aegis-r03-test-1789934485038",
+      "executionLog": [],
+      "recoveryContext": [],
+      "runId": "r03_reject_test_1789934485064",
+      "memoryContext": "",
+      "pendingApproval": null,
+      "approvalDecision": null,
+      "executionMode": "semi-auto"
+    },
+    {
+      "task": "Update calc",
+      "plan": [
+        {
+          "id": "step-1",
+          "description": "Design module",
+          "status": "completed"
+        }
+      ],
+      "research": "Mock research analysis complete.",
+      "architecture": "Mock architecture design spec.",
+      "codeChanges": [
+        {
+          "path": "src/calc.ts",
+          "action": "add",
+          "summary": "Created calc function",
+          "content": "export function calc(x: number) { return x + 1; }"
+        },
+        {
+          "path": "src/config.ts",
+          "action": "add",
+          "summary": "Added configuration settings",
+          "content": "export const CONFIG = { env: 'test' };"
+        }
+      ],
+      "testResults": null,
+      "reviewResults": null,
+      "errors": [],
+      "status": "paused",
+      "retryCount": 0,
+      "maxRetries": 3,
+      "workspace": "C:\\Users\\Ganesha\\AppData\\Local\\Temp\\aegis-r03-test-1789934485038",
+      "executionLog": [
+        "[DEV-INSPECT] No pre-indexed Repository Snapshot found for workspace.",
+        "[DEV-INSPECT] No candidate relevant existing files identified.",
+        "[DEV-PLAN] Developer received 1 plan step(s)",
+        "[DEV-PREPARE] Prepared proposal with 2 file change(s) (read-only, disk unchanged)",
+        "[HUMAN-APPROVAL-GATE] Execution paused for run r03_reject_test_1789934485064. Created ApprovalRequest appr_1789934485100_yejp6."
+      ],
+      "recoveryContext": [],
+      "runId": "r03_reject_test_1789934485064",
+      "memoryContext": "",
+      "pendingApproval": {
+        "id": "appr_1789934485100_yejp6",
+        "runId": "r03_reject_test_1789934485064",
+        "type": "code-review",
+        "action": "write_file",
+        "title": "Approve code changes for: Update calc",
+        "description": "Developer proposes 2 file change(s):\n- CREATE src/calc.ts: Created calc function\n- CREATE src/config.ts: Added configuration settings",
+        "target": "src/calc.ts, src/config.ts",
+        "riskLevel": "high",
+        "requestedBy": "developerNode",
+        "status": "pending",
+        "requestedAt": 1789934485100
+      },
+      "executionMode": "semi-auto",
+      "approvalDecision": null
+    },
+    {
+      "task": "Update calc",
+      "plan": [
+        {
+          "id": "step-1",
+          "description": "Design module",
+          "status": "completed"
+        }
+      ],
+      "research": "Mock research analysis complete.\nMock research analysis complete.\nMock research analysis complete.",
+      "architecture": "Mock architecture design spec.",
+      "codeChanges": [
+        {
+          "path": "src/calc.ts",
+          "action": "add",
+          "summary": "Created calc function",
+          "content": "export function calc(x: number) { return x + 1; }"
+        },
+        {
+          "path": "src/config.ts",
+          "action": "add",
+          "summary": "Added configuration settings",
+          "content": "export const CONFIG = { env: 'test' };"
+        }
+      ],
+      "testResults": null,
+      "reviewResults": null,
+      "errors": [
+        "Action rejected by human reviewer: Not wanted"
+      ],
+      "status": "failed",
+      "retryCount": 0,
+      "maxRetries": 3,
+      "workspace": "C:\\Users\\Ganesha\\AppData\\Local\\Temp\\aegis-r03-test-1789934485038",
+      "executionLog": [
+        "[DEV-INSPECT] No pre-indexed Repository Snapshot found for workspace.",
+        "[DEV-INSPECT] No candidate relevant existing files identified.",
+        "[DEV-PLAN] Developer received 1 plan step(s)",
+        "[DEV-PREPARE] Prepared proposal with 2 file change(s) (read-only, disk unchanged)",
+        "[HUMAN-APPROVAL-GATE] Execution paused for run r03_reject_test_1789934485064. Created ApprovalRequest appr_1789934485100_yejp6.",
+        "[DEV-INSPECT] No pre-indexed Repository Snapshot found for workspace.",
+        "[DEV-INSPECT] No candidate relevant existing files identified.",
+        "[DEV-PLAN] Developer received 1 plan step(s)",
+        "[DEV-PREPARE] Prepared proposal with 2 file change(s) (read-only, disk unchanged)",
+        "[HUMAN-APPROVAL-GATE] Execution paused for run r03_reject_test_1789934485064. Created ApprovalRequest appr_1789934485100_yejp6.",
+        "[DEV-PREPARE] Preserving existing generated proposal (2 file changes) for approval/apply",
+        "[HUMAN-APPROVAL-REJECTED] Action rejected by human reviewer. Reason: \"Not wanted\". Protected changes skipped safely."
+      ],
+      "recoveryContext": [],
+      "runId": "r03_reject_test_1789934485064",
+      "memoryContext": "",
+      "pendingApproval": null,
+      "executionMode": "semi-auto",
+      "approvalDecision": {
+        "approvalId": "appr_1789934485100_yejp6",
+        "action": "reject",
+        "reason": "Not wanted",
+        "decidedAt": 1789934485110
+      }
+    }
+  ]
+}

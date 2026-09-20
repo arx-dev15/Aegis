@@ -29,10 +29,12 @@ export class GuardrailEnforcer {
     options: GuardrailOptions = {}
   ): PermissionEvaluationResult {
     const effectiveMode = options.executionMode || input.executionMode || "semi-auto";
+    const isApproved = options.isApproved || input.isApproved || false;
 
     const evalInput: PermissionEvaluationInput = {
       ...input,
       executionMode: effectiveMode,
+      isApproved,
     };
 
     return evaluatePermission(evalInput);
