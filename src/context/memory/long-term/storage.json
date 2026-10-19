@@ -1,0 +1,542 @@
+[
+  {
+    "id": "ltm_1792080073158_oozpf",
+    "projectId": "aegis-unified-val-RkLtfi",
+    "category": "architecture_rule",
+    "key": "finance_tax_precision",
+    "content": "All tax calculations must round to exactly 2 decimal places using roundCurrency.",
+    "metadata": {
+      "source": "audit"
+    },
+    "createdAt": 1792080073158,
+    "updatedAt": 1792080073158
+  },
+  {
+    "id": "ltm_1792080125019_22nns",
+    "projectId": "aegis-unified-val-ummJcY",
+    "category": "architecture_rule",
+    "key": "finance_tax_precision",
+    "content": "All tax calculations must round to exactly 2 decimal places using roundCurrency.",
+    "metadata": {
+      "source": "audit"
+    },
+    "createdAt": 1792080125019,
+    "updatedAt": 1792080125019
+  },
+  {
+    "id": "ltm_1792080240314_0f4gu",
+    "projectId": "aegis-unified-val-cOJi4B",
+    "category": "architecture_rule",
+    "key": "finance_tax_precision",
+    "content": "All tax calculations must round to exactly 2 decimal places using roundCurrency.",
+    "metadata": {
+      "source": "audit"
+    },
+    "createdAt": 1792080240314,
+    "updatedAt": 1792080240314
+  },
+  {
+    "id": "ltm_1792080400545_vslzr",
+    "projectId": "aegis-unified-val-p73q0M",
+    "category": "architecture_rule",
+    "key": "finance_tax_precision",
+    "content": "All tax calculations must round to exactly 2 decimal places using roundCurrency.",
+    "metadata": {
+      "source": "audit"
+    },
+    "createdAt": 1792080400545,
+    "updatedAt": 1792080400545
+  },
+  {
+    "id": "ltm_1792080514583_y1ufu",
+    "projectId": "aegis-unified-val-finJkD",
+    "category": "architecture_rule",
+    "key": "finance_tax_precision",
+    "content": "All tax calculations must round to exactly 2 decimal places using roundCurrency.",
+    "metadata": {
+      "source": "audit"
+    },
+    "createdAt": 1792080514583,
+    "updatedAt": 1792080514583
+  },
+  {
+    "id": "ltm_1792080603857_t1tfs",
+    "projectId": "aegis-unified-val-fpcn2E",
+    "category": "architecture_rule",
+    "key": "finance_tax_precision",
+    "content": "All tax calculations must round to exactly 2 decimal places using roundCurrency.",
+    "metadata": {
+      "source": "audit"
+    },
+    "createdAt": 1792080603857,
+    "updatedAt": 1792080603857
+  },
+  {
+    "id": "ltm_1792080640388_hgt9i",
+    "projectId": "aegis-unified-val-sGgYCK",
+    "category": "architecture_rule",
+    "key": "finance_tax_precision",
+    "content": "All tax calculations must round to exactly 2 decimal places using roundCurrency.",
+    "metadata": {
+      "source": "audit"
+    },
+    "createdAt": 1792080640388,
+    "updatedAt": 1792080640388
+  },
+  {
+    "id": "ltm_1792080692512_hv9uj",
+    "projectId": "aegis-unified-val-J84Bw8",
+    "category": "architecture_rule",
+    "key": "finance_tax_precision",
+    "content": "All tax calculations must round to exactly 2 decimal places using roundCurrency.",
+    "metadata": {
+      "source": "audit"
+    },
+    "createdAt": 1792080692512,
+    "updatedAt": 1792080692512
+  },
+  {
+    "id": "ltm_1792081323078_1mygq",
+    "projectId": "aegis-unified-val-66C8qL",
+    "category": "architecture_rule",
+    "key": "finance_tax_precision",
+    "content": "All tax calculations must round to exactly 2 decimal places using roundCurrency.",
+    "metadata": {
+      "source": "audit"
+    },
+    "createdAt": 1792081323078,
+    "updatedAt": 1792081323078
+  },
+  {
+    "id": "ltm_1792086243215_4m361",
+    "projectId": "aegis-gate-wsA-orsXGC",
+    "category": "architecture_rule",
+    "key": "secret_db_cluster",
+    "content": "Cluster alpha-internal.vpc-1",
+    "metadata": {},
+    "createdAt": 1792086243215,
+    "updatedAt": 1792086243215
+  },
+  {
+    "id": "ltm_1792086280425_odih2",
+    "projectId": "aegis-gate-wsA-J1wrx1",
+    "category": "architecture_rule",
+    "key": "secret_db_cluster",
+    "content": "Cluster alpha-internal.vpc-1",
+    "metadata": {},
+    "createdAt": 1792086280425,
+    "updatedAt": 1792086280425
+  },
+  {
+    "id": "ltm_1792086311817_6szuq",
+    "projectId": "aegis-gate-wsA-2elcLq",
+    "category": "architecture_rule",
+    "key": "secret_db_cluster",
+    "content": "Cluster alpha-internal.vpc-1",
+    "metadata": {},
+    "createdAt": 1792086311817,
+    "updatedAt": 1792086311817
+  },
+  {
+    "id": "ltm_1792086346175_7u6as",
+    "projectId": "aegis-gate-wsA-FH45pf",
+    "category": "architecture_rule",
+    "key": "secret_db_cluster",
+    "content": "Cluster alpha-internal.vpc-1",
+    "metadata": {},
+    "createdAt": 1792086346175,
+    "updatedAt": 1792086346175
+  },
+  {
+    "id": "ltm_1792086412124_xbqew",
+    "projectId": "aegis-gate-wsA-MXAFN6",
+    "category": "architecture_rule",
+    "key": "secret_db_cluster",
+    "content": "Cluster alpha-internal.vpc-1",
+    "metadata": {},
+    "createdAt": 1792086412124,
+    "updatedAt": 1792086412124
+  },
+  {
+    "id": "ltm_1792086834944_alosk",
+    "projectId": "aegis-unified-val-KEnF4c",
+    "category": "architecture_rule",
+    "key": "finance_tax_precision",
+    "content": "All tax calculations must round to exactly 2 decimal places using roundCurrency.",
+    "metadata": {
+      "source": "audit"
+    },
+    "createdAt": 1792086834944,
+    "updatedAt": 1792086834944
+  },
+  {
+    "id": "ltm_1792089593134_sp0w0",
+    "projectId": "aegis-gate-wsA-GBENll",
+    "category": "architecture_rule",
+    "key": "secret_db_cluster",
+    "content": "Cluster alpha-internal.vpc-1",
+    "metadata": {},
+    "createdAt": 1792089593134,
+    "updatedAt": 1792089593134
+  },
+  {
+    "id": "ltm_1792094678812_s54fi",
+    "projectId": "aegis-unified-val-LAeS61",
+    "category": "architecture_rule",
+    "key": "finance_tax_precision",
+    "content": "All tax calculations must round to exactly 2 decimal places using roundCurrency.",
+    "metadata": {
+      "source": "audit"
+    },
+    "createdAt": 1792094678812,
+    "updatedAt": 1792094678812
+  },
+  {
+    "id": "ltm_1792095150843_8h14e",
+    "projectId": "aegis-unified-val-oWsCeM",
+    "category": "architecture_rule",
+    "key": "finance_tax_precision",
+    "content": "All tax calculations must round to exactly 2 decimal places using roundCurrency.",
+    "metadata": {
+      "source": "audit"
+    },
+    "createdAt": 1792095150843,
+    "updatedAt": 1792095150843
+  },
+  {
+    "id": "ltm_1792133348670_u27dh",
+    "projectId": "aegis-unified-val-PL4vkm",
+    "category": "architecture_rule",
+    "key": "finance_tax_precision",
+    "content": "All tax calculations must round to exactly 2 decimal places using roundCurrency.",
+    "metadata": {
+      "source": "audit"
+    },
+    "createdAt": 1792133348670,
+    "updatedAt": 1792133348670
+  },
+  {
+    "id": "ltm_1792149639674_6mdyq",
+    "projectId": "aegis-unified-val-fFdD7J",
+    "category": "architecture_rule",
+    "key": "finance_tax_precision",
+    "content": "All tax calculations must round to exactly 2 decimal places using roundCurrency.",
+    "metadata": {
+      "source": "audit"
+    },
+    "createdAt": 1792149639674,
+    "updatedAt": 1792149639674
+  },
+  {
+    "id": "ltm_1792152077811_8kajo",
+    "projectId": "aegis-unified-val-oZOCFb",
+    "category": "architecture_rule",
+    "key": "finance_tax_precision",
+    "content": "All tax calculations must round to exactly 2 decimal places using roundCurrency.",
+    "metadata": {
+      "source": "audit"
+    },
+    "createdAt": 1792152077811,
+    "updatedAt": 1792152077811
+  },
+  {
+    "id": "ltm_1792154422531_arryk",
+    "projectId": "aegis-unified-val-p7XkYh",
+    "category": "architecture_rule",
+    "key": "finance_tax_precision",
+    "content": "All tax calculations must round to exactly 2 decimal places using roundCurrency.",
+    "metadata": {
+      "source": "audit"
+    },
+    "createdAt": 1792154422531,
+    "updatedAt": 1792154422531
+  },
+  {
+    "id": "ltm_1792155589876_kxmpj",
+    "projectId": "aegis-unified-val-QYqTje",
+    "category": "architecture_rule",
+    "key": "finance_tax_precision",
+    "content": "All tax calculations must round to exactly 2 decimal places using roundCurrency.",
+    "metadata": {
+      "source": "audit"
+    },
+    "createdAt": 1792155589876,
+    "updatedAt": 1792155589876
+  },
+  {
+    "id": "ltm_1792158286792_90ixx",
+    "projectId": "aegis-unified-val-XRmjpf",
+    "category": "architecture_rule",
+    "key": "finance_tax_precision",
+    "content": "All tax calculations must round to exactly 2 decimal places using roundCurrency.",
+    "metadata": {
+      "source": "audit"
+    },
+    "createdAt": 1792158286792,
+    "updatedAt": 1792158286792
+  },
+  {
+    "id": "ltm_1792164449798_mwpyr",
+    "projectId": "aegis-unified-val-yKTFXd",
+    "category": "architecture_rule",
+    "key": "finance_tax_precision",
+    "content": "All tax calculations must round to exactly 2 decimal places using roundCurrency.",
+    "metadata": {
+      "source": "audit"
+    },
+    "createdAt": 1792164449798,
+    "updatedAt": 1792164449798
+  },
+  {
+    "id": "ltm_1792166190203_batfw",
+    "projectId": "aegis-unified-val-PVT6mJ",
+    "category": "architecture_rule",
+    "key": "finance_tax_precision",
+    "content": "All tax calculations must round to exactly 2 decimal places using roundCurrency.",
+    "metadata": {
+      "source": "audit"
+    },
+    "createdAt": 1792166190203,
+    "updatedAt": 1792166190203
+  },
+  {
+    "id": "ltm_1792170110110_1c067",
+    "projectId": "aegis-unified-val-TuK2mm",
+    "category": "architecture_rule",
+    "key": "finance_tax_precision",
+    "content": "All tax calculations must round to exactly 2 decimal places using roundCurrency.",
+    "metadata": {
+      "source": "audit"
+    },
+    "createdAt": 1792170110110,
+    "updatedAt": 1792170110110
+  },
+  {
+    "id": "ltm_1792172561463_k2knz",
+    "projectId": "aegis-unified-val-7W60e0",
+    "category": "architecture_rule",
+    "key": "finance_tax_precision",
+    "content": "All tax calculations must round to exactly 2 decimal places using roundCurrency.",
+    "metadata": {
+      "source": "audit"
+    },
+    "createdAt": 1792172561463,
+    "updatedAt": 1792172561463
+  },
+  {
+    "id": "ltm_1792173281342_87coc",
+    "projectId": "aegis-unified-val-QHv0sJ",
+    "category": "architecture_rule",
+    "key": "finance_tax_precision",
+    "content": "All tax calculations must round to exactly 2 decimal places using roundCurrency.",
+    "metadata": {
+      "source": "audit"
+    },
+    "createdAt": 1792173281342,
+    "updatedAt": 1792173281342
+  },
+  {
+    "id": "ltm_1792174222810_mu2lr",
+    "projectId": "aegis-unified-val-0mQmMx",
+    "category": "architecture_rule",
+    "key": "finance_tax_precision",
+    "content": "All tax calculations must round to exactly 2 decimal places using roundCurrency.",
+    "metadata": {
+      "source": "audit"
+    },
+    "createdAt": 1792174222810,
+    "updatedAt": 1792174222810
+  },
+  {
+    "id": "ltm_1792176373310_iyuhm",
+    "projectId": "aegis-unified-val-Q4wrHj",
+    "category": "architecture_rule",
+    "key": "finance_tax_precision",
+    "content": "All tax calculations must round to exactly 2 decimal places using roundCurrency.",
+    "metadata": {
+      "source": "audit"
+    },
+    "createdAt": 1792176373310,
+    "updatedAt": 1792176373310
+  },
+  {
+    "id": "ltm_1792177132860_c4vcb",
+    "projectId": "aegis-unified-val-GO8dfE",
+    "category": "architecture_rule",
+    "key": "finance_tax_precision",
+    "content": "All tax calculations must round to exactly 2 decimal places using roundCurrency.",
+    "metadata": {
+      "source": "audit"
+    },
+    "createdAt": 1792177132860,
+    "updatedAt": 1792177132860
+  },
+  {
+    "id": "ltm_1792178631303_1kb3n",
+    "projectId": "aegis-unified-val-CVXQQv",
+    "category": "architecture_rule",
+    "key": "finance_tax_precision",
+    "content": "All tax calculations must round to exactly 2 decimal places using roundCurrency.",
+    "metadata": {
+      "source": "audit"
+    },
+    "createdAt": 1792178631303,
+    "updatedAt": 1792178631303
+  },
+  {
+    "id": "ltm_1792232823359_yk7ps",
+    "projectId": "aegis-unified-val-P7ICtJ",
+    "category": "architecture_rule",
+    "key": "finance_tax_precision",
+    "content": "All tax calculations must round to exactly 2 decimal places using roundCurrency.",
+    "metadata": {
+      "source": "audit"
+    },
+    "createdAt": 1792232823359,
+    "updatedAt": 1792232823359
+  },
+  {
+    "id": "ltm_1792233590270_c9xw1",
+    "projectId": "aegis-unified-val-K7nXuS",
+    "category": "architecture_rule",
+    "key": "finance_tax_precision",
+    "content": "All tax calculations must round to exactly 2 decimal places using roundCurrency.",
+    "metadata": {
+      "source": "audit"
+    },
+    "createdAt": 1792233590270,
+    "updatedAt": 1792233590270
+  },
+  {
+    "id": "ltm_1792234604260_3f9te",
+    "projectId": "aegis-unified-val-EaiExh",
+    "category": "architecture_rule",
+    "key": "finance_tax_precision",
+    "content": "All tax calculations must round to exactly 2 decimal places using roundCurrency.",
+    "metadata": {
+      "source": "audit"
+    },
+    "createdAt": 1792234604260,
+    "updatedAt": 1792234604260
+  },
+  {
+    "id": "ltm_1792238823879_0mxno",
+    "projectId": "aegis-unified-val-LQkRnc",
+    "category": "architecture_rule",
+    "key": "finance_tax_precision",
+    "content": "All tax calculations must round to exactly 2 decimal places using roundCurrency.",
+    "metadata": {
+      "source": "audit"
+    },
+    "createdAt": 1792238823879,
+    "updatedAt": 1792238823879
+  },
+  {
+    "id": "ltm_1792259316427_qpyxr",
+    "projectId": "aegis-unified-val-2fO6A2",
+    "category": "architecture_rule",
+    "key": "finance_tax_precision",
+    "content": "All tax calculations must round to exactly 2 decimal places using roundCurrency.",
+    "metadata": {
+      "source": "audit"
+    },
+    "createdAt": 1792259316427,
+    "updatedAt": 1792259316427
+  },
+  {
+    "id": "ltm_1792261272375_t12rw",
+    "projectId": "aegis-unified-val-Hh2CwG",
+    "category": "architecture_rule",
+    "key": "finance_tax_precision",
+    "content": "All tax calculations must round to exactly 2 decimal places using roundCurrency.",
+    "metadata": {
+      "source": "audit"
+    },
+    "createdAt": 1792261272375,
+    "updatedAt": 1792261272375
+  },
+  {
+    "id": "ltm_1792261416593_4ba4q",
+    "projectId": "aegis-unified-val-0ORiKs",
+    "category": "architecture_rule",
+    "key": "finance_tax_precision",
+    "content": "All tax calculations must round to exactly 2 decimal places using roundCurrency.",
+    "metadata": {
+      "source": "audit"
+    },
+    "createdAt": 1792261416593,
+    "updatedAt": 1792261416593
+  },
+  {
+    "id": "ltm_1792261607344_6md87",
+    "projectId": "aegis-unified-val-hX75cq",
+    "category": "architecture_rule",
+    "key": "finance_tax_precision",
+    "content": "All tax calculations must round to exactly 2 decimal places using roundCurrency.",
+    "metadata": {
+      "source": "audit"
+    },
+    "createdAt": 1792261607344,
+    "updatedAt": 1792261607344
+  },
+  {
+    "id": "ltm_1792269483086_f4qbx",
+    "projectId": "aegis-unified-val-YjTWhW",
+    "category": "architecture_rule",
+    "key": "finance_tax_precision",
+    "content": "All tax calculations must round to exactly 2 decimal places using roundCurrency.",
+    "metadata": {
+      "source": "audit"
+    },
+    "createdAt": 1792269483086,
+    "updatedAt": 1792269483086
+  },
+  {
+    "id": "ltm_1792269610961_t2wpo",
+    "projectId": "aegis-unified-val-x15vYU",
+    "category": "architecture_rule",
+    "key": "finance_tax_precision",
+    "content": "All tax calculations must round to exactly 2 decimal places using roundCurrency.",
+    "metadata": {
+      "source": "audit"
+    },
+    "createdAt": 1792269610961,
+    "updatedAt": 1792269610961
+  },
+  {
+    "id": "ltm_1792269885686_hi030",
+    "projectId": "aegis-unified-val-yei2H6",
+    "category": "architecture_rule",
+    "key": "finance_tax_precision",
+    "content": "All tax calculations must round to exactly 2 decimal places using roundCurrency.",
+    "metadata": {
+      "source": "audit"
+    },
+    "createdAt": 1792269885686,
+    "updatedAt": 1792269885686
+  },
+  {
+    "id": "ltm_1792270255987_3hgq4",
+    "projectId": "aegis-unified-val-IcwS3g",
+    "category": "architecture_rule",
+    "key": "finance_tax_precision",
+    "content": "All tax calculations must round to exactly 2 decimal places using roundCurrency.",
+    "metadata": {
+      "source": "audit"
+    },
+    "createdAt": 1792270255987,
+    "updatedAt": 1792270255987
+  },
+  {
+    "id": "ltm_1792440697151_9g2u7",
+    "projectId": "aegis-unified-val-yzapUx",
+    "category": "architecture_rule",
+    "key": "finance_tax_precision",
+    "content": "All tax calculations must round to exactly 2 decimal places using roundCurrency.",
+    "metadata": {
+      "source": "audit"
+    },
+    "createdAt": 1792440697151,
+    "updatedAt": 1792440697151
+  }
+]

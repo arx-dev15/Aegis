@@ -1,3 +1,4 @@
+import { approvalRuntime } from '../../src/runtime/approvalWorkflow'
 import express from 'express'
 import http from 'http'
 import cors from 'cors'
@@ -9,7 +10,7 @@ import { errorHandler, notFound } from './middleware/errorHandler'
 import { checkDbConnection } from './db'
 import { seedDemoData } from './seed'
 
-async function bootstrap() {
+export function createApp(): express.Application {
   const app = express()
 
   // ── Security & parsing ─────────────────────────────────────────
@@ -26,11 +27,30 @@ async function bootstrap() {
   // ── Health check ───────────────────────────────────────────────
   app.get('/health', async (_req, res) => {
     const dbOk = config.SKIP_DB ? null : await checkDbConnection()
+    const runs = approvalRuntime.listPersistedRuns(50)
+    const activeRuns = runs.filter((r) =>
+      ['developing', 'investigating', 'planning', 'testing', 'reviewing', 'paused'].includes(
+        r.state?.status
+      )
+    )
     res.json({
       status: 'ok',
       version: '0.1.0',
       env: config.NODE_ENV,
       db: config.SKIP_DB ? 'disabled' : dbOk ? 'connected' : 'unreachable',
+      gemini: {
+        status: process.env.GEMINI_API_KEY ? 'online' : 'unconfigured',
+        model: 'gemini-2.0-flash',
+        configured: Boolean(process.env.GEMINI_API_KEY),
+      },
+      github: {
+        status: process.env.GITHUB_PAT || process.env.GITHUB_TOKEN ? 'online' : 'offline',
+        configured: Boolean(process.env.GITHUB_PAT || process.env.GITHUB_TOKEN),
+      },
+      runs: {
+        total: runs.length,
+        active: activeRuns.length,
+      },
       timestamp: new Date().toISOString(),
     })
   })
@@ -42,9 +62,18 @@ async function bootstrap() {
   app.use(notFound)
   app.use(errorHandler)
 
-  // ── HTTP + WebSocket server ────────────────────────────────────
+  return app
+}
+
+export function createServerInstance() {
+  const app = createApp()
   const server = http.createServer(app)
-  createWsServer(server)
+  const wss = createWsServer(server)
+  return { app, server, wss }
+}
+
+async function bootstrap() {
+  const { server } = createServerInstance()
 
   server.listen(config.PORT, () => {
     console.log(`\n🚀 Aegis API running on http://localhost:${config.PORT}`)
@@ -53,8 +82,10 @@ async function bootstrap() {
     console.log(`🗄️  Database: ${config.SKIP_DB ? 'DISABLED (in-memory mode)' : `${config.DB_HOST}:${config.DB_PORT}/${config.DB_NAME}`}`)
     console.log(`🌍 Environment: ${config.NODE_ENV}\n`)
 
-    // Seed demo data when running in-memory mode
-    if (config.SKIP_DB) seedDemoData()
+    // Seed demo data only in non-production environments when explicitly enabled
+    if (config.SKIP_DB && config.NODE_ENV !== 'production' && !process.env.AEGIS_DISABLE_DEMO && process.env.AEGIS_ENABLE_DEMO_SEED === 'true') {
+      seedDemoData()
+    }
   })
 
   // ── Graceful shutdown ──────────────────────────────────────────
@@ -64,7 +95,10 @@ async function bootstrap() {
   })
 }
 
-bootstrap().catch((err) => {
-  console.error('Failed to start server:', err)
-  process.exit(1)
-})
+// Auto-start server unless imported by test runner
+if (process.env.NODE_ENV !== 'test' && !process.env.AEGIS_TEST_API) {
+  bootstrap().catch((err) => {
+    console.error('Failed to start server:', err)
+    process.exit(1)
+  })
+}

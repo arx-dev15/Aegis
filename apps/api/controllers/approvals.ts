@@ -1,12 +1,10 @@
 import { Request, Response, NextFunction } from 'express'
 import { v4 as uuidv4 } from 'uuid'
-import { query, queryOne } from '../db'
 import { createError } from '../middleware/errorHandler'
 import { CreateApprovalInput, ResolveApprovalInput } from '../schemas/approval'
-import { config } from '../config'
 import { broadcast } from '../ws'
 import * as agentService from '../services/agentService'
-
+import { approvalRuntime } from '../../../src/runtime/approvalWorkflow'
 import { memApprovals, Approval } from '../services/memoryStore'
 
 export async function createApproval(req: Request, res: Response, next: NextFunction) {
@@ -16,41 +14,45 @@ export async function createApproval(req: Request, res: Response, next: NextFunc
     const id = uuidv4()
     const now = new Date().toISOString()
 
-    const approval: Approval = {
-      id,
-      run_id: runId,
-      type: input.type,
-      title: input.title,
-      description: input.description,
-      requested_by: input.requestedBy,
-      status: 'pending',
-      requested_at: now,
-      resolved_at: null,
-      resolution: null,
+    const run = approvalRuntime.getPersistedRun(runId)
+    if (!run) {
+      return next(createError('Run not found', 404, 'NOT_FOUND'))
     }
 
-    if (config.SKIP_DB) {
-      memApprovals[id] = approval
-    } else {
-      await query(
-        `INSERT INTO approvals (id, run_id, type, title, description, requested_by, status)
-         VALUES ($1, $2, $3, $4, $5, $6, 'pending')`,
-        [id, runId, input.type, input.title, input.description, input.requestedBy],
+    try {
+      const canonicalAppr = await agentService.requestApproval(
+        runId,
+        id,
+        input.title,
+        input.description
       )
+
+      const approval: Approval = {
+        id: canonicalAppr.id,
+        run_id: runId,
+        type: input.type,
+        title: input.title,
+        description: input.description,
+        requested_by: input.requestedBy,
+        status: 'pending',
+        requested_at: now,
+        resolved_at: null,
+        resolution: null,
+      }
+      memApprovals[canonicalAppr.id] = approval
+
+      // Notify frontend via WebSocket
+      broadcast({
+        type: 'approval:requested',
+        runId,
+        payload: approval as any,
+        timestamp: now,
+      })
+
+      res.status(201).json({ data: approval })
+    } catch (err: any) {
+      return next(createError(err.message, 400, 'BAD_REQUEST'))
     }
-
-    // Notify frontend via WebSocket
-    broadcast({
-      type: 'approval:requested',
-      runId,
-      payload: approval as any,
-      timestamp: now,
-    })
-
-    // Notify agent service to pause
-    await agentService.requestApproval(runId, id, input.title)
-
-    res.status(201).json({ data: approval })
   } catch (err) {
     next(err)
   }
@@ -59,14 +61,39 @@ export async function createApproval(req: Request, res: Response, next: NextFunc
 export async function getApproval(req: Request, res: Response, next: NextFunction) {
   try {
     const { id } = req.params
-    if (config.SKIP_DB) {
-      const a = memApprovals[id]
-      if (!a) return next(createError('Approval not found', 404, 'NOT_FOUND'))
-      return res.json({ data: a })
+    const approvalInfo = approvalRuntime.findApproval(id)
+
+    if (approvalInfo) {
+      const { run, approval, isPending } = approvalInfo
+      const decision = run.state.approvalDecision
+      const status = isPending
+        ? 'pending'
+        : decision?.action === 'approve'
+        ? 'approved'
+        : 'rejected'
+
+      const data: Approval = {
+        id: approval.id,
+        run_id: run.runId,
+        type: (approval.type as any) || 'code-review',
+        title: approval.title,
+        description: approval.description,
+        requested_by: approval.requestedBy,
+        status,
+        resolution: decision?.reason || null,
+        requested_at: new Date(approval.requestedAt || Date.now()).toISOString(),
+        resolved_at: decision?.decidedAt ? new Date(decision.decidedAt).toISOString() : null,
+      }
+      return res.json({ data })
     }
-    const approval = await queryOne(`SELECT * FROM approvals WHERE id = $1`, [id])
-    if (!approval) return next(createError('Approval not found', 404, 'NOT_FOUND'))
-    res.json({ data: approval })
+
+    // Fallback to memApprovals if registered separately
+    const mem = memApprovals[id]
+    if (mem) {
+      return res.json({ data: mem })
+    }
+
+    return next(createError('Approval not found', 404, 'NOT_FOUND'))
   } catch (err) {
     next(err)
   }
@@ -79,51 +106,59 @@ export async function resolveApproval(req: Request, res: Response, next: NextFun
     const now = new Date().toISOString()
     const newStatus = input.action === 'approve' ? 'approved' : 'rejected'
 
-    if (config.SKIP_DB) {
-      if (!memApprovals[id]) return next(createError('Approval not found', 404, 'NOT_FOUND'))
-      const approval = memApprovals[id]
-      if (approval.status !== 'pending') {
-        return next(createError('Approval already resolved', 409, 'CONFLICT'))
+    const approvalInfo = approvalRuntime.findApproval(id)
+    if (!approvalInfo) {
+      const mem = memApprovals[id]
+      if (mem) {
+        return next(
+          createError(
+            'Cannot resolve synthetic demo approval without canonical run. Start a real task run first.',
+            400,
+            'BAD_REQUEST'
+          )
+        )
       }
-      memApprovals[id] = { ...approval, status: newStatus, resolved_at: now, resolution: input.reason ?? null }
-      const runId = approval.run_id
-      // Tell agent service to resume with human decision (approve or reject)
-      await agentService.resumeRun(runId, id, input.action, input.reason ?? undefined)
-
-      broadcast({
-        type: 'approval:resolved',
-        runId,
-        payload: memApprovals[id] as any,
-        timestamp: now,
-      })
-      return res.json({ data: memApprovals[id] })
+      return next(createError('Approval not found', 404, 'NOT_FOUND'))
     }
 
-    const existing = await queryOne<{ status: string; run_id: string }>(
-      `SELECT status, run_id FROM approvals WHERE id = $1`,
-      [id],
-    )
-    if (!existing) return next(createError('Approval not found', 404, 'NOT_FOUND'))
-    if (existing.status !== 'pending') {
+    if (!approvalInfo.isPending) {
       return next(createError('Approval already resolved', 409, 'CONFLICT'))
     }
 
-    const [approval] = await query(
-      `UPDATE approvals SET status = $1, resolved_at = NOW(), resolution = $2
-       WHERE id = $3 RETURNING *`,
-      [newStatus, input.reason ?? null, id],
-    )
+    const runId = approvalInfo.run.runId
 
-    await agentService.resumeRun(existing.run_id, id, input.action, input.reason ?? undefined)
+    try {
+      await agentService.resumeRun(runId, id, input.action, input.reason ?? undefined)
+    } catch (resumeErr: any) {
+      const msg = resumeErr.message || ''
+      if (msg.includes('already being resolved') || msg.includes('not pending')) {
+        return next(createError(msg, 409, 'CONFLICT'))
+      }
+      return next(createError(msg, 400, 'BAD_REQUEST'))
+    }
+
+    const resolvedData: Approval = {
+      id,
+      run_id: runId,
+      type: (approvalInfo.approval.type as any) || 'code-review',
+      title: approvalInfo.approval.title,
+      description: approvalInfo.approval.description,
+      requested_by: approvalInfo.approval.requestedBy,
+      status: newStatus,
+      resolution: input.reason ?? null,
+      requested_at: new Date(approvalInfo.approval.requestedAt || Date.now()).toISOString(),
+      resolved_at: now,
+    }
+    memApprovals[id] = resolvedData
 
     broadcast({
       type: 'approval:resolved',
-      runId: existing.run_id,
-      payload: approval,
+      runId,
+      payload: resolvedData as any,
       timestamp: now,
     })
 
-    res.json({ data: approval })
+    res.json({ data: resolvedData })
   } catch (err) {
     next(err)
   }

@@ -6,7 +6,8 @@ import { useActivity } from '@/hooks/useActivity'
 import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { StatusDot } from '@/components/ui/StatusDot'
-import { mockSystemStatus } from '@/data/mock'
+import { systemApi, ApiSystemHealth } from '@/lib/api'
+import { useState, useEffect } from 'react'
 import {
   FolderKanban,
   Cpu,
@@ -48,6 +49,33 @@ const activityIcons: Record<string, React.ElementType> = {
 }
 
 export default function DashboardPage() {
+  const [health, setHealth] = useState<ApiSystemHealth | null>(null)
+  useEffect(() => {
+    systemApi.health().then(setHealth).catch(() => setHealth(null))
+  }, [])
+
+  const systemServices: Array<{ name: string; status: 'online' | 'offline' | 'degraded'; label?: string }> = [
+    {
+      name: 'Aegis Runtime',
+      status: health ? 'online' : 'offline',
+      label: health ? 'v0.1.0' : 'Offline',
+    },
+    {
+      name: 'Gemini API',
+      status: health?.gemini?.configured ? 'online' : 'offline',
+      label: health?.gemini?.configured ? 'Active' : 'Unconfigured',
+    },
+    {
+      name: 'Database',
+      status: health?.db === 'connected' || health?.db === 'disabled' ? 'online' : 'offline',
+      label: health?.db === 'connected' ? 'PostgreSQL' : health?.db === 'disabled' ? 'In-Memory' : 'Offline',
+    },
+    {
+      name: 'GitHub API',
+      status: health?.github?.configured ? 'online' : 'offline',
+      label: health?.github?.configured ? 'Connected' : 'Unavailable',
+    },
+  ]
   const { projects, loading: projLoading, error: projError } = useProjects()
   const { activity, loading: actLoading } = useActivity(10)
 
@@ -198,20 +226,14 @@ export default function DashboardPage() {
           <div>
             <h2 className="text-sm font-medium text-zinc-300 mb-3">System Status</h2>
             <Card padding={false}>
-              {mockSystemStatus.map((svc, i) => (
+              {systemServices.map((svc, i) => (
                 <div
                   key={svc.name}
-                  className={`flex items-center gap-3 px-4 py-3 ${i < mockSystemStatus.length - 1 ? 'border-b border-zinc-800' : ''}`}
+                  className={`flex items-center gap-3 px-4 py-3 ${i < systemServices.length - 1 ? 'border-b border-zinc-800' : ''}`}
                 >
                   <StatusDot status={svc.status} />
                   <span className="flex-1 text-sm text-zinc-300">{svc.name}</span>
-                  {svc.latencyMs !== undefined ? (
-                    <span className={`text-xs font-mono ${svc.status === 'degraded' ? 'text-yellow-400' : 'text-zinc-500'}`}>
-                      {svc.latencyMs}ms
-                    </span>
-                  ) : (
-                    <span className="text-xs text-zinc-600">—</span>
-                  )}
+                  <span className="text-xs text-zinc-500">{svc.label}</span>
                 </div>
               ))}
             </Card>

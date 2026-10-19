@@ -9,15 +9,22 @@
     "noEmit": true
   },
   "include": [
-    "agents/**/*",
-    "graph/**/*",
-    "models/**/*",
-    "tools/**/*",
-    "shared/**/*",
-    "rag/**/*",
-    "memory/**/*",
-    "evaluation/**/*",
-    "observability/**/*"
+    "src/agent/**/*",
+    "src/runtime/**/*",
+    "src/workflows/**/*",
+    "src/context/**/*",
+    "src/tools/**/*",
+    "src/security/**/*",
+    "src/verification/**/*",
+    "src/shared/**/*",
+    "src/intelligence/**/*",
+    "apps/cli/**/*",
+    "cli.ts"
   ],
-  "exclude": ["node_modules", "dist", "apps"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "apps/api",
+    "apps/web"
+  ]
 }

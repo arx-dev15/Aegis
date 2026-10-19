@@ -20,7 +20,7 @@ const envSchema = z.object({
   // CORS
   CORS_ORIGIN: z.string().default('http://localhost:3000,http://localhost:3001'),
   // Feature flags
-  SKIP_DB: z.string().optional().transform((v) => v === 'true'),
+  SKIP_DB: z.string().optional().transform((v) => v === 'true' || v === '1'),
 })
 
 function parseEnv() {

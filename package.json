@@ -8,7 +8,13 @@
     "build": "tsc",
     "start": "node dist/apps/api/server.js",
     "test": "tsx testAll.ts",
-    "demo": "tsx runDemo.ts"
+    "test:p01:offline": "tsx testAll.ts",
+    "typecheck:root": "tsc --noEmit",
+    "typecheck:api": "npm --prefix apps/api run typecheck",
+    "typecheck:web": "npx --prefix apps/web tsc --noEmit",
+    "typecheck:all": "npm run typecheck:root && npm run typecheck:api && npm run typecheck:web",
+    "demo": "tsx scripts/runDemo.ts",
+    "test:docker": "npx tsx scripts/testDockerIntegration.ts"
   },
   "repository": {
     "type": "git",
@@ -33,6 +39,6 @@
   "devDependencies": {
     "@types/node": "^26.2.0",
     "tsx": "^4.23.12",
-    "typescript": "^7.0.2"
+    "typescript": "^5.9.3"
   }
 }

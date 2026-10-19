@@ -1,3 +1,22 @@
-.env
+# Dependencies
 node_modules/
+AEGIS_P01_canonical_verification_bundle/
+# Build and Compilation Outputs
+dist/
 .next/
+apps/web/.next/
+
+# Generated Runtime Records
+.aegis/runs/
+
+# Temporary and Cache Directories
+.tmp/
+.gemini/
+scratch/
+
+# Environment and Local Secrets (keep .env.example tracked)
+.env
+.env.*
+.env*.local
+!.env.example
+!.env*.example

@@ -8,8 +8,10 @@ import * as approvalsCtrl from '../controllers/approvals'
 
 const router = Router()
 
+router.get('/', runsCtrl.listAllRuns)
 router.get('/:id', runsCtrl.getRun)
 router.get('/:id/status', runsCtrl.getRunStatus)
+router.post('/:id/cancel', runsCtrl.cancelRun)
 router.post('/:id/events', validate(RunEventSchema), runsCtrl.storeRunEvent)
 
 // Files per run

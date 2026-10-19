@@ -4,7 +4,7 @@ import { useParams } from 'next/navigation'
 import { useState } from 'react'
 import { useTask } from '@/hooks/useTask'
 import { useRun } from '@/hooks/useRun'
-import { approvalApi } from '@/lib/api'
+import { approvalApi, runApi } from '@/lib/api'
 import type { ApiRunEvent, ApiProjectFile } from '@/lib/api'
 import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
@@ -80,8 +80,8 @@ export default function TaskPage() {
   const id = params?.id as string
 
   // id is the task ID — useRun fetches the most recent run for this task
-  const { task, loading: taskLoading } = useTask(id)
-  const { run, loading: runLoading, refetch: refetchRun } = useRun(id)
+  const { task, loading: taskLoading, error: taskError } = useTask(id)
+  const { run, loading: runLoading, error: runError, refetch: refetchRun } = useRun(id)
 
   const [activeTab, setActiveTab] = useState('overview')
 
@@ -96,12 +96,20 @@ export default function TaskPage() {
   const events: ApiRunEvent[]    = run?.events ?? []
   const files:  ApiProjectFile[] = run?.files  ?? []
 
-  // Pending approvals derived from run events that carry approval metadata
-  const pendingApprovals = events.filter(
-    (e) =>
-      typeof e.metadata?.approvalId === 'string' &&
-      (approvalActions[e.metadata.approvalId as string] ?? 'pending') === 'pending'
-  )
+  // Pending approvals from run directly or derived from run events
+  const pendingApprovals: any[] = []
+  if (run?.pendingApproval) {
+    const apprId = run.pendingApproval.id
+    if ((approvalActions[apprId] ?? 'pending') === 'pending') {
+      pendingApprovals.push(run.pendingApproval)
+    }
+  }
+  for (const e of events) {
+    const aid = e.metadata?.approvalId as string | undefined
+    if (aid && !pendingApprovals.some((p) => p.id === aid) && (approvalActions[aid] ?? 'pending') === 'pending') {
+      pendingApprovals.push({ id: aid, title: e.metadata?.title || e.message, type: 'code-review' })
+    }
+  }
 
   async function handleApproval(approvalId: string, action: 'approve' | 'reject') {
     setApprovalActions((prev) => ({ ...prev, [approvalId]: 'submitting' }))
@@ -132,6 +140,25 @@ export default function TaskPage() {
       <div className="flex items-center justify-center h-64 gap-2 text-zinc-500 text-sm">
         <Loader2 className="w-5 h-5 animate-spin" />
         Loading task...
+      </div>
+    )
+  }
+
+  if (taskError || runError) {
+    return (
+      <div className="p-6">
+        <Card className="border-red-500/20 bg-red-500/5">
+          <div className="flex items-center gap-2 mb-1 text-red-400">
+            <XCircle className="w-4 h-4" />
+            <span className="text-sm font-semibold">Backend Unavailable</span>
+          </div>
+          <p className="text-xs text-zinc-400 mt-1">
+            Unable to connect to the Aegis API at {process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}.
+          </p>
+          <p className="text-xs text-zinc-500 mt-1">
+            {taskError || runError}
+          </p>
+        </Card>
       </div>
     )
   }
@@ -180,7 +207,23 @@ export default function TaskPage() {
               {description || id}
             </h1>
           </div>
-          <Badge variant={statusVar as any}>{status}</Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant={statusVar as any}>{status}</Badge>
+            {(status === 'running' || status === 'paused') && (
+              <Button
+                variant="danger"
+                size="sm"
+                onClick={async () => {
+                  if (run?.id) {
+                    await runApi.cancel(run.id)
+                    refetchRun()
+                  }
+                }}
+              >
+                Cancel Run
+              </Button>
+            )}
+          </div>
         </div>
         <div className="flex items-center gap-4 mt-2 text-xs text-zinc-500 ml-5">
           {startedAt && <span>Started {timeAgo(startedAt)}</span>}
@@ -315,6 +358,29 @@ export default function TaskPage() {
                 </button>
               </Card>
             )}
+
+            {run?.verificationEvidence && (
+              <Card className="border-blue-500/20 bg-blue-500/5">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <CheckCheck className="w-4 h-4 text-blue-400" />
+                    <span className="text-xs font-semibold text-blue-400 uppercase tracking-wide">Verification Evidence</span>
+                  </div>
+                  <Badge variant={run.verificationEvidence.passed ? 'success' : 'failed'}>
+                    {run.verificationEvidence.passed ? 'Passed' : 'Failed'}
+                  </Badge>
+                </div>
+                <div className="text-xs space-y-1 font-mono text-zinc-400">
+                  <p><span className="text-zinc-500">Command:</span> {run.verificationEvidence.command}</p>
+                  <p><span className="text-zinc-500">Exit Code:</span> {run.verificationEvidence.exitCode}</p>
+                  {run.verificationEvidence.stdout && (
+                    <div className="mt-2 p-2 bg-zinc-950/80 rounded border border-zinc-800 text-zinc-300 max-h-32 overflow-y-auto whitespace-pre-wrap">
+                      {run.verificationEvidence.stdout}
+                    </div>
+                  )}
+                </div>
+              </Card>
+            )}
           </div>
         </div>
       )}
@@ -408,72 +474,72 @@ export default function TaskPage() {
       {/* ── APPROVAL ─────────────────────────────────────────────────────────── */}
       {activeTab === 'approval' && (
         <div className="max-w-xl space-y-4">
-          {events
-            .filter((e) => typeof e.metadata?.approvalId === 'string')
-            .length === 0 ? (
+          {pendingApprovals.length === 0 ? (
             <Card>
               <p className="text-sm text-zinc-500">No approval requests for this run.</p>
             </Card>
           ) : (
-            events
-              .filter((e) => typeof e.metadata?.approvalId === 'string')
-              .map((event) => {
-                const approvalId = event.metadata.approvalId as string
-                const state = approvalActions[approvalId] ?? 'pending'
-                return (
-                  <Card key={approvalId} className="border-yellow-500/20">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-start gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-yellow-500/10 flex items-center justify-center shrink-0">
-                          <ShieldAlert className="w-4 h-4 text-yellow-400" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-zinc-200">{event.message}</p>
-                          <p className="text-xs text-zinc-500 mt-0.5">
-                            Requested by <span className="text-zinc-400">{event.agent}</span> · {timeAgo(event.timestamp)}
-                          </p>
-                        </div>
+            pendingApprovals.map((approval) => {
+              const approvalId = approval.id
+              const state = approvalActions[approvalId] ?? ((run?.status as string) === 'completed' || run?.status === 'success' ? 'approved' : 'pending')
+              return (
+                <Card key={approvalId} className="border-yellow-500/20">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-yellow-500/10 flex items-center justify-center shrink-0">
+                        <ShieldAlert className="w-4 h-4 text-yellow-400" />
                       </div>
-                      <Badge variant={state === 'approved' ? 'success' : state === 'rejected' ? 'failed' : 'pending'}>
-                        {state === 'submitting' ? 'saving…' : state}
-                      </Badge>
+                      <div>
+                        <p className="text-sm font-medium text-zinc-200">{approval.title || approval.message || 'Code Review Approval'}</p>
+                        {approval.description && (
+                          <p className="text-xs text-zinc-400 mt-1">{approval.description}</p>
+                        )}
+                        <p className="text-xs text-zinc-500 mt-1">
+                          Requested by <span className="text-zinc-400">{approval.requestedBy || approval.agent || 'Native Agent'}</span> · {approval.requestedAt ? timeAgo(approval.requestedAt) : 'recently'}
+                        </p>
+                      </div>
                     </div>
+                    <Badge variant={state === 'approved' ? 'success' : state === 'rejected' ? 'failed' : 'pending'}>
+                      {state === 'submitting' ? 'saving…' : state}
+                    </Badge>
+                  </div>
 
-                    {(state === 'pending' || state === 'submitting') && (
-                      <div className="flex items-center gap-2 mt-4">
-                        <Button
-                          variant="success"
-                          size="sm"
-                          isLoading={state === 'submitting'}
-                          disabled={state === 'submitting'}
-                          onClick={() => handleApproval(approvalId, 'approve')}
-                        >
-                          <CheckCheck className="w-3.5 h-3.5" />
-                          Approve &amp; Continue
-                        </Button>
-                        <Button
-                          variant="danger"
-                          size="sm"
-                          onClick={() => handleApproval(approvalId, 'reject')}
-                        >
-                          <XCircle className="w-3.5 h-3.5" />
-                          Reject
-                        </Button>
-                      </div>
-                    )}
-                    {state === 'approved' && (
-                      <div className="flex items-center gap-2 mt-4 text-sm text-green-400">
-                        <CheckCircle2 className="w-4 h-4" /> Approved — agents will continue execution
-                      </div>
-                    )}
-                    {state === 'rejected' && (
-                      <div className="flex items-center gap-2 mt-4 text-sm text-red-400">
-                        <XCircle className="w-4 h-4" /> Rejected — task paused for revision
-                      </div>
-                    )}
-                  </Card>
-                )
-              })
+                  {(state === 'pending' || state === 'submitting') && (
+                    <div className="flex items-center gap-2 mt-4">
+                      <Button
+                        variant="success"
+                        size="sm"
+                        isLoading={state === 'submitting'}
+                        disabled={state === 'submitting'}
+                        onClick={() => handleApproval(approvalId, 'approve')}
+                      >
+                        <CheckCheck className="w-3.5 h-3.5" />
+                        Approve &amp; Continue
+                      </Button>
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        disabled={state === 'submitting'}
+                        onClick={() => handleApproval(approvalId, 'reject')}
+                      >
+                        <XCircle className="w-3.5 h-3.5" />
+                        Reject
+                      </Button>
+                    </div>
+                  )}
+                  {state === 'approved' && (
+                    <div className="flex items-center gap-2 mt-4 text-sm text-green-400">
+                      <CheckCircle2 className="w-4 h-4" /> Approved — workflow resuming execution
+                    </div>
+                  )}
+                  {state === 'rejected' && (
+                    <div className="flex items-center gap-2 mt-4 text-sm text-red-400">
+                      <XCircle className="w-4 h-4" /> Rejected — task stopped
+                    </div>
+                  )}
+                </Card>
+              )
+            })
           )}
         </div>
       )}

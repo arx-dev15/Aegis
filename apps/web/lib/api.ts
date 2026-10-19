@@ -107,6 +107,11 @@ export interface ApiRun {
   // Included in GET /runs/:id (SKIP_DB mode)
   events?: ApiRunEvent[]
   files?: ApiProjectFile[]
+  pendingApproval?: any
+  verificationEvidence?: any
+  verificationHistory?: any[]
+  codeChanges?: any[]
+  nativeAgent?: any
 }
 
 export interface ApiApproval {
@@ -196,18 +201,54 @@ export const taskApi = {
 // ── Run API ──────────────────────────────────────────────────────────────────
 
 export const runApi = {
+  /** GET /api/runs — list all recent runs */
+  list: () => get<ApiRun[]>('/runs'),
+
   /** GET /api/runs/:id — includes events[] and files[] in SKIP_DB mode */
   get: (id: string) => get<ApiRun>(`/runs/${id}`),
 
   /** GET /api/runs/:id/status */
   status: (id: string) =>
-    get<{ id: string; status: string; currentAgent?: string }>(`/runs/${id}/status`),
+    get<{ id: string; status: string; currentAgent?: string; pendingApproval?: unknown }>(`/runs/${id}/status`),
+
+  /** POST /api/runs/:id/cancel — cancel run */
+  cancel: (id: string) => post<ApiRun>(`/runs/${id}/cancel`, {}),
 
   /** GET /api/runs/:runId/files */
   files: (runId: string) => get<ApiProjectFile[]>(`/runs/${runId}/files`),
 
   /** GET /api/tasks/:taskId/runs — all runs for a task (most recent first) */
   listForTask: (taskId: string) => get<ApiRun[]>(`/tasks/${taskId}/runs`),
+}
+
+export interface ApiSystemHealth {
+  status: string
+  version: string
+  env: string
+  db: string
+  gemini?: {
+    status: string
+    model: string
+    configured: boolean
+  }
+  github?: {
+    status: string
+    configured: boolean
+  }
+  runs?: {
+    total: number
+    active: number
+  }
+  timestamp: string
+}
+
+export const systemApi = {
+  health: async (): Promise<ApiSystemHealth> => {
+    const base = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000'
+    const res = await fetch(`${base}/health`)
+    if (!res.ok) throw new Error(`Health check failed (${res.status})`)
+    return res.json()
+  },
 }
 
 // ── Approval API ─────────────────────────────────────────────────────────────

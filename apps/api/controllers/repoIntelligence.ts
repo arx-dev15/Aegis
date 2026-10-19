@@ -7,20 +7,20 @@ import path from 'path';
 import {
   createRepositoryIdentity,
   validateRepositoryAccess,
-} from '../../repo-intelligence/connection/connectionManager';
-import { ingestRemoteRepository } from '../../repo-intelligence/connection/remoteIngestion';
-import { extractApiRoutes } from '../../repo-intelligence/extractors/apiExtractor';
-import { extractDatabaseModels } from '../../repo-intelligence/extractors/databaseExtractor';
-import { extractDependencies } from '../../repo-intelligence/extractors/dependencyExtractor';
-import { extractImportExports } from '../../repo-intelligence/extractors/importExportExtractor';
-import { extractTests } from '../../repo-intelligence/extractors/testExtractor';
-import { analyzeGitHistory } from '../../repo-intelligence/git/gitAnalyzer';
-import { parseTypeScriptSymbols } from '../../repo-intelligence/parsers/tsParser';
-import { buildRelationshipGraph } from '../../repo-intelligence/relationships/graphEngine';
-import { getRepositoryStatus, queryRepositoryIntelligence } from '../../repo-intelligence/retrieval/hybridRetriever';
-import { scanRepositoryDirectory } from '../../repo-intelligence/scanner/fileScanner';
-import { JsonRepositoryStore } from '../../repo-intelligence/storage/jsonStore';
-import { RepositorySnapshot } from '../../repo-intelligence/types';
+} from '../../../src/intelligence/connection/connectionManager';
+import { ingestRemoteRepository } from '../../../src/intelligence/connection/remoteIngestion';
+import { extractApiRoutes } from '../../../src/intelligence/extractors/apiExtractor';
+import { extractDatabaseModels } from '../../../src/intelligence/extractors/databaseExtractor';
+import { extractDependencies } from '../../../src/intelligence/extractors/dependencyExtractor';
+import { extractImportExports } from '../../../src/intelligence/extractors/importExportExtractor';
+import { extractTests } from '../../../src/intelligence/extractors/testExtractor';
+import { analyzeGitHistory } from '../../../src/intelligence/git/gitAnalyzer';
+import { parseTypeScriptSymbols } from '../../../src/intelligence/parsers/tsParser';
+import { buildRelationshipGraph } from '../../../src/intelligence/relationships/graphEngine';
+import { getRepositoryStatus, queryRepositoryIntelligence } from '../../../src/intelligence/retrieval/hybridRetriever';
+import { scanRepositoryDirectory } from '../../../src/intelligence/scanner/fileScanner';
+import { JsonRepositoryStore } from '../../../src/intelligence/storage/jsonStore';
+import { RepositorySnapshot } from '../../../src/intelligence/types';
 
 const store = new JsonRepositoryStore();
 
@@ -45,7 +45,7 @@ export async function connectRepository(req: Request, res: Response) {
     }
 
     const repoMetadata = createRepositoryIdentity(
-      { provider: validation.repository.provider as any, owner: validation.repository.owner!, name: validation.repository.name!, url: validation.repository.url!, cleanUrl: validation.repository.url! },
+      { provider: validation.repository.provider as any, owner: validation.repository.owner ?? '', name: validation.repository.name ?? '', url: validation.repository.url ?? '', cleanUrl: validation.repository.url ?? '' },
       { branch, commitSha }
     );
     repoMetadata.status = 'analyzing';
@@ -55,9 +55,9 @@ export async function connectRepository(req: Request, res: Response) {
       repoPath = url;
     } else if (validation.repository.provider === 'github') {
       const remoteRes = await ingestRemoteRepository({
-        url: validation.repository.url,
-        owner: validation.repository.owner,
-        name: validation.repository.name,
+        url: validation.repository.url ?? '',
+        owner: validation.repository.owner ?? '',
+        name: validation.repository.name ?? '',
         branch: validation.repository.defaultBranch,
         commitSha,
         token: authToken,
@@ -82,8 +82,8 @@ export async function connectRepository(req: Request, res: Response) {
     }
 
     const allFilePaths = files.map((f) => f.path);
-    const symbols = [];
-    const importsExports = [];
+    const symbols: any[] = [];
+    const importsExports: any[] = [];
 
     for (const f of files) {
       const content = fileContents[f.path] || '';

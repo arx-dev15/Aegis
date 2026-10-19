@@ -153,7 +153,7 @@ export async function getProjectGithubData(req: Request, res: Response, next: Ne
       if (!p) return next(createError('Project not found', 404, 'NOT_FOUND'))
       repoName = p.repo || ''
     } else {
-      const p = await queryOne(`SELECT repo FROM projects WHERE id = $1`, [id])
+      const p = await queryOne<{ repo: string | null }>(`SELECT repo FROM projects WHERE id = $1`, [id])
       if (!p) return next(createError('Project not found', 404, 'NOT_FOUND'))
       repoName = p.repo || ''
     }
@@ -168,7 +168,7 @@ export async function getProjectGithubData(req: Request, res: Response, next: Ne
     }
 
     const [owner, repo] = parts
-    const { defaultGitHubClient } = await import('../../../tools/github/index.js')
+    const { defaultGitHubClient } = await import('../../../src/tools/github/index.js')
     
     try {
       const repoData = await defaultGitHubClient.getRepository(owner, repo)

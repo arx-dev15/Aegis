@@ -13,6 +13,8 @@ import {
   memEvents,
   memFiles,
   memActivity,
+  memApprovals,
+  Approval,
   Project,
   Task,
   AgentRun,
@@ -32,7 +34,7 @@ export function seedDemoData() {
 
   const p1: Project = {
     id: 'proj-1',
-    name: 'aegis-core',
+    name: '[DEMO] aegis-core',
     description: 'Core AI orchestration engine and LangGraph agent workflows.',
     repo: 'arx-dev15/aegis-core',
     branch: 'main',
@@ -47,7 +49,7 @@ export function seedDemoData() {
 
   const p2: Project = {
     id: 'proj-2',
-    name: 'aegis-tools',
+    name: '[DEMO] aegis-tools',
     description: 'Tool integrations: GitHub, web search, file system, shell execution.',
     repo: 'arx-dev15/aegis-tools',
     branch: 'dev',
@@ -62,7 +64,7 @@ export function seedDemoData() {
 
   const p3: Project = {
     id: 'proj-3',
-    name: 'api-gateway',
+    name: '[DEMO] api-gateway',
     description: 'REST API gateway with authentication, rate limiting, and WebSocket support.',
     repo: 'arx-dev15/api-gateway',
     branch: 'feature/auth',
@@ -84,10 +86,10 @@ export function seedDemoData() {
   const t1: Task = {
     id: 'task-1',
     project_id: 'proj-3',
-    description: 'Implement rate limiting middleware with Redis backend and sliding window algorithm',
+    description: '[DEMO] Implement rate limiting middleware with Redis backend and sliding window algorithm',
     execution_mode: 'semi-auto',
     priority: 4,
-    status: 'running',
+    status: 'paused',
     created_at: ago(23),
     updated_at: ago(5),
   }
@@ -95,7 +97,7 @@ export function seedDemoData() {
   const t2: Task = {
     id: 'task-2',
     project_id: 'proj-1',
-    description: 'Add vector similarity search to RAG pipeline using pgvector extension',
+    description: '[DEMO] Add vector similarity search to RAG pipeline using pgvector extension',
     execution_mode: 'automatic',
     priority: 3,
     status: 'completed',
@@ -106,7 +108,7 @@ export function seedDemoData() {
   const t3: Task = {
     id: 'task-3',
     project_id: 'proj-2',
-    description: 'Refactor GitHub tool to support repository search and branch management',
+    description: '[DEMO] Refactor GitHub tool to support repository search and branch management',
     execution_mode: 'semi-auto',
     priority: 2,
     status: 'failed',
@@ -117,7 +119,7 @@ export function seedDemoData() {
   const t4: Task = {
     id: 'task-4',
     project_id: 'proj-1',
-    description: 'Add Prometheus metrics exporter and Grafana dashboard templates',
+    description: '[DEMO] Add Prometheus metrics exporter and Grafana dashboard templates',
     execution_mode: 'manual',
     priority: 2,
     status: 'pending',
@@ -136,7 +138,7 @@ export function seedDemoData() {
     id: 'run-1',
     task_id: 'task-1',
     project_id: 'proj-3',
-    status: 'running',
+    status: 'paused',
     current_agent: 'Developer',
     execution_mode: 'semi-auto',
     files_changed: 4,
@@ -154,8 +156,8 @@ export function seedDemoData() {
     status: 'success',
     execution_mode: 'automatic',
     files_changed: 9,
-    tests_run: 24,
-    tests_passed: 24,
+    tests_run: 0,
+    tests_passed: 0,
     started_at: ago(3 * 60),
     completed_at: ago(2 * 60 + 15),
     duration_seconds: 2820,
@@ -177,6 +179,19 @@ export function seedDemoData() {
     created_at: ago(18 * 60),
   }
 
+  const appr1: Approval = {
+    id: 'appr-1',
+    run_id: 'run-1',
+    type: 'code-review',
+    title: '[DEMO] Review rate limiter implementation',
+    description: 'Developer proposes changes to rateLimit.ts and route definitions for sliding window rate limiter.',
+    requested_by: 'Developer',
+    status: 'pending',
+    requested_at: ago(6),
+    resolved_at: null,
+    resolution: null,
+  }
+  memApprovals['appr-1'] = appr1
   memRuns['run-1'] = r1
   memRuns['run-2'] = r2
   memRuns['run-3'] = r3
@@ -195,6 +210,7 @@ export function seedDemoData() {
     { id: uuidv4(), run_id: 'run-1', level: 'error', agent: 'Developer',  message: "Type error: Property 'windowMs' is missing in type 'RateLimitConfig' — fixing...", metadata: {}, timestamp: ago(12.5) },
     { id: uuidv4(), run_id: 'run-1', level: 'info',  agent: 'Developer',  message: 'Type error resolved. Updated RateLimitConfig interface.', metadata: {}, timestamp: ago(12) },
     { id: uuidv4(), run_id: 'run-1', level: 'info',  agent: 'Developer',  message: 'Implementation complete. 4 files written, 235 lines added.', metadata: {}, timestamp: ago(6) },
+    { id: uuidv4(), run_id: 'run-1', level: 'warn',  agent: 'Developer',  message: 'Approval requested: Review rate limiter implementation', metadata: { approvalId: 'appr-1', title: 'Review rate limiter implementation' }, timestamp: ago(5.8) },
   ]
 
   memEvents['run-1'] = events1

@@ -1,32 +1,68 @@
 'use client'
 
-import { useState } from 'react'
-import { mockSystemStatus } from '@/data/mock'
+import { useState, useEffect } from 'react'
+import { systemApi, ApiSystemHealth } from '@/lib/api'
 import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { StatusDot } from '@/components/ui/StatusDot'
-import { CheckCircle2, AlertTriangle, ExternalLink, Eye, EyeOff, Cpu, Github, Settings2 } from 'lucide-react'
+import {
+  CheckCircle2,
+  AlertTriangle,
+  ExternalLink,
+  Eye,
+  EyeOff,
+  Cpu,
+  Github,
+  Settings2,
+  Database,
+  Loader2,
+} from 'lucide-react'
 
 export default function SettingsPage() {
   const [showKey, setShowKey] = useState(false)
   const [executionMode, setExecutionMode] = useState<'automatic' | 'semi-auto' | 'manual'>('semi-auto')
   const [saveSuccess, setSaveSuccess] = useState(false)
+  const [health, setHealth] = useState<ApiSystemHealth | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [offline, setOffline] = useState(false)
 
-  const geminiStatus = mockSystemStatus.find((s) => s.name === 'Gemini API')
-  const githubStatus = mockSystemStatus.find((s) => s.name === 'GitHub')
+  useEffect(() => {
+    async function load() {
+      try {
+        const h = await systemApi.health()
+        setHealth(h)
+        setOffline(false)
+      } catch {
+        setOffline(true)
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
+  }, [])
 
   function handleSave() {
     setSaveSuccess(true)
     setTimeout(() => setSaveSuccess(false), 2500)
   }
 
+  const isGeminiConfigured = Boolean(health?.gemini?.configured)
+  const isGithubConfigured = Boolean(health?.github?.configured)
+
   return (
     <div className="p-6 space-y-6 max-w-2xl">
       <div>
         <h1 className="text-lg font-semibold text-zinc-100">Settings</h1>
-        <p className="text-sm text-zinc-500 mt-0.5">Configure Aegis integrations and preferences</p>
+        <p className="text-sm text-zinc-500 mt-0.5">Configure Aegis integrations and operational preferences</p>
       </div>
+
+      {offline && (
+        <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-md p-3 text-xs text-yellow-300 flex items-center gap-2">
+          <AlertTriangle className="w-4 h-4 shrink-0 text-yellow-400" />
+          <span>Backend API is currently offline. Real health and credential configurations are unavailable.</span>
+        </div>
+      )}
 
       {/* Gemini */}
       <section className="space-y-3">
@@ -42,20 +78,32 @@ export default function SettingsPage() {
             <div className="flex items-center gap-2">
               <div className="flex-1 flex items-center bg-zinc-800 border border-zinc-700 rounded px-3 py-2 gap-2">
                 <code className="text-sm font-mono text-zinc-300 flex-1">
-                  {showKey ? 'AIzaSyD7xK9m2Np8Qr3vWx5Yt6Uu4Is1El0Cb' : '••••••••••••••••••••••••••••••••••••••'}
+                  {isGeminiConfigured
+                    ? showKey
+                      ? 'AIzaSy... [Configured in server .env]'
+                      : '••••••••••••••••••••••••••••••••••••••'
+                    : 'Not configured in environment'}
                 </code>
-                <button
-                  onClick={() => setShowKey(!showKey)}
-                  className="text-zinc-600 hover:text-zinc-400 transition-colors"
-                >
-                  {showKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
+                {isGeminiConfigured && (
+                  <button
+                    onClick={() => setShowKey(!showKey)}
+                    className="text-zinc-600 hover:text-zinc-400 transition-colors"
+                  >
+                    {showKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                )}
               </div>
               <div className="flex items-center gap-1.5 shrink-0">
-                {geminiStatus?.status === 'online' ? (
-                  <><CheckCircle2 className="w-4 h-4 text-green-400" /><span className="text-xs text-green-400">Valid</span></>
+                {isGeminiConfigured ? (
+                  <>
+                    <CheckCircle2 className="w-4 h-4 text-green-400" />
+                    <span className="text-xs text-green-400">Configured</span>
+                  </>
                 ) : (
-                  <><AlertTriangle className="w-4 h-4 text-yellow-400" /><span className="text-xs text-yellow-400">Check key</span></>
+                  <>
+                    <AlertTriangle className="w-4 h-4 text-yellow-400" />
+                    <span className="text-xs text-yellow-400">Not configured</span>
+                  </>
                 )}
               </div>
             </div>
@@ -64,7 +112,10 @@ export default function SettingsPage() {
           {/* Model */}
           <div>
             <label className="text-xs font-medium text-zinc-400 block mb-2">Model</label>
-            <select className="w-full bg-zinc-800 border border-zinc-700 rounded px-3 py-2 text-sm text-zinc-200 focus:outline-none focus:border-zinc-500">
+            <select
+              defaultValue={health?.gemini?.model || 'gemini-2.0-flash'}
+              className="w-full bg-zinc-800 border border-zinc-700 rounded px-3 py-2 text-sm text-zinc-200 focus:outline-none focus:border-zinc-500"
+            >
               <option value="gemini-2.0-flash">gemini-2.0-flash (recommended)</option>
               <option value="gemini-2.0-pro">gemini-2.0-pro</option>
               <option value="gemini-1.5-pro">gemini-1.5-pro</option>
@@ -75,11 +126,13 @@ export default function SettingsPage() {
           {/* Connection status */}
           <div className="flex items-center justify-between pt-2 border-t border-zinc-800">
             <div className="flex items-center gap-2">
-              <StatusDot status={geminiStatus?.status ?? 'offline'} />
+              <StatusDot status={isGeminiConfigured ? 'online' : 'offline'} />
               <span className="text-xs text-zinc-500">
-                {geminiStatus?.status === 'online'
-                  ? `Connected · ${geminiStatus.latencyMs}ms`
-                  : 'Not connected'}
+                {offline
+                  ? 'Backend offline'
+                  : isGeminiConfigured
+                  ? 'Connected via server environment'
+                  : 'Missing GEMINI_API_KEY in .env'}
               </span>
             </div>
             <a
@@ -107,17 +160,25 @@ export default function SettingsPage() {
               <Github className="w-5 h-5 text-zinc-300" />
             </div>
             <div>
-              <p className="text-sm font-medium text-zinc-200">arx-dev15</p>
-              <p className="text-xs text-zinc-500">Connected account</p>
+              <p className="text-sm font-medium text-zinc-200">
+                {isGithubConfigured ? 'GitHub PAT Active' : 'No Account Connected'}
+              </p>
+              <p className="text-xs text-zinc-500">
+                {isGithubConfigured ? 'Connected account via environment' : 'Configure GITHUB_TOKEN in .env'}
+              </p>
             </div>
-            <Badge variant="success" className="ml-auto">Connected</Badge>
+            <Badge variant={isGithubConfigured ? 'success' : 'default'} className="ml-auto">
+              {isGithubConfigured ? 'Connected' : 'Unavailable'}
+            </Badge>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-xs font-medium text-zinc-400 block mb-2">Personal Access Token</label>
               <div className="bg-zinc-800 border border-zinc-700 rounded px-3 py-2">
-                <code className="text-xs font-mono text-zinc-400">ghp_••••••••••••••••••••••••</code>
+                <code className="text-xs font-mono text-zinc-400">
+                  {isGithubConfigured ? 'ghp_••••••••••••••••••••' : 'Not configured'}
+                </code>
               </div>
             </div>
             <div>
@@ -131,14 +192,45 @@ export default function SettingsPage() {
 
           <div className="flex items-center justify-between pt-2 border-t border-zinc-800">
             <div className="flex items-center gap-2">
-              <StatusDot status={githubStatus?.status ?? 'offline'} />
+              <StatusDot status={isGithubConfigured ? 'online' : 'offline'} />
               <span className="text-xs text-zinc-500">
-                {githubStatus?.status === 'online'
-                  ? `API reachable · ${githubStatus.latencyMs}ms`
-                  : 'Unreachable'}
+                {offline
+                  ? 'Backend offline'
+                  : isGithubConfigured
+                  ? 'GitHub token detected'
+                  : 'Not configured'}
               </span>
             </div>
-            <Button variant="ghost" size="sm">Reconnect</Button>
+          </div>
+        </Card>
+      </section>
+
+      {/* Database & Persistence */}
+      <section className="space-y-3">
+        <div className="flex items-center gap-2">
+          <Database className="w-4 h-4 text-zinc-400" />
+          <h2 className="text-sm font-semibold text-zinc-200">Storage & Persistence</h2>
+        </div>
+
+        <Card className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-zinc-200">Authoritative Execution Lifecycle</p>
+              <p className="text-xs text-zinc-500">Canonical filesystem storage at .aegis/runs/</p>
+            </div>
+            <Badge variant="success">Active</Badge>
+          </div>
+          <div className="flex items-center justify-between pt-2 border-t border-zinc-800 text-xs text-zinc-400">
+            <span>Database Backend:</span>
+            <span className="font-mono text-zinc-300">
+              {offline
+                ? 'Unavailable'
+                : health?.db === 'connected'
+                ? 'PostgreSQL Connected'
+                : health?.db === 'disabled'
+                ? 'In-Memory / SQLite (SKIP_DB)'
+                : 'Unreachable'}
+            </span>
           </div>
         </Card>
       </section>

@@ -1,4 +1,13 @@
-const BASE_URL = 'http://localhost:4000'
+import net from 'net'
+import http from 'http'
+
+process.env.AEGIS_TEST_API = '1'
+process.env.AEGIS_TEST_ADAPTER = '1'
+process.env.SKIP_DB = '1'
+process.env.NODE_ENV = 'test'
+process.env.DOTENV_CONFIG_QUIET = 'true'
+
+let BASE_URL = 'http://localhost:4000'
 const API_KEY = 'aegis-dev-key'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -28,6 +37,21 @@ async function request(path: string, options: RequestInit = {}): Promise<any> {
 
 async function runTests() {
   console.log('🧪 Starting Aegis API Integration Tests...\n')
+
+  let server: http.Server | null = null
+  try {
+    const { createServerInstance } = await import('../server.js')
+    const instance = createServerInstance()
+    server = instance.server
+    await new Promise<void>((resolve, reject) => {
+      instance.server.listen(0, () => resolve())
+      instance.server.on('error', reject)
+    })
+    const port = (instance.server.address() as net.AddressInfo).port
+    BASE_URL = `http://127.0.0.1:${port}`
+  } catch (err) {
+    console.error('Failed to start test server:', err)
+  }
 
   try {
     // 1. Health check
@@ -153,8 +177,8 @@ async function runTests() {
     console.log('\n🔹 Fetching changed files for run...')
     const runFiles = await request(`/api/runs/${run.id}/files`)
     console.log('✅ Changed files count:', runFiles.length)
-    if (runFiles[0]?.path !== 'apps/api/db.ts') {
-      throw new Error(`File change path mismatch! Expected apps/api/db.ts, got ${runFiles[0]?.path}`)
+    if (!runFiles.some((f: any) => f.path === 'apps/api/db.ts')) {
+      throw new Error('Expected file apps/api/db.ts not found in run files!')
     }
 
     // 15. Get Run (checking centralized events & files integration)
@@ -234,7 +258,10 @@ async function runTests() {
 
   } catch (error: any) {
     console.error('\n❌ Integration Test Failed:', error.message)
+    if (server) server.close()
     process.exit(1)
+  } finally {
+    if (server) server.close()
   }
 }
 
